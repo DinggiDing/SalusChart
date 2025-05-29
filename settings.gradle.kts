@@ -21,6 +21,11 @@ dependencyResolutionManagement {
 
 rootProject.name = "SalusChart"
 include(":app")
-include(":core")
-include(":ui")
-include(":data")
+include(":core:chart")
+include(":core:transform")
+include(":core:dsl")
+include(":core:util")
+include(":data:model")
+include(":data:provider")
+include(":ui:compose")
+include(":ui:theme")
