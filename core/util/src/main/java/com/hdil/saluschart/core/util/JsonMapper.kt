@@ -1,5 +1,7 @@
 package com.hdil.saluschart.core.util
 
+import com.hdil.saluschart.core.chart.ChartPoint
+
 object JsonMapper {
     fun mapJsonToChartPoints(json: String): List<ChartPoint> {
         // This is a placeholder for actual JSON parsing logic.
