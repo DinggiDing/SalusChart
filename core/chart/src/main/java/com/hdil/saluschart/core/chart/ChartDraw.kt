@@ -15,7 +15,7 @@ object ChartDraw {
             val yVal = metrics.minY + i * step
             val y = metrics.chartHeight - ((yVal - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
             drawScope.drawLine(
-                color = androidx.compose.ui.graphics.Color.LightGray,
+                color = Color.LightGray,
                 start = Offset(metrics.paddingX, y),
                 end = Offset(size.width, y),
                 strokeWidth = 1f
