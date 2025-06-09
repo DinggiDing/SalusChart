@@ -9,6 +9,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 
 object ChartDraw {
+    /**
+     * 데이터 포인트를 화면 좌표로 변환합니다.
+     *
+     * @param data 차트 데이터 포인트 목록
+     * @param size Canvas의 전체 크기
+     * @param metrics 차트 메트릭 정보
+     * @return 화면 좌표로 변환된 Offset 목록
+     */
     fun drawGrid(drawScope: DrawScope, size: Size, metrics: ChartMath.ChartMetrics) {
         val step = (metrics.maxY - metrics.minY) / 5
         for (i in 0..5) {
@@ -32,6 +40,13 @@ object ChartDraw {
         }
     }
 
+    /**
+     * 데이터 포인트를 연결하는 라인을 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param points 화면 좌표로 변환된 데이터 포인트 목록
+     * @param color 라인 색상
+     */
     fun drawLinePath(drawScope: DrawScope, points: List<Offset>, color: Color) {
         val path = androidx.compose.ui.graphics.Path().apply {
             moveTo(points.first().x, points.first().y)
@@ -40,6 +55,13 @@ object ChartDraw {
         drawScope.drawPath(path, color = color, style = Stroke(width = 4f))
     }
 
+    /**
+     * 각 데이터 포인트를 원으로 표시하고 값을 레이블로 표시합니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param points 화면 좌표로 변환된 데이터 포인트 목록
+     * @param values 데이터 포인트의 Y축 값 목록
+     */
     fun drawPoints(drawScope: DrawScope, points: List<Offset>, values: List<Float>) {
         points.forEachIndexed { i, point ->
             drawScope.drawCircle(color = Color.Blue, radius = 8f, center = point)
@@ -55,6 +77,13 @@ object ChartDraw {
         }
     }
 
+    /**
+     * X축 레이블을 그립니다.
+     *
+     * @param ctx 그리기 컨텍스트
+     * @param labels X축에 표시할 레이블 목록
+     * @param metrics 차트 메트릭 정보
+     */
     fun drawXAxisLabels(ctx: DrawContext, labels: List<String>, metrics: ChartMath.ChartMetrics) {
         val spacing = metrics.chartWidth / (labels.size - 1)
         labels.forEachIndexed { i, label ->

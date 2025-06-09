@@ -8,15 +8,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartDraw
 import com.hdil.saluschart.core.chart.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.ui.theme.ChartColor
+import kotlin.comparisons.then
 
 @Composable
 fun LineChart(
@@ -25,7 +28,9 @@ fun LineChart(
     xLabel: String = "Time",
     yLabel: String = "Value",
     title: String = "Line Chart Example",
-    lineColor: androidx.compose.ui.graphics.Color = ChartColor.Default
+    lineColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
+    width: Dp = 250.dp,
+    height: Dp = 250.dp
 ) {
     if (data.isEmpty()) return
 
@@ -36,7 +41,11 @@ fun LineChart(
         Text(title, style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
 
-        Box(Modifier.fillMaxWidth().height(250.dp)) {
+        Box(
+            Modifier
+                .width(width)
+                .height(height)
+        ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val metrics = ChartMath.computeMetrics(size, yValues)
                 val points = ChartMath.mapToCanvasPoints(data, size, metrics)
@@ -49,7 +58,5 @@ fun LineChart(
         }
 
         Spacer(Modifier.height(4.dp))
-        Text("X축: $xLabel", style = MaterialTheme.typography.labelMedium)
-        Text("Y축: $yLabel", style = MaterialTheme.typography.labelMedium)
     }
 }
