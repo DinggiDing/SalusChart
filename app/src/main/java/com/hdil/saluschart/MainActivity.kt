@@ -27,7 +27,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.ui.compose.charts.LineChart
+import com.hdil.saluschart.ui.compose.charts.ScatterPlot
 import com.hdil.saluschart.ui.theme.SalusChartTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+
+
+import kotlin.text.toInt
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,8 +52,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
 fun SampleCharts(modifier: Modifier = Modifier) {
+    // 차트 타입 선택 상태 관리
+    var selectedChartType by remember { mutableStateOf("Line") }
+
     // 기본적인 raw 데이터로 차트 그리기
     val sampleData = listOf(10f, 25f, 40f, 20f, 35f, 55f, 45f)
     val weekDays = listOf("월", "화", "수", "목", "금", "토", "일")
@@ -65,6 +76,26 @@ fun SampleCharts(modifier: Modifier = Modifier) {
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // 차트 타입 선택 토글 버튼
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            SingleChoiceSegmentedButtonRow {
+                SegmentedButton(
+                    selected = selectedChartType == "Line",
+                    onClick = { selectedChartType = "Line" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                    label = { Text("Line Chart") }
+                )
+                SegmentedButton(
+                    selected = selectedChartType == "Scatter",
+                    onClick = { selectedChartType = "Scatter" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                    label = { Text("Scatter Plot") }
+                )
+            }
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -134,14 +165,29 @@ fun SampleCharts(modifier: Modifier = Modifier) {
             )
         }
 
-        LineChart(
-            data = chartPoints,
-            title = "기본 라인 차트 예제",
-            yLabel = "활동량",
-            xLabel = "요일",
-            width = selectedWidth,
-            height = selectedHeight
-        )
+        // 선택된 차트 타입에 따라 다른 차트 표시
+        when (selectedChartType) {
+            "Line" -> {
+                LineChart(
+                    data = chartPoints,
+                    title = "요일별 활동량",
+                    yLabel = "활동량",
+                    xLabel = "요일",
+                    width = selectedWidth,
+                    height = selectedHeight
+                )
+            }
+            "Scatter" -> {
+                ScatterPlot(
+                    data = chartPoints,
+                    title = "요일별 활동량",
+                    yLabel = "활동량",
+                    xLabel = "요일",
+                    width = selectedWidth,
+                    height = selectedHeight
+                )
+            }
+        }
     }
 }
 
