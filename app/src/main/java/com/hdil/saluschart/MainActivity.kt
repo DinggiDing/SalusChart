@@ -32,6 +32,7 @@ import com.hdil.saluschart.ui.theme.SalusChartTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import com.hdil.saluschart.ui.compose.charts.BarChart
 
 
 import kotlin.text.toInt
@@ -85,14 +86,20 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 SegmentedButton(
                     selected = selectedChartType == "Line",
                     onClick = { selectedChartType = "Line" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
                     label = { Text("Line Chart") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Scatter",
                     onClick = { selectedChartType = "Scatter" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
                     label = { Text("Scatter Plot") }
+                )
+                SegmentedButton(
+                    selected = selectedChartType == "Bar",
+                    onClick = { selectedChartType = "Bar" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+                    label = { Text("Bar Chart") }
                 )
             }
         }
@@ -179,6 +186,16 @@ fun SampleCharts(modifier: Modifier = Modifier) {
             }
             "Scatter" -> {
                 ScatterPlot(
+                    data = chartPoints,
+                    title = "요일별 활동량",
+                    yLabel = "활동량",
+                    xLabel = "요일",
+                    width = selectedWidth,
+                    height = selectedHeight
+                )
+            }
+            "Bar" -> {
+                BarChart(
                     data = chartPoints,
                     title = "요일별 활동량",
                     yLabel = "활동량",
