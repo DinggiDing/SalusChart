@@ -78,7 +78,7 @@ object ChartDraw {
     }
 
     /**
-     * X축 레이블을 그립니다.
+     * X축 레이블을 그립니다 (라인차트용 - 첫 번째 레이블이 왼쪽 끝에서 시작).
      *
      * @param ctx 그리기 컨텍스트
      * @param labels X축에 표시할 레이블 목록
@@ -105,20 +105,48 @@ object ChartDraw {
     }
 
     /**
+     * 바차트용 X축 레이블을 그립니다 (첫 번째 레이블이 바 너비의 절반만큼 오른쪽에서 시작).
+     *
+     * @param ctx 그리기 컨텍스트
+     * @param labels X축에 표시할 레이블 목록
+     * @param metrics 차트 메트릭 정보
+     * @param centered 텍스트를 중앙 정렬할지 여부 (기본값: true)
+     */
+    fun drawBarXAxisLabels(ctx: DrawContext, labels: List<String>, metrics: ChartMath.ChartMetrics, centered: Boolean = true) {
+        val barWidth = metrics.chartWidth / labels.size / 2
+        val spacing = metrics.chartWidth / labels.size
+        labels.forEachIndexed { i, label ->
+            val x = metrics.paddingX + barWidth + i * spacing  // 바 너비의 절반만큼 오른쪽으로 시프트
+            ctx.canvas.nativeCanvas.drawText(
+                label,
+                x,
+                metrics.chartHeight + 50f,
+                android.graphics.Paint().apply {
+                    color = android.graphics.Color.DKGRAY
+                    textSize = 28f
+                    if (centered) {
+                        textAlign = android.graphics.Paint.Align.CENTER
+                    }
+                }
+            )
+        }
+    }
+
+    /**
      * 바차트의 막대들을 그립니다.
      *
      * @param drawScope 그리기 영역
-     * @param centerPoints 바의 중심점 목록 (mapToCanvasPoints 결과)
      * @param values 원본 데이터 값 목록
      * @param metrics 차트 메트릭 정보
      * @param color 바 색상
      */
-    fun drawBars(drawScope: DrawScope, centerPoints: List<Offset>, values: List<Float>, metrics: ChartMath.ChartMetrics, color: Color) {
-        val barWidth = metrics.chartWidth / centerPoints.size / 2
+    fun drawBars(drawScope: DrawScope, values: List<Float>, metrics: ChartMath.ChartMetrics, color: Color) {
+        val barWidth = metrics.chartWidth / values.size / 2
+        val spacing = metrics.chartWidth / values.size
         
-        centerPoints.forEachIndexed { i, centerPoint ->
-            val barHeight = ((values[i] - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
-            val barX = centerPoint.x - barWidth / 2  // Center점에서 너비의 절반만큼 왼쪽으로
+        values.forEachIndexed { i, value ->
+            val barHeight = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+            val barX = metrics.paddingX + barWidth / 2 + i * spacing  // Y축과 겹치지 않도록 시프트
             val barY = metrics.chartHeight - barHeight
             
             drawScope.drawRect(

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+
+    <!-- === NAMING CONVENTIONS === -->
+    <issue id="MethodName" severity="error" />
+    <issue id="ParameterName" severity="warning" />
+    <issue id="LocalVariableName" severity="warning" />
+    <issue id="ConstantName" severity="warning" />
+
+    <!-- === CODE ORGANIZATION === -->
+    <issue id="KotlinUnusedImport" severity="error" />
+    <issue id="UnusedVariable" severity="warning" />
+    <issue id="UnusedParameter" severity="warning" />
+
+    <!-- === KOTLIN BEST PRACTICES === -->
+    <issue id="KotlinPropertyAccess" severity="warning" />
+    <issue id="KotlinRedundantDiagnosticSuppress" severity="warning" />
+
+    <!-- === FORMATTING & STYLE (Warnings) === -->
+    <issue id="SpacingAroundCurly" severity="warning" />
+    <issue id="SpacingAroundComma" severity="warning" />
+    <issue id="SpacingAroundOperators" severity="warning" />
+    <issue id="SpacingAroundParens" severity="warning" />
+    <issue id="SpacingAroundKeyword" severity="warning" />
+
+    <!-- === COMMENT STYLE === -->
+    <issue id="CommentByLine" severity="informational" />
+    <issue id="TypographyOther" severity="informational" />
+
+    <!-- === CODE QUALITY === -->
+    <issue id="CommentedOutCode" severity="warning" />
+
+    <!-- CONSISTENT VARIABLE NAMING -->
+    <issue id="VariableNaming" severity="warning" />
+
+    <!-- === PERFORMANCE === -->
+    <issue id="DrawAllocation" severity="warning" />
+    <issue id="Recycle" severity="error" />
+
+    <!-- === SECURITY === -->
+    <issue id="HardcodedDebugMode" severity="error" />
+
+    <!-- === RESOURCE NAMING === -->
+    <issue id="ResourceName" severity="warning" />
+
+    <!-- === COMPOSE-SPECIFIC RULES === -->
+    <issue id="ComposeUnstableReceiver" severity="warning" />
+    <issue id="ComposeCompositionLocalUsage" severity="warning" />
+    <issue id="ComposeModifierMissing" severity="informational" />
+
+    <!-- === TEAM CONSISTENCY RULES === -->
+    <issue id="StopShip" severity="error" />
+
+    <!-- Style preferences -->
+    <issue id="Indentation" severity="warning" />
+    <issue id="StringFormatMatches" severity="warning" />
+    <issue id="StringFormatCount" severity="warning" />
+
+    <!-- === DISABLE OVERLY STRICT RULES === -->
+    <issue id="HardcodedText" severity="ignore" />
+    <issue id="ContentDescription" severity="informational" />
+    <issue id="IconMissingDensityFolder" severity="informational" />
+    <issue id="UnusedResources" severity="informational" />
+
+</lint> 

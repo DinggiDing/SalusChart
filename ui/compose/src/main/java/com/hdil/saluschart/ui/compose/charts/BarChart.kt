@@ -47,12 +47,11 @@ fun BarChart(
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val metrics = ChartMath.computeMetrics(size, yValues)
-                val centerPoints = ChartMath.mapToCanvasPoints(data, size, metrics)
 
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.drawAxes(this, metrics)
-                ChartDraw.drawBars(this, centerPoints, yValues, metrics, barColor)
-                ChartDraw.drawXAxisLabels(drawContext, xLabels, metrics)
+                ChartDraw.drawBars(this, yValues, metrics, barColor)
+                ChartDraw.drawBarXAxisLabels(drawContext, xLabels, metrics)
             }
         }
 

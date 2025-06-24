@@ -37,6 +37,26 @@ android {
     buildFeatures {
         compose = true
     }
+    
+    lint {
+        lintConfig = file("../lint.xml")
+        abortOnError = false
+        warningsAsErrors = false
+        checkAllWarnings = true
+        ignoreWarnings = false
+        quiet = false
+        
+        // HTML and XML reports
+        htmlReport = true
+        xmlReport = true
+        
+        // Console output
+        textReport = true
+        textOutput = file("stdout")
+        
+        // Baseline file for managing existing issues
+        baseline = file("lint-baseline.xml")
+    }
 }
 
 dependencies {
