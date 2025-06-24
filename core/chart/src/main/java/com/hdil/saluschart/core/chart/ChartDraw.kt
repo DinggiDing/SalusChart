@@ -83,20 +83,73 @@ object ChartDraw {
      * @param ctx 그리기 컨텍스트
      * @param labels X축에 표시할 레이블 목록
      * @param metrics 차트 메트릭 정보
+     * @param centered 텍스트를 중앙 정렬할지 여부 (기본값: true)
      */
-    fun drawXAxisLabels(ctx: DrawContext, labels: List<String>, metrics: ChartMath.ChartMetrics) {
+    fun drawXAxisLabels(ctx: DrawContext, labels: List<String>, metrics: ChartMath.ChartMetrics, centered: Boolean = true) {
         val spacing = metrics.chartWidth / (labels.size - 1)
         labels.forEachIndexed { i, label ->
             val x = metrics.paddingX + i * spacing
             ctx.canvas.nativeCanvas.drawText(
                 label,
-                x - 20f,
+                x,
                 metrics.chartHeight + 50f,
                 android.graphics.Paint().apply {
                     color = android.graphics.Color.DKGRAY
                     textSize = 28f
+                    if (centered) {
+                        textAlign = android.graphics.Paint.Align.CENTER
+                    }
                 }
             )
         }
+    }
+
+    /**
+     * 바차트의 막대들을 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param centerPoints 바의 중심점 목록 (mapToCanvasPoints 결과)
+     * @param values 원본 데이터 값 목록
+     * @param metrics 차트 메트릭 정보
+     * @param color 바 색상
+     */
+    fun drawBars(drawScope: DrawScope, centerPoints: List<Offset>, values: List<Float>, metrics: ChartMath.ChartMetrics, color: Color) {
+        val barWidth = metrics.chartWidth / centerPoints.size / 2
+        
+        centerPoints.forEachIndexed { i, centerPoint ->
+            val barHeight = ((values[i] - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+            val barX = centerPoint.x - barWidth / 2  // Center점에서 너비의 절반만큼 왼쪽으로
+            val barY = metrics.chartHeight - barHeight
+            
+            drawScope.drawRect(
+                color = color,
+                topLeft = Offset(barX, barY),
+                size = Size(barWidth, barHeight)
+            )
+        }
+    }
+
+    /**
+     * X축과 Y축 라인을 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param metrics 차트 메트릭 정보
+     */
+    fun drawAxes(drawScope: DrawScope, metrics: ChartMath.ChartMetrics) {
+        // Y축 (세로줄)
+        drawScope.drawLine(
+            color = Color.Black,
+            start = Offset(metrics.paddingX, 0f),
+            end = Offset(metrics.paddingX, metrics.chartHeight),
+            strokeWidth = 2f
+        )
+        
+        // X축 (가로줄)
+        drawScope.drawLine(
+            color = Color.Black,
+            start = Offset(metrics.paddingX, metrics.chartHeight),
+            end = Offset(metrics.paddingX + metrics.chartWidth, metrics.chartHeight),
+            strokeWidth = 2f
+        )
     }
 }
