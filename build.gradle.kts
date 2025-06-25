@@ -12,22 +12,22 @@ subprojects {
     afterEvaluate {
         if (plugins.hasPlugin("com.android.application") || plugins.hasPlugin("com.android.library")) {
             configure<com.android.build.gradle.BaseExtension> {
-                lint {
-                    lintConfig = rootProject.file("lint.xml")
-                    abortOnError = false
-                    warningsAsErrors = false
-                    checkAllWarnings = true
-                    ignoreWarnings = false
-                    quiet = false
-                    
-                    // Generate reports
-                    htmlReport = true
-                    xmlReport = true
-                    textReport = true
-                    
-                    // Baseline for managing existing issues  
-                    baseline = file("lint-baseline.xml")
-                }
+//                lint {
+//                    lintConfig = rootProject.file("lint.xml")
+//                    abortOnError = false
+//                    warningsAsErrors = false
+//                    checkAllWarnings = true
+//                    ignoreWarnings = false
+//                    quiet = false
+//
+//                    // Generate reports
+//                    htmlReport = true
+//                    xmlReport = true
+//                    textReport = true
+//
+//                    // Baseline for managing existing issues
+//                    baseline = file("lint-baseline.xml")
+//                }
             }
         }
     }

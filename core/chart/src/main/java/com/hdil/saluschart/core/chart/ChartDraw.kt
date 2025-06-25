@@ -7,6 +7,10 @@ import androidx.compose.ui.graphics.drawscope.DrawContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import java.time.DayOfWeek
+import java.time.format.TextStyle
+import java.util.*
+import kotlin.collections.plusAssign
 
 object ChartDraw {
     /**
@@ -179,5 +183,333 @@ object ChartDraw {
             end = Offset(metrics.paddingX + metrics.chartWidth, metrics.chartHeight),
             strokeWidth = 2f
         )
+    }
+
+    /**
+     * 파이 차트의 개별 섹션을 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param center 원의 중심점
+     * @param radius 원의 반지름
+     * @param startAngle 시작 각도
+     * @param sweepAngle 호의 각도
+     * @param color 섹션 색상
+     * @param isDonut 도넛 형태로 그릴지 여부
+     * @param strokeWidth 도넛일 경우 테두리 두께
+     */
+     fun drawPieSection(
+        drawScope: DrawScope,
+        center: Offset,
+        radius: Float,
+        startAngle: Float,
+        sweepAngle: Float,
+        color: Color,
+        isDonut: Boolean,
+        strokeWidth: Float
+    ) {
+        if (isDonut) {
+            // 도넛 형태로 그리기
+            drawScope.drawArc(
+                color = color,
+                startAngle = startAngle,
+                sweepAngle = sweepAngle,
+                useCenter = false,
+                topLeft = Offset(center.x - radius, center.y - radius),
+                size = Size(radius * 2, radius * 2),
+                style = Stroke(width = strokeWidth)
+            )
+        } else {
+            // 일반 파이 차트로 그리기
+            drawScope.drawArc(
+                color = color,
+                startAngle = startAngle,
+                sweepAngle = sweepAngle,
+                useCenter = true,
+                topLeft = Offset(center.x - radius, center.y - radius),
+                size = Size(radius * 2, radius * 2)
+            )
+        }
+    }
+
+    /**
+     * 파이 차트의 라벨을 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param center 원의 중심점
+     * @param radius 원의 반지름
+     * @param data 차트 데이터 포인트 목록
+     * @param sections 계산된 섹션 정보 목록
+     */
+     fun drawPieLabels(
+        drawScope: DrawScope,
+        center: Offset,
+        radius: Float,
+        data: List<ChartPoint>,
+        sections: List<Triple<Float, Float, Float>>
+    ) {
+        sections.forEachIndexed { i, (startAngle, sweepAngle, _) ->
+            val point = data[i]
+            // 레이블이 있는 경우, 파이 차트 조각 가운데에 레이블 표시
+            if (point.label != null) {
+                // 현재 조각의 중앙 각도
+                val midAngle = startAngle + sweepAngle / 2
+
+                // 레이블 위치 계산
+                val labelPos = ChartMath.calculateLabelPosition(center, radius, 0.7f, midAngle)
+
+                // 레이블 그리기
+                drawScope.drawContext.canvas.nativeCanvas.drawText(
+                    point.label,
+                    labelPos.x,
+                    labelPos.y,
+                    android.graphics.Paint().apply {
+                        color = android.graphics.Color.BLACK
+                        textSize = 30f
+                        textAlign = android.graphics.Paint.Align.CENTER
+                    }
+                )
+            }
+        }
+    }
+
+    /**
+     * 파이 차트의 범례를 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param data 차트 데이터 포인트 목록
+     * @param colors 각 조각에 사용한 색상 목록
+     * @param position 범례가 표시될 위치 좌표
+     * @param itemHeight 항목 간 세로 간격
+     */
+    fun drawPieLegend(
+        drawScope: DrawScope,
+        data: List<ChartPoint>,
+        colors: List<Color>,
+        position: Offset,
+        itemHeight: Float = 40f
+    ) {
+        val colorBoxSize = 16f
+        val padding = 8f
+        var yOffset = position.y
+
+        data.forEachIndexed { i, point ->
+            val colorIndex = i % colors.size
+            drawLegendItem(
+                drawScope,
+                colors[colorIndex],
+                point.label ?: "항목 ${i+1}",
+                Offset(position.x, yOffset),
+                colorBoxSize,
+                padding
+            )
+            yOffset += itemHeight
+        }
+    }
+
+    /**
+     * 범례의 개별 항목을 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param color 색상
+     * @param label 레이블 텍스트
+     * @param position 항목이 표시될 위치
+     * @param boxSize 색상 상자 크기
+     * @param padding 상자와 텍스트 사이 간격
+     */
+    fun drawLegendItem(
+        drawScope: DrawScope,
+        color: Color,
+        label: String,
+        position: Offset,
+        boxSize: Float,
+        padding: Float
+    ) {
+        // 색상 상자 그리기
+        drawScope.drawRect(
+            color = color,
+            topLeft = position,
+            size = Size(boxSize, boxSize)
+        )
+
+        // 레이블 그리기
+        drawScope.drawContext.canvas.nativeCanvas.drawText(
+            label,
+            position.x + boxSize + padding,
+            position.y + boxSize,
+            android.graphics.Paint().apply {
+                this.color = android.graphics.Color.DKGRAY
+                textSize = 30f
+            }
+        )
+    }
+
+    /**
+     * 캘린더 차트의 월 헤더를 그립니다.
+     *
+     * @param ctx 그리기 컨텍스트
+     * @param monthName 월 이름
+     * @param year 년도
+     * @param width 너비
+     * @param textColor 텍스트 색상
+     */
+    fun drawCalendarHeader(
+        ctx: DrawContext,
+        monthName: String,
+        year: Int,
+        width: Float,
+        textColor: Int = android.graphics.Color.BLACK
+    ) {
+        val headerText = "$monthName $year"
+        ctx.canvas.nativeCanvas.drawText(
+            headerText,
+            width / 2,
+            50f,
+            android.graphics.Paint().apply {
+                color = textColor
+                textSize = 40f
+                textAlign = android.graphics.Paint.Align.CENTER
+                isFakeBoldText = true
+            }
+        )
+    }
+
+    /**
+     * 캘린더 차트의 요일 헤더를 그립니다.
+     *
+     * @param ctx 그리기 컨텍스트
+     * @param dayOfWeeks 요일 목록
+     * @param width 너비
+     * @param cellWidth 각 셀 너비
+     * @param y Y 좌표 위치
+     * @param weekendColor 주말 텍스트 색상
+     * @param weekdayColor 평일 텍스트 색상
+     * @param locale 로케일
+     */
+    fun drawCalendarDayHeaders(
+        ctx: DrawContext,
+        dayOfWeeks: Array<DayOfWeek>,
+        width: Float,
+        cellWidth: Float,
+        y: Float = 80f,
+        weekendColor: Int = android.graphics.Color.RED,
+        weekdayColor: Int = android.graphics.Color.BLACK,
+        locale: Locale = Locale.getDefault()
+    ) {
+        dayOfWeeks.forEachIndexed { index, dayOfWeek ->
+            val x = cellWidth * (index + 0.5f)
+            val isWeekend = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
+
+            ctx.canvas.nativeCanvas.drawText(
+                dayOfWeek.getDisplayName(TextStyle.SHORT, locale),
+                x,
+                y,
+                android.graphics.Paint().apply {
+                    color = if (isWeekend) weekendColor else weekdayColor
+                    textSize = 30f
+                    textAlign = android.graphics.Paint.Align.CENTER
+                    isFakeBoldText = true
+                }
+            )
+        }
+    }
+
+    /**
+     * 캘린더 차트의 날짜를 그립니다.
+     *
+     * @param ctx 그리기 컨텍스트
+     * @param day 날짜
+     * @param x X 좌표
+     * @param y Y 좌표
+     * @param isWeekend 주말 여부
+     * @param textColor 텍스트 색상
+     * @param weekendColor 주말 텍스트 색상
+     */
+    fun drawCalendarDay(
+        ctx: DrawContext,
+        day: Int,
+        x: Float,
+        y: Float,
+        isWeekend: Boolean = false,
+        textColor: Int = android.graphics.Color.BLACK,
+        weekendColor: Int = android.graphics.Color.RED
+    ) {
+        ctx.canvas.nativeCanvas.drawText(
+            day.toString(),
+            x,
+            y,
+            android.graphics.Paint().apply {
+                color = if (isWeekend) weekendColor else textColor
+                textSize = 28f
+                textAlign = android.graphics.Paint.Align.CENTER
+            }
+        )
+    }
+
+    /**
+     * 캘린더 차트의 데이터 포인트를 원으로 표시합니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param x X 좌표
+     * @param y Y 좌표
+     * @param radius 원 반지름
+     * @param color 원 색상
+     */
+    fun drawCalendarDataPoint(
+        drawScope: DrawScope,
+        x: Float,
+        y: Float,
+        radius: Float,
+        color: Color
+    ) {
+        drawScope.drawCircle(
+            color = color,
+            radius = radius,
+            center = Offset(x, y)
+        )
+    }
+
+    /**
+     * 캘린더 그리드를 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param cellWidth 셀 너비
+     * @param cellHeight 셀 높이
+     * @param rows 행 수
+     * @param columns 열 수
+     * @param startX 시작 X 좌표
+     * @param startY 시작 Y 좌표
+     * @param gridColor 그리드 선 색상
+     */
+    fun drawCalendarGrid(
+        drawScope: DrawScope,
+        cellWidth: Float,
+        cellHeight: Float,
+        rows: Int,
+        columns: Int = 7,
+        startX: Float = 0f,
+        startY: Float = 100f,
+        gridColor: Color = Color.LightGray
+    ) {
+        // 수평선 그리기
+        for (row in 0..rows) {
+            val y = startY + row * cellHeight
+            drawScope.drawLine(
+                color = gridColor,
+                start = Offset(startX, y),
+                end = Offset(startX + columns * cellWidth, y),
+                strokeWidth = 1f
+            )
+        }
+
+        // 수직선 그리기
+        for (col in 0..columns) {
+            val x = startX + col * cellWidth
+            drawScope.drawLine(
+                color = gridColor,
+                start = Offset(x, startY),
+                end = Offset(x, startY + rows * cellHeight),
+                strokeWidth = 1f
+            )
+        }
     }
 }

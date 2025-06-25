@@ -32,7 +32,13 @@ import com.hdil.saluschart.ui.theme.SalusChartTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.ui.graphics.Color
 import com.hdil.saluschart.ui.compose.charts.BarChart
+import com.hdil.saluschart.ui.compose.charts.CalendarChart
+import com.hdil.saluschart.ui.compose.charts.CalendarEntry
+import com.hdil.saluschart.ui.compose.charts.PieChart
+import java.time.LocalDate
+import java.time.YearMonth
 
 
 import kotlin.text.toInt
@@ -58,6 +64,32 @@ class MainActivity : ComponentActivity() {
 fun SampleCharts(modifier: Modifier = Modifier) {
     // 차트 타입 선택 상태 관리
     var selectedChartType by remember { mutableStateOf("Line") }
+
+//    // 현재 연월과 랜덤 데이터 생성
+    val yearMonth = YearMonth.now()
+//    val random = java.util.Random(0)
+//    val entries = (1..28).map { day ->
+//        val date = yearMonth.atDay(day)
+//        val value = random.nextFloat() * 100
+//        CalendarEntry(
+//            date = date,
+//            value = value,
+//            color = if (random.nextBoolean()) null else Color.Green
+//        )
+//    }
+    val startDate = LocalDate.of(yearMonth.year, 6, 1)
+    val endDate = LocalDate.of(yearMonth.year, 7, 15)
+    val random = java.util.Random(0)
+    val entries = generateSequence(startDate) { date ->
+        if (date.isBefore(endDate)) date.plusDays(1) else null
+    }.map { date ->
+        val value = random.nextFloat() * 100
+        CalendarEntry(
+            date = date,
+            value = value,
+            color = if (random.nextBoolean()) null else Color.Green
+        )
+    }.toList()
 
     // 기본적인 raw 데이터로 차트 그리기
     val sampleData = listOf(10f, 25f, 40f, 20f, 35f, 55f, 45f)
@@ -86,20 +118,32 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 SegmentedButton(
                     selected = selectedChartType == "Line",
                     onClick = { selectedChartType = "Line" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 5),
                     label = { Text("Line Chart") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Scatter",
                     onClick = { selectedChartType = "Scatter" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 5),
                     label = { Text("Scatter Plot") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Bar",
                     onClick = { selectedChartType = "Bar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 5),
                     label = { Text("Bar Chart") }
+                )
+                SegmentedButton(
+                    selected = selectedChartType == "Pie",
+                    onClick = { selectedChartType = "Pie" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 3, count = 5),
+                    label = { Text("Pie Chart") }
+                )
+                SegmentedButton(
+                    selected = selectedChartType == "Calendar",
+                    onClick = { selectedChartType = "Calendar" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 4, count = 5),
+                    label = { Text("Calendar Chart") }
                 )
             }
         }
@@ -200,6 +244,24 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     title = "요일별 활동량",
                     yLabel = "활동량",
                     xLabel = "요일",
+                    width = selectedWidth,
+                    height = selectedHeight
+                )
+            }
+            "Pie" -> {
+                PieChart(
+                    data = chartPoints,
+                    title = "요일별 활동량",
+                    isDonut = true,
+                    showLegend = true,
+                    width = selectedWidth,
+                    height = selectedHeight
+                )
+            }
+            "Calendar" -> {
+                CalendarChart(
+                    entries = entries,
+                    yearMonth = yearMonth,
                     width = selectedWidth,
                     height = selectedHeight
                 )
