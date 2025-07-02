@@ -148,4 +148,56 @@ object ChartMath {
         val normalizedValue = value / maxValue
         return minSize + (maxSize - minSize) * normalizedValue
     }
+
+    /**
+     * 범위 차트 그리기에 필요한 메트릭 값을 계산합니다.
+     *
+     * @param size Canvas의 전체 크기
+     * @param data 범위 차트 데이터 포인트 목록
+     * @return 차트 메트릭 객체
+     */
+    fun computeRangeMetrics(size: Size, data: List<RangeChartPoint>): ChartMetrics {
+        val paddingX = 60f
+        val paddingY = 40f
+        val chartWidth = size.width - paddingX
+        val chartHeight = size.height - paddingY
+        
+        val allYValues = data.flatMap { listOf(it.yMin, it.yMax) }
+        val maxY = allYValues.maxOrNull() ?: 1f
+        val minY = allYValues.minOrNull() ?: 0f
+        
+        return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, minY, maxY)
+    }
+
+
+    /**
+     * Computes “nice” Y-axis tick values (multiples of 1, 2, or 5 × 10^n) for a given range.
+     *
+     * @param minY The minimum data value (e.g. 0f)
+     * @param maxY The maximum data value
+     * @param tickCount Approximate number of intervals desired (default 5)
+     * @return A list of “nice” tick positions from niceMin to niceMax inclusive
+     */
+    fun computeYAxisTicks(
+      minY: Float,
+      maxY: Float,
+      tickCount: Int = 5
+    ): List<Float> {
+      // 1. Compute raw step
+      val rawStep = (maxY - minY) / tickCount
+      // 2. Determine power of ten
+      val power = 10f.pow(floor(log10(rawStep.toDouble())).toFloat())
+      // 3. Candidate multipliers
+      val candidates = listOf(1f, 2f, 5f).map { it * power }
+      // 4. Pick the best step
+      val step = candidates.minByOrNull { abs(it - rawStep) } ?: power
+      // 5. Compute nice boundaries
+      val niceMin = floor(minY / step) * step
+      val niceMax = ceil(maxY / step) * step
+      // 6. Generate sequence of ticks
+      return generateSequence(niceMin) { previous ->
+        val next = previous + step
+        if (next <= niceMax + 1e-6f) next else null
+      }.toList()
+    }
 }

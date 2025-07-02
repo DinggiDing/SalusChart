@@ -512,4 +512,90 @@ object ChartDraw {
             )
         }
     }
+
+    /**
+     * 범위 바 차트의 막대들을 그립니다.
+     * 각 막대는 yMin에서 yMax까지의 범위를 표시합니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param data 범위 차트 데이터 포인트 목록
+     * @param metrics 차트 메트릭 정보
+     * @param color 바 색상
+     * @param barWidthRatio 바 너비 비율 (0.0 ~ 1.0, 기본값 0.6)
+     */
+    fun drawRangeBars(
+        drawScope: DrawScope, 
+        data: List<RangeChartPoint>, 
+        metrics: ChartMath.ChartMetrics, 
+        color: Color,
+        barWidthRatio: Float = 0.6f
+    ) {
+        val barWidth = (metrics.chartWidth / data.size) * barWidthRatio
+        val spacing = metrics.chartWidth / data.size
+        
+        data.forEachIndexed { i, rangePoint ->
+            // yMin과 yMax를 화면 좌표로 변환
+            val yMinScreen = metrics.chartHeight - ((rangePoint.yMin - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+            val yMaxScreen = metrics.chartHeight - ((rangePoint.yMax - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+            
+            val barHeight = yMinScreen - yMaxScreen // 범위의 높이
+            val barX = metrics.paddingX + (spacing - barWidth) / 2 + i * spacing
+            
+            // 범위 바 그리기
+            drawScope.drawRect(
+                color = color,
+                topLeft = Offset(barX, yMaxScreen),
+                size = Size(barWidth, barHeight)
+            )
+        }
+    }
+
+
+
+    /**
+     * 범위 바 차트용 Y축 그리드를 그립니다.
+     * X축 라인은 그리지 않고 Y축 그리드와 레이블만 표시합니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param size Canvas의 전체 크기
+     * @param metrics 차트 메트릭 정보
+     */
+    fun drawRangeGrid(drawScope: DrawScope, size: Size, metrics: ChartMath.ChartMetrics) {
+        val step = (metrics.maxY - metrics.minY) / 5
+        for (i in 0..5) {
+            val yVal = metrics.minY + i * step
+            val y = metrics.chartHeight - ((yVal - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+            drawScope.drawLine(
+                color = Color.LightGray,
+                start = Offset(metrics.paddingX, y),
+                end = Offset(size.width, y),
+                strokeWidth = 1f
+            )
+            drawScope.drawContext.canvas.nativeCanvas.drawText(
+                "%.0f".format(yVal),
+                10f,
+                y + 10f,
+                android.graphics.Paint().apply {
+                    color = android.graphics.Color.DKGRAY
+                    textSize = 28f
+                }
+            )
+        }
+    }
+
+    /**
+     * 범위 바 차트용 Y축만 그립니다 (X축 라인 제외).
+     *
+     * @param drawScope 그리기 영역
+     * @param metrics 차트 메트릭 정보
+     */
+    fun drawRangeYAxis(drawScope: DrawScope, metrics: ChartMath.ChartMetrics) {
+        // Y축 (세로줄)만 그리기
+        drawScope.drawLine(
+            color = Color.Black,
+            start = Offset(metrics.paddingX, 0f),
+            end = Offset(metrics.paddingX, metrics.chartHeight),
+            strokeWidth = 2f
+        )
+    }
 }
