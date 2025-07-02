@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartPoint
+import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.ui.compose.charts.LineChart
 import com.hdil.saluschart.ui.compose.charts.ScatterPlot
 import com.hdil.saluschart.ui.theme.SalusChartTheme
@@ -37,6 +38,7 @@ import com.hdil.saluschart.ui.compose.charts.BarChart
 import com.hdil.saluschart.ui.compose.charts.CalendarChart
 import com.hdil.saluschart.ui.compose.charts.CalendarEntry
 import com.hdil.saluschart.ui.compose.charts.PieChart
+import com.hdil.saluschart.ui.compose.charts.RangeBarChart
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -118,31 +120,37 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 SegmentedButton(
                     selected = selectedChartType == "Line",
                     onClick = { selectedChartType = "Line" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 5),
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 6),
                     label = { Text("Line Chart") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Scatter",
                     onClick = { selectedChartType = "Scatter" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 5),
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 6),
                     label = { Text("Scatter Plot") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Bar",
                     onClick = { selectedChartType = "Bar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 5),
+                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 6),
                     label = { Text("Bar Chart") }
+                )
+                SegmentedButton(
+                    selected = selectedChartType == "Range",
+                    onClick = { selectedChartType = "Range" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 3, count = 6),
+                    label = { Text("Range Chart") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Pie",
                     onClick = { selectedChartType = "Pie" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 3, count = 5),
+                    shape = SegmentedButtonDefaults.itemShape(index = 4, count = 6),
                     label = { Text("Pie Chart") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Calendar",
                     onClick = { selectedChartType = "Calendar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 4, count = 5),
+                    shape = SegmentedButtonDefaults.itemShape(index = 5, count = 6),
                     label = { Text("Calendar Chart") }
                 )
             }
@@ -216,6 +224,18 @@ fun SampleCharts(modifier: Modifier = Modifier) {
             )
         }
 
+        // 범위 차트용 샘플 데이터 (심박수 범위 예시)
+        val rangeData = listOf(
+            RangeChartPoint(x = 0f, yMin = 54f, yMax = 160f, label = "2일"),
+            RangeChartPoint(x = 1f, yMin = 65f, yMax = 145f, label = "3일"),
+            RangeChartPoint(x = 2f, yMin = 58f, yMax = 125f, label = "4일"),
+            RangeChartPoint(x = 3f, yMin = 75f, yMax = 110f, label = "6일"),
+            RangeChartPoint(x = 4f, yMin = 68f, yMax = 162f, label = "7일"),
+            RangeChartPoint(x = 5f, yMin = 72f, yMax = 168f, label = "8일"),
+            RangeChartPoint(x = 6f, yMin = 65f, yMax = 138f, label = "9일"),
+            RangeChartPoint(x = 7f, yMin = 85f, yMax = 105f, label = "10일")
+        )
+
         // 선택된 차트 타입에 따라 다른 차트 표시
         when (selectedChartType) {
             "Line" -> {
@@ -246,6 +266,17 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     xLabel = "요일",
                     width = selectedWidth,
                     height = selectedHeight
+                )
+            }
+            "Range" -> {
+                RangeBarChart(
+                    data = rangeData,
+                    title = "일별 심박수 범위",
+                    yLabel = "심박수 (bpm)",
+                    xLabel = "날짜",
+                    width = selectedWidth,
+                    height = selectedHeight,
+                    barColor = Color(0xFFFF9800)
                 )
             }
             "Pie" -> {
