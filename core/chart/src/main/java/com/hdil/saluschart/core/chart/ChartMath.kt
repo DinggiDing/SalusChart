@@ -8,6 +8,7 @@ import kotlin.div
 import kotlin.text.toDouble
 import kotlin.text.toFloat
 import kotlin.times
+import kotlin.math.*
 
 object ChartMath {
     /**
@@ -19,24 +20,77 @@ object ChartMath {
      * @param chartHeight 차트의 실제 높이
      * @param minY Y축의 최소값
      * @param maxY Y축의 최대값
+     * @param yTicks Y축에 표시할 눈금 값들
      */
-    data class ChartMetrics(val paddingX: Float, val paddingY: Float, val chartWidth: Float, val chartHeight: Float, val minY: Float, val maxY: Float)
+    data class ChartMetrics(
+        val paddingX: Float, 
+        val paddingY: Float, 
+        val chartWidth: Float, 
+        val chartHeight: Float, 
+        val minY: Float, 
+        val maxY: Float,
+        val yTicks: List<Float>
+    )
+
+    /**
+     * y-axis 눈금 값들을 계산합니다. 
+     * 1, 2, 5의 배수를 사용하여 시각적으로 깔끔한 눈금을 생성합니다.
+     *
+     * @param min 데이터의 최소값
+     * @param max 데이터의 최대값
+     * @param tickCount 원하는 눈금 개수 (기본값: 5)
+     * @return 계산된 눈금 값들의 리스트
+     */
+    fun computeNiceTicks(min: Float, max: Float, tickCount: Int = 5): List<Float> {
+        if (min >= max) {
+            return listOf(0f, 1f)
+        }
+        val rawStep = (max - min) / tickCount.toDouble()
+        val power = 10.0.pow(floor(log10(rawStep)))
+        val candidates = listOf(1.0, 2.0, 5.0).map { it * power }
+        val step = candidates.minByOrNull { abs(it - rawStep) } ?: power
+
+        val niceMin = floor(min / step) * step
+        val niceMax = ceil(max / step) * step
+        
+        val ticks = mutableListOf<Float>()
+        var t = niceMin
+        while (t <= niceMax + 1e-6) {
+            // Fix floating-point precision issues
+            val roundedTick = round(t * 1000000) / 1000000
+            ticks.add(roundedTick.toFloat())
+            t += step
+        }
+        
+        return ticks
+    }
 
     /**
      * 차트 그리기에 필요한 메트릭 값을 계산합니다.
      *
      * @param size Canvas의 전체 크기
      * @param values 차트에 표시할 Y축 데이터 값 목록
+     * @param tickCount 원하는 Y축 눈금 개수 (기본값: 5)
      * @return 차트 메트릭 객체
      */
-    fun computeMetrics(size: Size, values: List<Float>): ChartMetrics {
+    fun computeMetrics(size: Size, values: List<Float>, tickCount: Int = 5): ChartMetrics { // 수정바람: tickCount = 5 고정 
         val paddingX = 60f
         val paddingY = 40f
         val chartWidth = size.width - paddingX
         val chartHeight = size.height - paddingY
-        val maxY = values.maxOrNull() ?: 1f
-        val minY = 0f
-        return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, minY, maxY)
+        
+        val dataMax = values.maxOrNull() ?: 1f
+        val dataMin = values.minOrNull() ?: 0f
+        
+        val minY = if (dataMin >= 0 && dataMin < dataMax * 0.1) 0f else dataMin
+        val maxY = dataMax
+        
+        val yTicks = computeNiceTicks(minY, maxY, tickCount)
+        
+        val actualMinY = yTicks.minOrNull() ?: minY
+        val actualMaxY = yTicks.maxOrNull() ?: maxY
+        
+        return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, actualMinY, actualMaxY, yTicks)
     }
 
     /**
@@ -154,50 +208,49 @@ object ChartMath {
      *
      * @param size Canvas의 전체 크기
      * @param data 범위 차트 데이터 포인트 목록
+     * @param tickCount 원하는 Y축 눈금 개수 (기본값: 5)
      * @return 차트 메트릭 객체
      */
-    fun computeRangeMetrics(size: Size, data: List<RangeChartPoint>): ChartMetrics {
+    fun computeRangeMetrics(size: Size, data: List<RangeChartPoint>, tickCount: Int = 5): ChartMetrics {
         val paddingX = 60f
         val paddingY = 40f
         val chartWidth = size.width - paddingX
         val chartHeight = size.height - paddingY
         
         val allYValues = data.flatMap { listOf(it.yMin, it.yMax) }
-        val maxY = allYValues.maxOrNull() ?: 1f
-        val minY = allYValues.minOrNull() ?: 0f
+        val dataMax = allYValues.maxOrNull() ?: 1f
+        val dataMin = allYValues.minOrNull() ?: 0f
         
-        return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, minY, maxY)
+        val yTicks = computeNiceTicks(dataMin, dataMax, tickCount)
+        
+        val actualMinY = yTicks.minOrNull() ?: dataMin
+        val actualMaxY = yTicks.maxOrNull() ?: dataMax
+        
+        return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, actualMinY, actualMaxY, yTicks)
     }
 
-
     /**
-     * Computes “nice” Y-axis tick values (multiples of 1, 2, or 5 × 10^n) for a given range.
+     * 스택 바 차트 그리기에 필요한 메트릭 값을 계산합니다.
      *
-     * @param minY The minimum data value (e.g. 0f)
-     * @param maxY The maximum data value
-     * @param tickCount Approximate number of intervals desired (default 5)
-     * @return A list of “nice” tick positions from niceMin to niceMax inclusive
+     * @param size Canvas의 전체 크기
+     * @param data 스택 차트 데이터 포인트 목록
+     * @param tickCount 원하는 Y축 눈금 개수 (기본값: 5)
+     * @return 차트 메트릭 객체
      */
-    fun computeYAxisTicks(
-      minY: Float,
-      maxY: Float,
-      tickCount: Int = 5
-    ): List<Float> {
-      // 1. Compute raw step
-      val rawStep = (maxY - minY) / tickCount
-      // 2. Determine power of ten
-      val power = 10f.pow(floor(log10(rawStep.toDouble())).toFloat())
-      // 3. Candidate multipliers
-      val candidates = listOf(1f, 2f, 5f).map { it * power }
-      // 4. Pick the best step
-      val step = candidates.minByOrNull { abs(it - rawStep) } ?: power
-      // 5. Compute nice boundaries
-      val niceMin = floor(minY / step) * step
-      val niceMax = ceil(maxY / step) * step
-      // 6. Generate sequence of ticks
-      return generateSequence(niceMin) { previous ->
-        val next = previous + step
-        if (next <= niceMax + 1e-6f) next else null
-      }.toList()
+    fun computeStackedMetrics(size: Size, data: List<StackedChartPoint>, tickCount: Int = 5): ChartMetrics {
+        val paddingX = 60f
+        val paddingY = 40f
+        val chartWidth = size.width - paddingX
+        val chartHeight = size.height - paddingY
+        
+        val maxStackHeight = data.maxOfOrNull { it.total } ?: 1f
+        val minY = 0f // 스택 차트는 항상 0에서 시작
+        
+        val yTicks = computeNiceTicks(minY, maxStackHeight, tickCount)
+        
+        val actualMinY = yTicks.minOrNull() ?: minY
+        val actualMaxY = yTicks.maxOrNull() ?: maxStackHeight
+        
+        return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, actualMinY, actualMaxY, yTicks)
     }
 }

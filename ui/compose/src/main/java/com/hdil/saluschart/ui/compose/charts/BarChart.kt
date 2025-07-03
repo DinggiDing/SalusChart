@@ -49,7 +49,8 @@ fun BarChart(
                 val metrics = ChartMath.computeMetrics(size, yValues)
 
                 ChartDraw.drawGrid(this, size, metrics)
-                ChartDraw.drawAxes(this, metrics)
+                ChartDraw.drawXAxis(this, metrics)
+                ChartDraw.drawYAxis(this, metrics)
                 ChartDraw.drawBars(this, yValues, metrics, barColor)
                 ChartDraw.drawBarXAxisLabels(drawContext, xLabels, metrics)
             }
