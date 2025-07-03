@@ -619,14 +619,12 @@ object ChartDraw {
         val spacing = metrics.chartWidth / data.size
         
         data.forEachIndexed { i, rangePoint ->
-            // yMin과 yMax를 화면 좌표로 변환
             val yMinScreen = metrics.chartHeight - ((rangePoint.yMin - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
             val yMaxScreen = metrics.chartHeight - ((rangePoint.yMax - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
             
             val barHeight = yMinScreen - yMaxScreen // 범위의 높이
             val barX = metrics.paddingX + (spacing - barWidth) / 2 + i * spacing
-            
-            // 범위 바 그리기
+
             drawScope.drawRect(
                 color = color,
                 topLeft = Offset(barX, yMaxScreen),
@@ -684,9 +682,4 @@ object ChartDraw {
     }
 
 
-
-
-
-
-    
 }
