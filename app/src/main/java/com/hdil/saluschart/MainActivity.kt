@@ -39,6 +39,8 @@ import com.hdil.saluschart.ui.compose.charts.CalendarChart
 import com.hdil.saluschart.ui.compose.charts.CalendarEntry
 import com.hdil.saluschart.ui.compose.charts.PieChart
 import com.hdil.saluschart.ui.compose.charts.RangeBarChart
+import com.hdil.saluschart.ui.compose.charts.StackedBarChart
+import com.hdil.saluschart.core.chart.StackedChartPoint
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -120,38 +122,44 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 SegmentedButton(
                     selected = selectedChartType == "Line",
                     onClick = { selectedChartType = "Line" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 6),
-                    label = { Text("Line Chart") }
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 7),
+                    label = { Text("Line") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Scatter",
                     onClick = { selectedChartType = "Scatter" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 6),
-                    label = { Text("Scatter Plot") }
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 7),
+                    label = { Text("Scatter") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Bar",
                     onClick = { selectedChartType = "Bar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 6),
-                    label = { Text("Bar Chart") }
+                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 7),
+                    label = { Text("Bar") }
+                )
+                SegmentedButton(
+                    selected = selectedChartType == "Stacked",
+                    onClick = { selectedChartType = "Stacked" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 3, count = 7),
+                    label = { Text("Stacked") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Range",
                     onClick = { selectedChartType = "Range" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 3, count = 6),
-                    label = { Text("Range Chart") }
+                    shape = SegmentedButtonDefaults.itemShape(index = 4, count = 7),
+                    label = { Text("Range") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Pie",
                     onClick = { selectedChartType = "Pie" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 4, count = 6),
-                    label = { Text("Pie Chart") }
+                    shape = SegmentedButtonDefaults.itemShape(index = 5, count = 7),
+                    label = { Text("Pie") }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Calendar",
                     onClick = { selectedChartType = "Calendar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 5, count = 6),
-                    label = { Text("Calendar Chart") }
+                    shape = SegmentedButtonDefaults.itemShape(index = 6, count = 7),
+                    label = { Text("Calendar") }
                 )
             }
         }
@@ -236,6 +244,52 @@ fun SampleCharts(modifier: Modifier = Modifier) {
             RangeChartPoint(x = 7f, yMin = 85f, yMax = 105f, label = "10일")
         )
 
+        // 스택 바 차트용 샘플 데이터 (일별 영양소 섭취량 예시)
+        val stackedData = listOf(
+            StackedChartPoint(
+                x = 0f,
+                values = listOf(80f, 45f, 120f), // 단백질, 지방, 탄수화물 (g)
+                label = "월",
+                segmentLabels = listOf("단백질", "지방", "탄수화물")
+            ),
+            StackedChartPoint(
+                x = 1f,
+                values = listOf(75f, 38f, 110f),
+                label = "화",
+                segmentLabels = listOf("단백질", "지방", "탄수화물")
+            ),
+            StackedChartPoint(
+                x = 2f,
+                values = listOf(90f, 52f, 140f),
+                label = "수",
+                segmentLabels = listOf("단백질", "지방", "탄수화물")
+            ),
+            StackedChartPoint(
+                x = 3f,
+                values = listOf(85f, 41f, 135f),
+                label = "목",
+                segmentLabels = listOf("단백질", "지방", "탄수화물")
+            ),
+            StackedChartPoint(
+                x = 4f,
+                values = listOf(95f, 58f, 150f),
+                label = "금",
+                segmentLabels = listOf("단백질", "지방", "탄수화물")
+            ),
+            StackedChartPoint(
+                x = 5f,
+                values = listOf(70f, 35f, 100f),
+                label = "토",
+                segmentLabels = listOf("단백질", "지방", "탄수화물")
+            ),
+            StackedChartPoint(
+                x = 6f,
+                values = listOf(88f, 48f, 125f),
+                label = "일",
+                segmentLabels = listOf("단백질", "지방", "탄수화물")
+            )
+        )
+
         // 선택된 차트 타입에 따라 다른 차트 표시
         when (selectedChartType) {
             "Line" -> {
@@ -266,6 +320,22 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     xLabel = "요일",
                     width = selectedWidth,
                     height = selectedHeight
+                )
+            }
+            "Stacked" -> {
+                StackedBarChart(
+                    data = stackedData,
+                    title = "요일별 영양소 섭취량",
+                    yLabel = "영양소 (g)",
+                    xLabel = "요일",
+                    width = selectedWidth,
+                    height = selectedHeight,
+                    showLegend = true,
+                    colors = listOf(
+                        Color(0xFF2196F3), // 파랑 (단백질)
+                        Color(0xFFFF9800), // 주황 (지방) 
+                        Color(0xFF4CAF50)  // 초록 (탄수화물)
+                    )
                 )
             }
             "Range" -> {
