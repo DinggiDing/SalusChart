@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.ui.compose.charts.LineChart
@@ -123,43 +124,43 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     selected = selectedChartType == "Line",
                     onClick = { selectedChartType = "Line" },
                     shape = SegmentedButtonDefaults.itemShape(index = 0, count = 7),
-                    label = { Text("Line") }
+                    label = { Text("Line", fontSize = 12.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Scatter",
                     onClick = { selectedChartType = "Scatter" },
                     shape = SegmentedButtonDefaults.itemShape(index = 1, count = 7),
-                    label = { Text("Scatter") }
+                    label = { Text("Scatter", fontSize = 12.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Bar",
                     onClick = { selectedChartType = "Bar" },
                     shape = SegmentedButtonDefaults.itemShape(index = 2, count = 7),
-                    label = { Text("Bar") }
+                    label = { Text("Bar", fontSize = 12.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Stacked",
                     onClick = { selectedChartType = "Stacked" },
                     shape = SegmentedButtonDefaults.itemShape(index = 3, count = 7),
-                    label = { Text("Stacked") }
+                    label = { Text("Stacked", fontSize = 12.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Range",
                     onClick = { selectedChartType = "Range" },
                     shape = SegmentedButtonDefaults.itemShape(index = 4, count = 7),
-                    label = { Text("Range") }
+                    label = { Text("Range", fontSize = 12.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Pie",
                     onClick = { selectedChartType = "Pie" },
                     shape = SegmentedButtonDefaults.itemShape(index = 5, count = 7),
-                    label = { Text("Pie") }
+                    label = { Text("Pie", fontSize = 12.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Calendar",
                     onClick = { selectedChartType = "Calendar" },
                     shape = SegmentedButtonDefaults.itemShape(index = 6, count = 7),
-                    label = { Text("Calendar") }
+                    label = { Text("Calendar", fontSize = 12.sp) }
                 )
             }
         }

@@ -652,10 +652,11 @@ object ChartDraw {
     ) {
         val barWidth = (metrics.chartWidth / data.size) * barWidthRatio
         val spacing = metrics.chartWidth / data.size
+        val bottomSpacing = 2f
         
         data.forEachIndexed { i, stackedPoint ->
             val barX = metrics.paddingX + (spacing - barWidth) / 2 + i * spacing
-            var currentY = metrics.chartHeight // 바닥에서 시작
+            var currentY = metrics.chartHeight - bottomSpacing 
             
             // 각 세그먼트를 아래에서 위로 쌓아 올림
             stackedPoint.values.forEachIndexed { segmentIndex, value ->
