@@ -47,8 +47,8 @@ fun RangeBarChart(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val metrics = ChartMath.computeRangeMetrics(size, data)
 
-                ChartDraw.drawRangeGrid(this, size, metrics)
-                ChartDraw.drawRangeYAxis(this, metrics)
+                ChartDraw.drawGrid(this, size, metrics)
+                ChartDraw.drawYAxis(this, metrics)
                 ChartDraw.drawRangeBars(this, data, metrics, barColor, barWidthRatio)
                 ChartDraw.drawBarXAxisLabels(drawContext, labels, metrics)
             }

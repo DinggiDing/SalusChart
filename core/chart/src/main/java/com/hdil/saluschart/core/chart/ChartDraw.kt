@@ -14,17 +14,30 @@ import kotlin.collections.plusAssign
 
 object ChartDraw {
     /**
-     * 데이터 포인트를 화면 좌표로 변환합니다.
+     * 눈금 값을 적절한 형식으로 포맷합니다.
      *
-     * @param data 차트 데이터 포인트 목록
+     * @param value 눈금 값
+     * @return 포맷된 문자열
+     */
+    private fun formatTickLabel(value: Float): String {
+        return when {
+            value == 0f -> "0"
+            value >= 1000000 -> "%.1fM".format(value / 1000000)
+            value >= 1000 -> "%.1fK".format(value / 1000)
+            value % 1 == 0f -> "%.0f".format(value)
+            else -> "%.1f".format(value)
+        }
+    }
+
+    /**
+     * Y축 그리드와 레이블을 그립니다.
+     *
+     * @param drawScope 그리기 영역
      * @param size Canvas의 전체 크기
      * @param metrics 차트 메트릭 정보
-     * @return 화면 좌표로 변환된 Offset 목록
      */
     fun drawGrid(drawScope: DrawScope, size: Size, metrics: ChartMath.ChartMetrics) {
-        val step = (metrics.maxY - metrics.minY) / 5
-        for (i in 0..5) {
-            val yVal = metrics.minY + i * step
+        metrics.yTicks.forEach { yVal ->
             val y = metrics.chartHeight - ((yVal - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
             drawScope.drawLine(
                 color = Color.LightGray,
@@ -32,8 +45,10 @@ object ChartDraw {
                 end = Offset(size.width, y),
                 strokeWidth = 1f
             )
+            
+            val labelText = formatTickLabel(yVal)
             drawScope.drawContext.canvas.nativeCanvas.drawText(
-                "%.0f".format(yVal),
+                labelText,
                 10f,
                 y + 10f,
                 android.graphics.Paint().apply {
@@ -162,25 +177,31 @@ object ChartDraw {
     }
 
     /**
-     * X축과 Y축 라인을 그립니다.
+     * X축 라인을 그립니다.
      *
      * @param drawScope 그리기 영역
      * @param metrics 차트 메트릭 정보
      */
-    fun drawAxes(drawScope: DrawScope, metrics: ChartMath.ChartMetrics) {
-        // Y축 (세로줄)
-        drawScope.drawLine(
-            color = Color.Black,
-            start = Offset(metrics.paddingX, 0f),
-            end = Offset(metrics.paddingX, metrics.chartHeight),
-            strokeWidth = 2f
-        )
-        
-        // X축 (가로줄)
+    fun drawXAxis(drawScope: DrawScope, metrics: ChartMath.ChartMetrics) {
         drawScope.drawLine(
             color = Color.Black,
             start = Offset(metrics.paddingX, metrics.chartHeight),
             end = Offset(metrics.paddingX + metrics.chartWidth, metrics.chartHeight),
+            strokeWidth = 2f
+        )
+    }
+
+    /**
+     * Y축 라인을 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param metrics 차트 메트릭 정보
+     */
+    fun drawYAxis(drawScope: DrawScope, metrics: ChartMath.ChartMetrics) {
+        drawScope.drawLine(
+            color = Color.Black,
+            start = Offset(metrics.paddingX, 0f),
+            end = Offset(metrics.paddingX, metrics.chartHeight),
             strokeWidth = 2f
         )
     }
@@ -273,12 +294,66 @@ object ChartDraw {
     }
 
     /**
+     * 범례를 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param labels 범례 항목 레이블 목록
+     * @param colors 색상 목록
+     * @param position 범례가 표시될 위치 좌표
+     * @param title 범례 제목 (null인 경우 제목 없음)
+     * @param itemHeight 항목 간 세로 간격
+     */
+    fun drawLegend(
+        drawScope: DrawScope,
+        labels: List<String>,
+        colors: List<Color>,
+        position: Offset,
+        title: String? = null,
+        itemHeight: Float = 40f
+    ) {
+        val colorBoxSize = 16f
+        val padding = 8f
+        var yOffset = position.y
+
+        // 범례 제목 그리기 (제공된 경우)
+        title?.let {
+            drawScope.drawContext.canvas.nativeCanvas.drawText(
+                it,
+                position.x,
+                yOffset,
+                android.graphics.Paint().apply {
+                    color = android.graphics.Color.DKGRAY
+                    textSize = 28f
+                    isFakeBoldText = true
+                }
+            )
+            yOffset += itemHeight * 0.8f
+        }
+
+        // 각 범례 항목 그리기
+        labels.forEachIndexed { index, label ->
+            if (index < colors.size) {
+                drawLegendItem(
+                    drawScope,
+                    colors[index],
+                    label,
+                    Offset(position.x, yOffset),
+                    colorBoxSize,
+                    padding
+                )
+                yOffset += itemHeight * 0.7f
+            }
+        }
+    }
+
+    /**
      * 파이 차트의 범례를 그립니다.
      *
      * @param drawScope 그리기 영역
      * @param data 차트 데이터 포인트 목록
      * @param colors 각 조각에 사용한 색상 목록
      * @param position 범례가 표시될 위치 좌표
+     * @param title 범례 제목 (기본값: null)
      * @param itemHeight 항목 간 세로 간격
      */
     fun drawPieLegend(
@@ -286,24 +361,13 @@ object ChartDraw {
         data: List<ChartPoint>,
         colors: List<Color>,
         position: Offset,
+        title: String? = null,
         itemHeight: Float = 40f
     ) {
-        val colorBoxSize = 16f
-        val padding = 8f
-        var yOffset = position.y
-
-        data.forEachIndexed { i, point ->
-            val colorIndex = i % colors.size
-            drawLegendItem(
-                drawScope,
-                colors[colorIndex],
-                point.label ?: "항목 ${i+1}",
-                Offset(position.x, yOffset),
-                colorBoxSize,
-                padding
-            )
-            yOffset += itemHeight
+        val labels = data.mapIndexed { i, point ->
+            point.label ?: "항목 ${i+1}"
         }
+        drawLegend(drawScope, labels, colors, position, title, itemHeight)
     }
 
     /**
@@ -341,6 +405,27 @@ object ChartDraw {
                 textSize = 30f
             }
         )
+    }
+
+    /**
+     * 스택 바 차트의 범례를 그립니다.
+     *
+     * @param drawScope 그리기 영역
+     * @param segmentLabels 각 세그먼트의 레이블 목록
+     * @param colors 각 세그먼트에 사용한 색상 목록
+     * @param position 범례가 표시될 위치 좌표
+     * @param title 범례 제목 (기본값: "Legend")
+     * @param itemHeight 항목 간 세로 간격
+     */
+    fun drawStackedLegend(
+        drawScope: DrawScope,
+        segmentLabels: List<String>,
+        colors: List<Color>,
+        position: Offset,
+        title: String = "Legend",
+        itemHeight: Float = 40f
+    ) {
+        drawLegend(drawScope, segmentLabels, colors, position, title, itemHeight)
     }
 
     /**
@@ -548,52 +633,54 @@ object ChartDraw {
         }
     }
 
-
-
     /**
-     * 범위 바 차트용 Y축 그리드를 그립니다.
-     * X축 라인은 그리지 않고 Y축 그리드와 레이블만 표시합니다.
+     * 스택 바 차트의 막대들을 그립니다.
+     * 각 막대는 여러 세그먼트가 수직으로 쌓인 형태입니다.
      *
      * @param drawScope 그리기 영역
-     * @param size Canvas의 전체 크기
+     * @param data 스택 차트 데이터 포인트 목록
      * @param metrics 차트 메트릭 정보
+     * @param colors 각 세그먼트의 기본 색상 팔레트
+     * @param barWidthRatio 바 너비 비율 (0.0 ~ 1.0, 기본값 0.6)
      */
-    fun drawRangeGrid(drawScope: DrawScope, size: Size, metrics: ChartMath.ChartMetrics) {
-        val step = (metrics.maxY - metrics.minY) / 5
-        for (i in 0..5) {
-            val yVal = metrics.minY + i * step
-            val y = metrics.chartHeight - ((yVal - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
-            drawScope.drawLine(
-                color = Color.LightGray,
-                start = Offset(metrics.paddingX, y),
-                end = Offset(size.width, y),
-                strokeWidth = 1f
-            )
-            drawScope.drawContext.canvas.nativeCanvas.drawText(
-                "%.0f".format(yVal),
-                10f,
-                y + 10f,
-                android.graphics.Paint().apply {
-                    color = android.graphics.Color.DKGRAY
-                    textSize = 28f
+    fun drawStackedBars(
+        drawScope: DrawScope,
+        data: List<StackedChartPoint>,
+        metrics: ChartMath.ChartMetrics,
+        colors: List<Color>,
+        barWidthRatio: Float = 0.6f
+    ) {
+        val barWidth = (metrics.chartWidth / data.size) * barWidthRatio
+        val spacing = metrics.chartWidth / data.size
+        val bottomSpacing = 2f
+        
+        data.forEachIndexed { i, stackedPoint ->
+            val barX = metrics.paddingX + (spacing - barWidth) / 2 + i * spacing
+            var currentY = metrics.chartHeight - bottomSpacing 
+            
+            // 각 세그먼트를 아래에서 위로 쌓아 올림
+            stackedPoint.values.forEachIndexed { segmentIndex, value ->
+                if (value > 0) { // 0보다 큰 값만 그리기
+                    val segmentHeight = (value / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+                    val segmentY = currentY - segmentHeight
+                    
+                    // 색상 결정: 개별 색상이 있으면 사용, 없으면 기본 팔레트 사용
+                    val segmentColor = stackedPoint.segmentColors?.getOrNull(segmentIndex)?.let { 
+                        Color(it) 
+                    } ?: colors.getOrElse(segmentIndex % colors.size) { colors.first() }
+                    
+                    // 세그먼트 그리기
+                    drawScope.drawRect(
+                        color = segmentColor,
+                        topLeft = Offset(barX, segmentY),
+                        size = Size(barWidth, segmentHeight)
+                    )
+                    
+                    currentY = segmentY // 다음 세그먼트를 위해 Y 위치 업데이트
                 }
-            )
+            }
         }
     }
 
-    /**
-     * 범위 바 차트용 Y축을 그립니다.
-     *
-     * @param drawScope 그리기 영역
-     * @param metrics 차트 메트릭 정보
-     */
-    fun drawRangeYAxis(drawScope: DrawScope, metrics: ChartMath.ChartMetrics) {
-        // Y축 (세로줄)만 그리기
-        drawScope.drawLine(
-            color = Color.Black,
-            start = Offset(metrics.paddingX, 0f),
-            end = Offset(metrics.paddingX, metrics.chartHeight),
-            strokeWidth = 2f
-        )
-    }
+
 }
