@@ -34,7 +34,6 @@ data class RangeChartPoint(
  * @param x X축 위치 또는 시간 인덱스
  * @param values 각 세그먼트의 값들 (예: [단백질, 지방, 탄수화물])
  * @param label X축에 표시할 레이블 (예: 날짜, 요일 등)
- * @param segmentLabels 각 세그먼트의 레이블들 (예: ["단백질", "지방", "탄수화물"])
  * @param segmentColors 각 세그먼트의 색상 (null인 경우 기본 색상 팔레트 사용)
  * @param isSelected 선택 상태 여부
  */
@@ -42,7 +41,6 @@ data class StackedChartPoint(
     val x: Float,
     val values: List<Float>,
     val label: String? = null,
-    val segmentLabels: List<String>? = null,
     val segmentColors: List<Int>? = null,
     val isSelected: Boolean = false
 ) {
@@ -50,6 +48,6 @@ data class StackedChartPoint(
     val total: Float = values.sum()
     
     override fun toString(): String {
-        return "StackedChartPoint(x=$x, values=$values, total=$total, label=$label, segmentLabels=$segmentLabels, isSelected=$isSelected)"
+        return "StackedChartPoint(x=$x, values=$values, total=$total, label=$label, isSelected=$isSelected)"
     }
 }
