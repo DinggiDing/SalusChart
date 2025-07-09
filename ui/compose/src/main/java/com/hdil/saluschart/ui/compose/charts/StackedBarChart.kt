@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartDraw
 import com.hdil.saluschart.core.chart.ChartMath
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.StackedChartPoint
 
 /**
@@ -73,7 +74,8 @@ fun StackedBarChart(
                 .height(height)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
-                val metrics = ChartMath.computeStackedMetrics(size, data)
+                val totalValues = data.map { it.total }
+                val metrics = ChartMath.computeMetrics(size, totalValues, chartType = ChartType.STACKED_BAR)
 
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.drawXAxis(this, metrics)
@@ -89,6 +91,7 @@ fun StackedBarChart(
                         labels = segmentLabels,
                         colors = colors,
                         position = legendPosition,
+                        chartSize = size,
                         title = "Legend",
                         itemHeight = 35f
                     )

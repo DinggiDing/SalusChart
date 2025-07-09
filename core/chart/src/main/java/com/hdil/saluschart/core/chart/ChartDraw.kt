@@ -294,25 +294,35 @@ object ChartDraw {
     }
 
     /**
-     * 범례를 그립니다.
+     * 범례를 그립니다 (스케일링 지원).
      *
      * @param drawScope 그리기 영역
      * @param labels 범례 항목 레이블 목록
      * @param colors 색상 목록
      * @param position 범례가 표시될 위치 좌표
+     * @param chartSize 차트 전체 크기 (스케일링 계산용)
      * @param title 범례 제목 (null인 경우 제목 없음)
-     * @param itemHeight 항목 간 세로 간격
+     * @param baseItemHeight 기본 항목 간 세로 간격 (스케일링 적용됨)
      */
     fun drawLegend(
         drawScope: DrawScope,
         labels: List<String>,
         colors: List<Color>,
         position: Offset,
+        chartSize: androidx.compose.ui.geometry.Size,
         title: String? = null,
-        itemHeight: Float = 40f
+        baseItemHeight: Float = 40f
     ) {
-        val colorBoxSize = 16f
-        val padding = 8f
+        // 차트 크기에 따른 스케일 팩터 계산 (기준: 250x250)
+        val scaleFactor = minOf(chartSize.width, chartSize.height) / 250f
+        val clampedScale = scaleFactor.coerceIn(0.5f, 2.0f) // 최소 50%, 최대 200% 스케일링
+        
+        val colorBoxSize = (16f * clampedScale).coerceAtLeast(8f)
+        val padding = (8f * clampedScale).coerceAtLeast(4f)
+        val itemHeight = baseItemHeight * clampedScale
+        val titleTextSize = (28f * clampedScale).coerceAtLeast(14f)
+        val labelTextSize = (24f * clampedScale).coerceAtLeast(12f)
+        
         var yOffset = position.y
 
         // 범례 제목 그리기 (제공된 경우)
@@ -323,7 +333,7 @@ object ChartDraw {
                 yOffset,
                 android.graphics.Paint().apply {
                     color = android.graphics.Color.DKGRAY
-                    textSize = 28f
+                    textSize = titleTextSize
                     isFakeBoldText = true
                 }
             )
@@ -339,7 +349,8 @@ object ChartDraw {
                     label,
                     Offset(position.x, yOffset),
                     colorBoxSize,
-                    padding
+                    padding,
+                    labelTextSize
                 )
                 yOffset += itemHeight * 0.7f
             }
@@ -347,7 +358,7 @@ object ChartDraw {
     }
 
     /**
-     * 차트의 범례를 그립니다 (통합된 범례 시스템).
+     * 차트의 범례를 그립니다 (통합된 범례 시스템, 스케일링 지원).
      * 
      * 파이 차트와 스택 바 차트 모두에서 사용할 수 있는 통합된 범례 시스템입니다.
      * 레이블을 직접 제공하거나 차트 데이터에서 추출할 수 있습니다.
@@ -357,6 +368,7 @@ object ChartDraw {
      * @param chartData 차트 데이터 포인트 목록 (레이블을 추출할 경우)
      * @param colors 각 항목에 사용한 색상 목록
      * @param position 범례가 표시될 위치 좌표
+     * @param chartSize 차트 전체 크기 (스케일링 계산용)
      * @param title 범례 제목 (기본값: null)
      * @param itemHeight 항목 간 세로 간격
      */
@@ -366,6 +378,7 @@ object ChartDraw {
         chartData: List<ChartPoint>? = null,
         colors: List<Color>,
         position: Offset,
+        chartSize: androidx.compose.ui.geometry.Size,
         title: String? = null,
         itemHeight: Float = 40f
     ) {
@@ -373,18 +386,19 @@ object ChartDraw {
             point.label ?: "항목 ${i+1}"
         } ?: emptyList()
         
-        drawLegend(drawScope, legendLabels, colors, position, title, itemHeight)
+        drawLegend(drawScope, legendLabels, colors, position, chartSize, title, itemHeight)
     }
 
     /**
-     * 범례의 개별 항목을 그립니다.
+     * 범례의 개별 항목을 그립니다 (스케일링 지원).
      *
      * @param drawScope 그리기 영역
      * @param color 색상
      * @param label 레이블 텍스트
      * @param position 항목이 표시될 위치
-     * @param boxSize 색상 상자 크기
-     * @param padding 상자와 텍스트 사이 간격
+     * @param boxSize 색상 상자 크기 (이미 스케일링 적용됨)
+     * @param padding 상자와 텍스트 사이 간격 (이미 스케일링 적용됨)
+     * @param textSize 텍스트 크기 (이미 스케일링 적용됨)
      */
     fun drawLegendItem(
         drawScope: DrawScope,
@@ -392,7 +406,8 @@ object ChartDraw {
         label: String,
         position: Offset,
         boxSize: Float,
-        padding: Float
+        padding: Float,
+        textSize: Float = 30f
     ) {
         // 색상 상자 그리기
         drawScope.drawRect(
@@ -408,7 +423,7 @@ object ChartDraw {
             position.y + boxSize,
             android.graphics.Paint().apply {
                 this.color = android.graphics.Color.DKGRAY
-                textSize = 30f
+                this.textSize = textSize
             }
         )
     }

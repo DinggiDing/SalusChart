@@ -95,6 +95,7 @@ fun PieChart(
                             chartData = data,
                             colors = colors,
                             position = legendPosition,
+                            chartSize = size,
                             itemHeight = 40f
                         )
                     }

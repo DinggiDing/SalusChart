@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartDraw
 import com.hdil.saluschart.core.chart.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.ui.theme.ChartColor
 
 @Composable
@@ -46,7 +47,7 @@ fun BarChart(
                 .height(height)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
-                val metrics = ChartMath.computeMetrics(size, yValues)
+                val metrics = ChartMath.computeMetrics(size, yValues, chartType = ChartType.BAR)
 
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.drawXAxis(this, metrics)
