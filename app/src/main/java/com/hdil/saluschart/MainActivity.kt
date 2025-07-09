@@ -124,25 +124,25 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     selected = selectedChartType == "Line",
                     onClick = { selectedChartType = "Line" },
                     shape = SegmentedButtonDefaults.itemShape(index = 0, count = 7),
-                    label = { Text("Line", fontSize = 12.sp) }
+                    label = { Text("Line", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Scatter",
                     onClick = { selectedChartType = "Scatter" },
                     shape = SegmentedButtonDefaults.itemShape(index = 1, count = 7),
-                    label = { Text("Scatter", fontSize = 12.sp) }
+                    label = { Text("Scatter", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Bar",
                     onClick = { selectedChartType = "Bar" },
                     shape = SegmentedButtonDefaults.itemShape(index = 2, count = 7),
-                    label = { Text("Bar", fontSize = 12.sp) }
+                    label = { Text("Bar", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Stacked",
                     onClick = { selectedChartType = "Stacked" },
                     shape = SegmentedButtonDefaults.itemShape(index = 3, count = 7),
-                    label = { Text("Stacked", fontSize = 12.sp) }
+                    label = { Text("Stacked", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Range",
@@ -154,13 +154,13 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     selected = selectedChartType == "Pie",
                     onClick = { selectedChartType = "Pie" },
                     shape = SegmentedButtonDefaults.itemShape(index = 5, count = 7),
-                    label = { Text("Pie", fontSize = 12.sp) }
+                    label = { Text("Pie", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Calendar",
                     onClick = { selectedChartType = "Calendar" },
                     shape = SegmentedButtonDefaults.itemShape(index = 6, count = 7),
-                    label = { Text("Calendar", fontSize = 12.sp) }
+                    label = { Text("Calendar", fontSize = 7.sp) }
                 )
             }
         }

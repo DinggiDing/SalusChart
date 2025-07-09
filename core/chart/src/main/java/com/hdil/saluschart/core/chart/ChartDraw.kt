@@ -311,17 +311,17 @@ object ChartDraw {
         position: Offset,
         chartSize: androidx.compose.ui.geometry.Size,
         title: String? = null,
-        baseItemHeight: Float = 40f
+        baseItemHeight: Float = 20f 
     ) {
         // 차트 크기에 따른 스케일 팩터 계산 (기준: 250x250)
         val scaleFactor = minOf(chartSize.width, chartSize.height) / 250f
-        val clampedScale = scaleFactor.coerceIn(0.5f, 2.0f) // 최소 50%, 최대 200% 스케일링
+        val clampedScale = scaleFactor.coerceIn(0.5f, 2.0f) 
         
-        val colorBoxSize = (16f * clampedScale).coerceAtLeast(8f)
-        val padding = (8f * clampedScale).coerceAtLeast(4f)
+        val colorBoxSize = (8f * clampedScale).coerceAtLeast(4f) 
+        val padding = (4f * clampedScale).coerceAtLeast(2f) 
         val itemHeight = baseItemHeight * clampedScale
-        val titleTextSize = (28f * clampedScale).coerceAtLeast(14f)
-        val labelTextSize = (24f * clampedScale).coerceAtLeast(12f)
+        val titleTextSize = (14f * clampedScale).coerceAtLeast(10f) 
+        val labelTextSize = (12f * clampedScale).coerceAtLeast(8f) 
         
         var yOffset = position.y
 

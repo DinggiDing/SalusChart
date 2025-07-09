@@ -85,15 +85,15 @@ fun StackedBarChart(
                 
                 // 범례 그리기 (통합된 범례 시스템 사용)
                 if (showLegend && segmentLabels.isNotEmpty()) {
-                    val legendPosition = Offset(size.width - 100f, 20f)
+                    val legendPosition = Offset(size.width, 20f)
                     ChartDraw.drawChartLegend(
                         drawScope = this,
                         labels = segmentLabels,
                         colors = colors,
                         position = legendPosition,
                         chartSize = size,
-                        title = "Legend",
-                        itemHeight = 35f
+                        title = null, 
+                        itemHeight = 18f
                     )
                 }
             }
