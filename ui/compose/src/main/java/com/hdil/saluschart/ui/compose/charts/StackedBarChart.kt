@@ -77,10 +77,10 @@ fun StackedBarChart(
                 val totalValues = data.map { it.total }
                 val metrics = ChartMath.computeMetrics(size, totalValues, chartType = ChartType.STACKED_BAR)
 
+                ChartDraw.drawStackedBars(this, data, metrics, colors, barWidthRatio)
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.drawXAxis(this, metrics)
                 ChartDraw.drawYAxis(this, metrics)
-                ChartDraw.drawStackedBars(this, data, metrics, colors, barWidthRatio)
                 ChartDraw.drawBarXAxisLabels(drawContext, xLabels, metrics)
                 
                 // 범례 그리기 (통합된 범례 시스템 사용)

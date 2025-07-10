@@ -1,5 +1,6 @@
 package com.hdil.saluschart.core.chart
 
+import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -321,7 +322,9 @@ object ChartDraw {
         val padding = (4f * clampedScale).coerceAtLeast(2f) 
         val itemHeight = baseItemHeight * clampedScale
         val titleTextSize = (14f * clampedScale).coerceAtLeast(10f) 
-        val labelTextSize = (12f * clampedScale).coerceAtLeast(8f) 
+        val labelTextSize = (12f * clampedScale).coerceAtLeast(8f)
+
+        Log.e("ChartDraw", "Legend scale factor: $clampedScale, itemHeight: $itemHeight, colorBoxSize: $colorBoxSize, labelTextSize: $labelTextSize")
         
         var yOffset = position.y
 
@@ -447,12 +450,11 @@ object ChartDraw {
     ) {
         val barWidth = (metrics.chartWidth / data.size) * barWidthRatio
         val spacing = metrics.chartWidth / data.size
-        val bottomSpacing = 2f
-        
+
         data.forEachIndexed { i, stackedPoint ->
             val barX = metrics.paddingX + (spacing - barWidth) / 2 + i * spacing
-            var currentY = metrics.chartHeight - bottomSpacing 
-            
+            var currentY = metrics.chartHeight
+
             // 각 세그먼트를 아래에서 위로 쌓아 올림
             stackedPoint.values.forEachIndexed { segmentIndex, value ->
                 if (value > 0) { // 0보다 큰 값만 그리기
