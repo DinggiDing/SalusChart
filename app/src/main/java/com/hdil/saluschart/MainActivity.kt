@@ -148,7 +148,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     selected = selectedChartType == "Range",
                     onClick = { selectedChartType = "Range" },
                     shape = SegmentedButtonDefaults.itemShape(index = 4, count = 7),
-                    label = { Text("Range", fontSize = 12.sp) }
+                    label = { Text("Range", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Pie",
