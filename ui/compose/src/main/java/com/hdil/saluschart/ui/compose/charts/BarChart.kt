@@ -12,12 +12,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartDraw
 import com.hdil.saluschart.core.chart.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.ui.theme.ChartColor
 
 @Composable
@@ -41,12 +46,14 @@ fun BarChart(
         Spacer(Modifier.height(8.dp))
 
         Box(
-            Modifier
+            modifier = modifier
                 .width(width)
                 .height(height)
         ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val metrics = ChartMath.computeMetrics(size, yValues)
+            Canvas(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val metrics = ChartMath.computeMetrics(size, yValues, chartType = ChartType.BAR)
 
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.drawXAxis(this, metrics)

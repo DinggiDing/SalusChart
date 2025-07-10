@@ -90,11 +90,12 @@ fun PieChart(
                     // 범례 그리기
                     if (showLegend) {
                         val legendPosition = Offset(size.width, 20f)
-                        ChartDraw.drawPieLegend(
+                        ChartDraw.drawChartLegend(
                             drawScope = this,
-                            data = data,
+                            chartData = data,
                             colors = colors,
                             position = legendPosition,
+                            chartSize = size,
                             itemHeight = 40f
                         )
                     }

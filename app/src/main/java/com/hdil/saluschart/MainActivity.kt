@@ -124,43 +124,43 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     selected = selectedChartType == "Line",
                     onClick = { selectedChartType = "Line" },
                     shape = SegmentedButtonDefaults.itemShape(index = 0, count = 7),
-                    label = { Text("Line", fontSize = 12.sp) }
+                    label = { Text("Line", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Scatter",
                     onClick = { selectedChartType = "Scatter" },
                     shape = SegmentedButtonDefaults.itemShape(index = 1, count = 7),
-                    label = { Text("Scatter", fontSize = 12.sp) }
+                    label = { Text("Scatter", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Bar",
                     onClick = { selectedChartType = "Bar" },
                     shape = SegmentedButtonDefaults.itemShape(index = 2, count = 7),
-                    label = { Text("Bar", fontSize = 12.sp) }
+                    label = { Text("Bar", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Stacked",
                     onClick = { selectedChartType = "Stacked" },
                     shape = SegmentedButtonDefaults.itemShape(index = 3, count = 7),
-                    label = { Text("Stacked", fontSize = 12.sp) }
+                    label = { Text("Stacked", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Range",
                     onClick = { selectedChartType = "Range" },
                     shape = SegmentedButtonDefaults.itemShape(index = 4, count = 7),
-                    label = { Text("Range", fontSize = 12.sp) }
+                    label = { Text("Range", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Pie",
                     onClick = { selectedChartType = "Pie" },
                     shape = SegmentedButtonDefaults.itemShape(index = 5, count = 7),
-                    label = { Text("Pie", fontSize = 12.sp) }
+                    label = { Text("Pie", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Calendar",
                     onClick = { selectedChartType = "Calendar" },
                     shape = SegmentedButtonDefaults.itemShape(index = 6, count = 7),
-                    label = { Text("Calendar", fontSize = 12.sp) }
+                    label = { Text("Calendar", fontSize = 7.sp) }
                 )
             }
         }
@@ -250,46 +250,42 @@ fun SampleCharts(modifier: Modifier = Modifier) {
             StackedChartPoint(
                 x = 0f,
                 values = listOf(80f, 45f, 120f), // 단백질, 지방, 탄수화물 (g)
-                label = "월",
-                segmentLabels = listOf("단백질", "지방", "탄수화물")
+                label = "월"
             ),
             StackedChartPoint(
                 x = 1f,
                 values = listOf(75f, 38f, 110f),
-                label = "화",
-                segmentLabels = listOf("단백질", "지방", "탄수화물")
+                label = "화"
             ),
             StackedChartPoint(
                 x = 2f,
                 values = listOf(90f, 52f, 140f),
-                label = "수",
-                segmentLabels = listOf("단백질", "지방", "탄수화물")
+                label = "수"
             ),
             StackedChartPoint(
                 x = 3f,
                 values = listOf(85f, 41f, 135f),
-                label = "목",
-                segmentLabels = listOf("단백질", "지방", "탄수화물")
+                label = "목"
             ),
             StackedChartPoint(
                 x = 4f,
                 values = listOf(95f, 58f, 150f),
-                label = "금",
-                segmentLabels = listOf("단백질", "지방", "탄수화물")
+                label = "금"
             ),
             StackedChartPoint(
                 x = 5f,
                 values = listOf(70f, 35f, 100f),
-                label = "토",
-                segmentLabels = listOf("단백질", "지방", "탄수화물")
+                label = "토"
             ),
             StackedChartPoint(
                 x = 6f,
                 values = listOf(88f, 48f, 125f),
-                label = "일",
-                segmentLabels = listOf("단백질", "지방", "탄수화물")
+                label = "일"
             )
         )
+
+        // 스택 바 차트용 세그먼트 레이블 (한 번만 정의)
+        val segmentLabels = listOf("단백질", "지방", "탄수화물")
 
         // 선택된 차트 타입에 따라 다른 차트 표시
         when (selectedChartType) {
@@ -326,6 +322,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
             "Stacked" -> {
                 StackedBarChart(
                     data = stackedData,
+                    segmentLabels = segmentLabels,
                     title = "요일별 영양소 섭취량",
                     yLabel = "영양소 (g)",
                     xLabel = "요일",

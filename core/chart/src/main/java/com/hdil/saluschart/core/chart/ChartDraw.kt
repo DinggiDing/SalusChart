@@ -294,25 +294,35 @@ object ChartDraw {
     }
 
     /**
-     * 범례를 그립니다.
+     * 범례를 그립니다 (스케일링 지원).
      *
      * @param drawScope 그리기 영역
      * @param labels 범례 항목 레이블 목록
      * @param colors 색상 목록
      * @param position 범례가 표시될 위치 좌표
+     * @param chartSize 차트 전체 크기 (스케일링 계산용)
      * @param title 범례 제목 (null인 경우 제목 없음)
-     * @param itemHeight 항목 간 세로 간격
+     * @param baseItemHeight 기본 항목 간 세로 간격 (스케일링 적용됨)
      */
     fun drawLegend(
         drawScope: DrawScope,
         labels: List<String>,
         colors: List<Color>,
         position: Offset,
+        chartSize: androidx.compose.ui.geometry.Size,
         title: String? = null,
-        itemHeight: Float = 40f
+        baseItemHeight: Float = 20f 
     ) {
-        val colorBoxSize = 16f
-        val padding = 8f
+        // 차트 크기에 따른 스케일 팩터 계산 (기준: 250x250)
+        val scaleFactor = minOf(chartSize.width, chartSize.height) / 250f
+        val clampedScale = scaleFactor.coerceIn(0.5f, 2.0f) 
+        
+        val colorBoxSize = (8f * clampedScale).coerceAtLeast(4f) 
+        val padding = (4f * clampedScale).coerceAtLeast(2f) 
+        val itemHeight = baseItemHeight * clampedScale
+        val titleTextSize = (14f * clampedScale).coerceAtLeast(10f) 
+        val labelTextSize = (12f * clampedScale).coerceAtLeast(8f) 
+        
         var yOffset = position.y
 
         // 범례 제목 그리기 (제공된 경우)
@@ -323,7 +333,7 @@ object ChartDraw {
                 yOffset,
                 android.graphics.Paint().apply {
                     color = android.graphics.Color.DKGRAY
-                    textSize = 28f
+                    textSize = titleTextSize
                     isFakeBoldText = true
                 }
             )
@@ -339,7 +349,8 @@ object ChartDraw {
                     label,
                     Offset(position.x, yOffset),
                     colorBoxSize,
-                    padding
+                    padding,
+                    labelTextSize
                 )
                 yOffset += itemHeight * 0.7f
             }
@@ -347,38 +358,47 @@ object ChartDraw {
     }
 
     /**
-     * 파이 차트의 범례를 그립니다.
+     * 차트의 범례를 그립니다 (통합된 범례 시스템, 스케일링 지원).
+     * 
+     * 파이 차트와 스택 바 차트 모두에서 사용할 수 있는 통합된 범례 시스템입니다.
+     * 레이블을 직접 제공하거나 차트 데이터에서 추출할 수 있습니다.
      *
      * @param drawScope 그리기 영역
-     * @param data 차트 데이터 포인트 목록
-     * @param colors 각 조각에 사용한 색상 목록
+     * @param labels 범례 항목 레이블 목록 (직접 제공된 경우)
+     * @param chartData 차트 데이터 포인트 목록 (레이블을 추출할 경우)
+     * @param colors 각 항목에 사용한 색상 목록
      * @param position 범례가 표시될 위치 좌표
+     * @param chartSize 차트 전체 크기 (스케일링 계산용)
      * @param title 범례 제목 (기본값: null)
      * @param itemHeight 항목 간 세로 간격
      */
-    fun drawPieLegend(
+    fun drawChartLegend(
         drawScope: DrawScope,
-        data: List<ChartPoint>,
+        labels: List<String>? = null,
+        chartData: List<ChartPoint>? = null,
         colors: List<Color>,
         position: Offset,
+        chartSize: androidx.compose.ui.geometry.Size,
         title: String? = null,
         itemHeight: Float = 40f
     ) {
-        val labels = data.mapIndexed { i, point ->
+        val legendLabels = labels ?: chartData?.mapIndexed { i, point ->
             point.label ?: "항목 ${i+1}"
-        }
-        drawLegend(drawScope, labels, colors, position, title, itemHeight)
+        } ?: emptyList()
+        
+        drawLegend(drawScope, legendLabels, colors, position, chartSize, title, itemHeight)
     }
 
     /**
-     * 범례의 개별 항목을 그립니다.
+     * 범례의 개별 항목을 그립니다 (스케일링 지원).
      *
      * @param drawScope 그리기 영역
      * @param color 색상
      * @param label 레이블 텍스트
      * @param position 항목이 표시될 위치
-     * @param boxSize 색상 상자 크기
-     * @param padding 상자와 텍스트 사이 간격
+     * @param boxSize 색상 상자 크기 (이미 스케일링 적용됨)
+     * @param padding 상자와 텍스트 사이 간격 (이미 스케일링 적용됨)
+     * @param textSize 텍스트 크기 (이미 스케일링 적용됨)
      */
     fun drawLegendItem(
         drawScope: DrawScope,
@@ -386,7 +406,8 @@ object ChartDraw {
         label: String,
         position: Offset,
         boxSize: Float,
-        padding: Float
+        padding: Float,
+        textSize: Float = 30f
     ) {
         // 색상 상자 그리기
         drawScope.drawRect(
@@ -402,30 +423,58 @@ object ChartDraw {
             position.y + boxSize,
             android.graphics.Paint().apply {
                 this.color = android.graphics.Color.DKGRAY
-                textSize = 30f
+                this.textSize = textSize
             }
         )
     }
 
     /**
-     * 스택 바 차트의 범례를 그립니다.
+     * 스택 바 차트의 막대들을 그립니다.
+     * 각 막대는 여러 세그먼트가 수직으로 쌓인 형태입니다.
      *
      * @param drawScope 그리기 영역
-     * @param segmentLabels 각 세그먼트의 레이블 목록
-     * @param colors 각 세그먼트에 사용한 색상 목록
-     * @param position 범례가 표시될 위치 좌표
-     * @param title 범례 제목 (기본값: "Legend")
-     * @param itemHeight 항목 간 세로 간격
+     * @param data 스택 차트 데이터 포인트 목록
+     * @param metrics 차트 메트릭 정보
+     * @param colors 각 세그먼트의 기본 색상 팔레트
+     * @param barWidthRatio 바 너비 비율 (0.0 ~ 1.0, 기본값 0.6)
      */
-    fun drawStackedLegend(
+    fun drawStackedBars(
         drawScope: DrawScope,
-        segmentLabels: List<String>,
+        data: List<StackedChartPoint>,
+        metrics: ChartMath.ChartMetrics,
         colors: List<Color>,
-        position: Offset,
-        title: String = "Legend",
-        itemHeight: Float = 40f
+        barWidthRatio: Float = 0.6f
     ) {
-        drawLegend(drawScope, segmentLabels, colors, position, title, itemHeight)
+        val barWidth = (metrics.chartWidth / data.size) * barWidthRatio
+        val spacing = metrics.chartWidth / data.size
+        val bottomSpacing = 2f
+        
+        data.forEachIndexed { i, stackedPoint ->
+            val barX = metrics.paddingX + (spacing - barWidth) / 2 + i * spacing
+            var currentY = metrics.chartHeight - bottomSpacing 
+            
+            // 각 세그먼트를 아래에서 위로 쌓아 올림
+            stackedPoint.values.forEachIndexed { segmentIndex, value ->
+                if (value > 0) { // 0보다 큰 값만 그리기
+                    val segmentHeight = (value / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+                    val segmentY = currentY - segmentHeight
+                    
+                    // 색상 결정: 개별 색상이 있으면 사용, 없으면 기본 팔레트 사용
+                    val segmentColor = stackedPoint.segmentColors?.getOrNull(segmentIndex)?.let { 
+                        Color(it) 
+                    } ?: colors.getOrElse(segmentIndex % colors.size) { colors.first() }
+                    
+                    // 세그먼트 그리기
+                    drawScope.drawRect(
+                        color = segmentColor,
+                        topLeft = Offset(barX, segmentY),
+                        size = Size(barWidth, segmentHeight)
+                    )
+                    
+                    currentY = segmentY // 다음 세그먼트를 위해 Y 위치 업데이트
+                }
+            }
+        }
     }
 
     /**
@@ -632,55 +681,5 @@ object ChartDraw {
             )
         }
     }
-
-    /**
-     * 스택 바 차트의 막대들을 그립니다.
-     * 각 막대는 여러 세그먼트가 수직으로 쌓인 형태입니다.
-     *
-     * @param drawScope 그리기 영역
-     * @param data 스택 차트 데이터 포인트 목록
-     * @param metrics 차트 메트릭 정보
-     * @param colors 각 세그먼트의 기본 색상 팔레트
-     * @param barWidthRatio 바 너비 비율 (0.0 ~ 1.0, 기본값 0.6)
-     */
-    fun drawStackedBars(
-        drawScope: DrawScope,
-        data: List<StackedChartPoint>,
-        metrics: ChartMath.ChartMetrics,
-        colors: List<Color>,
-        barWidthRatio: Float = 0.6f
-    ) {
-        val barWidth = (metrics.chartWidth / data.size) * barWidthRatio
-        val spacing = metrics.chartWidth / data.size
-        val bottomSpacing = 2f
-        
-        data.forEachIndexed { i, stackedPoint ->
-            val barX = metrics.paddingX + (spacing - barWidth) / 2 + i * spacing
-            var currentY = metrics.chartHeight - bottomSpacing 
-            
-            // 각 세그먼트를 아래에서 위로 쌓아 올림
-            stackedPoint.values.forEachIndexed { segmentIndex, value ->
-                if (value > 0) { // 0보다 큰 값만 그리기
-                    val segmentHeight = (value / (metrics.maxY - metrics.minY)) * metrics.chartHeight
-                    val segmentY = currentY - segmentHeight
-                    
-                    // 색상 결정: 개별 색상이 있으면 사용, 없으면 기본 팔레트 사용
-                    val segmentColor = stackedPoint.segmentColors?.getOrNull(segmentIndex)?.let { 
-                        Color(it) 
-                    } ?: colors.getOrElse(segmentIndex % colors.size) { colors.first() }
-                    
-                    // 세그먼트 그리기
-                    drawScope.drawRect(
-                        color = segmentColor,
-                        topLeft = Offset(barX, segmentY),
-                        size = Size(barWidth, segmentHeight)
-                    )
-                    
-                    currentY = segmentY // 다음 세그먼트를 위해 Y 위치 업데이트
-                }
-            }
-        }
-    }
-
 
 }

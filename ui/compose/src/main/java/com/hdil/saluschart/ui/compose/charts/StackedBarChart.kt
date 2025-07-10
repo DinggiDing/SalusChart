@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartDraw
 import com.hdil.saluschart.core.chart.ChartMath
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.StackedChartPoint
 
 /**
@@ -28,6 +29,7 @@ import com.hdil.saluschart.core.chart.StackedChartPoint
  * 
  * @param modifier 커스텀 modifier
  * @param data 스택 차트 데이터 포인트 목록
+ * @param segmentLabels 각 세그먼트의 레이블들 (예: ["단백질", "지방", "탄수화물"])
  * @param xLabel X축 레이블 (예: "날짜")
  * @param yLabel Y축 레이블 (예: "영양소 (g)")
  * @param title 차트 제목
@@ -41,6 +43,7 @@ import com.hdil.saluschart.core.chart.StackedChartPoint
 fun StackedBarChart(
     modifier: Modifier = Modifier,
     data: List<StackedChartPoint>,
+    segmentLabels: List<String> = emptyList(),
     xLabel: String = "Time",
     yLabel: String = "Value",
     title: String = "Stacked Bar Chart",
@@ -67,11 +70,12 @@ fun StackedBarChart(
 
         Box(
             Modifier
-                .width(if (showLegend && data.isNotEmpty()) width + 120.dp else width)
+                .width(width)
                 .height(height)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
-                val metrics = ChartMath.computeStackedMetrics(size, data)
+                val totalValues = data.map { it.total }
+                val metrics = ChartMath.computeMetrics(size, totalValues, chartType = ChartType.STACKED_BAR)
 
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.drawXAxis(this, metrics)
@@ -80,19 +84,17 @@ fun StackedBarChart(
                 ChartDraw.drawBarXAxisLabels(drawContext, xLabels, metrics)
                 
                 // 범례 그리기 (통합된 범례 시스템 사용)
-                if (showLegend && data.isNotEmpty()) {
-                    val segmentLabels = data.firstOrNull()?.segmentLabels ?: listOf()
-                    if (segmentLabels.isNotEmpty()) {
-                        val legendPosition = Offset(size.width - 100f, 20f)
-                        ChartDraw.drawStackedLegend(
-                            drawScope = this,
-                            segmentLabels = segmentLabels,
-                            colors = colors,
-                            position = legendPosition,
-                            title = "Legend",
-                            itemHeight = 35f
-                        )
-                    }
+                if (showLegend && segmentLabels.isNotEmpty()) {
+                    val legendPosition = Offset(size.width, 20f)
+                    ChartDraw.drawChartLegend(
+                        drawScope = this,
+                        labels = segmentLabels,
+                        colors = colors,
+                        position = legendPosition,
+                        chartSize = size,
+                        title = null, 
+                        itemHeight = 18f
+                    )
                 }
             }
         }

@@ -71,9 +71,10 @@ object ChartMath {
      * @param size Canvas의 전체 크기
      * @param values 차트에 표시할 Y축 데이터 값 목록
      * @param tickCount 원하는 Y축 눈금 개수 (기본값: 5)
+     * @param chartType 차트 타입 (BAR/STACKED_BAR 타입일 경우 minY를 항상 0으로 설정)
      * @return 차트 메트릭 객체
      */
-    fun computeMetrics(size: Size, values: List<Float>, tickCount: Int = 5): ChartMetrics { // 수정바람: tickCount = 5 고정 
+    fun computeMetrics(size: Size, values: List<Float>, tickCount: Int = 5, chartType: ChartType? = null): ChartMetrics { // TODO: tickCount = 5 고정 
         val paddingX = 60f
         val paddingY = 40f
         val chartWidth = size.width - paddingX
@@ -82,7 +83,12 @@ object ChartMath {
         val dataMax = values.maxOrNull() ?: 1f
         val dataMin = values.minOrNull() ?: 0f
         
-        val minY = if (dataMin >= 0 && dataMin < dataMax * 0.1) 0f else dataMin
+        // BAR 및 STACKED_BAR 차트의 경우 항상 minY를 0으로 설정
+        val minY = if (chartType == ChartType.BAR || chartType == ChartType.STACKED_BAR) {
+            0f
+        } else {
+            if (dataMin >= 0 && dataMin < dataMax * 0.1) 0f else dataMin
+        }
         val maxY = dataMax
         
         val yTicks = computeNiceTicks(minY, maxY, tickCount)
@@ -225,31 +231,6 @@ object ChartMath {
         
         val actualMinY = yTicks.minOrNull() ?: dataMin
         val actualMaxY = yTicks.maxOrNull() ?: dataMax
-        
-        return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, actualMinY, actualMaxY, yTicks)
-    }
-
-    /**
-     * 스택 바 차트 그리기에 필요한 메트릭 값을 계산합니다.
-     *
-     * @param size Canvas의 전체 크기
-     * @param data 스택 차트 데이터 포인트 목록
-     * @param tickCount 원하는 Y축 눈금 개수 (기본값: 5)
-     * @return 차트 메트릭 객체
-     */
-    fun computeStackedMetrics(size: Size, data: List<StackedChartPoint>, tickCount: Int = 5): ChartMetrics {
-        val paddingX = 60f
-        val paddingY = 40f
-        val chartWidth = size.width - paddingX
-        val chartHeight = size.height - paddingY
-        
-        val maxStackHeight = data.maxOfOrNull { it.total } ?: 1f
-        val minY = 0f // 스택 차트는 항상 0에서 시작
-        
-        val yTicks = computeNiceTicks(minY, maxStackHeight, tickCount)
-        
-        val actualMinY = yTicks.minOrNull() ?: minY
-        val actualMaxY = yTicks.maxOrNull() ?: maxStackHeight
         
         return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, actualMinY, actualMaxY, yTicks)
     }
