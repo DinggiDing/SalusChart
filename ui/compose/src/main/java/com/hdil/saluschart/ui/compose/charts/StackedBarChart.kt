@@ -77,8 +77,8 @@ fun StackedBarChart(
                 val totalValues = data.map { it.total }
                 val metrics = ChartMath.computeMetrics(size, totalValues, chartType = ChartType.STACKED_BAR)
 
-                ChartDraw.drawStackedBars(this, data, metrics, colors, barWidthRatio)
                 ChartDraw.drawGrid(this, size, metrics)
+                ChartDraw.drawStackedBars(this, data, metrics, colors, barWidthRatio)
                 ChartDraw.drawXAxis(this, metrics)
                 ChartDraw.drawYAxis(this, metrics)
                 ChartDraw.drawBarXAxisLabels(drawContext, xLabels, metrics)
