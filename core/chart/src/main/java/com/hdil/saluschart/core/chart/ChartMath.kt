@@ -2,12 +2,9 @@ package com.hdil.saluschart.core.chart
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.IntSize
 import java.time.YearMonth
 import java.time.LocalDate
-import kotlin.div
-import kotlin.text.toDouble
-import kotlin.text.toFloat
-import kotlin.times
 import kotlin.math.*
 
 object ChartMath {
@@ -74,7 +71,7 @@ object ChartMath {
      * @param chartType 차트 타입 (BAR/STACKED_BAR 타입일 경우 minY를 항상 0으로 설정)
      * @return 차트 메트릭 객체
      */
-    fun computeMetrics(size: Size, values: List<Float>, tickCount: Int = 5, chartType: ChartType? = null): ChartMetrics { // TODO: tickCount = 5 고정 
+    fun computeMetrics(size: Size, values: List<Float>, tickCount: Int = 5, chartType: ChartType? = null): ChartMetrics { // TODO: tickCount = 5 고정
         val paddingX = 60f
         val paddingY = 40f
         val chartWidth = size.width - paddingX
