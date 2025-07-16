@@ -85,14 +85,27 @@ object ChartDraw {
      */
     fun drawPoints(drawScope: DrawScope, points: List<Offset>, values: List<Float>) {
         points.forEachIndexed { i, point ->
+            // Draw the point circles
             drawScope.drawCircle(color = Color.Blue, radius = 8f, center = point)
             drawScope.drawCircle(color = Color.White, radius = 4f, center = point)
+
+            // Calculate tangent-based label position
+            val labelText = values[i].toInt().toString()
+            val labelPosition = ChartMath.calculateLabelPosition(
+                pointIndex = i,
+                points = points,
+                labelText = labelText
+            )
+
+            // Draw the label
             drawScope.drawContext.canvas.nativeCanvas.drawText(
-                values[i].toInt().toString(),
-                point.x, point.y - 12f,
+                labelText,
+                labelPosition.x,
+                labelPosition.y,
                 android.graphics.Paint().apply {
                     color = android.graphics.Color.DKGRAY
                     textSize = 28f
+                    textAlign = android.graphics.Paint.Align.CENTER
                 }
             )
         }
