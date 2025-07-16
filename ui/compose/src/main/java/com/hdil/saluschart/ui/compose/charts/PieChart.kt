@@ -17,7 +17,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartDraw
-import com.hdil.saluschart.core.chart.ChartMath
+import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.ui.theme.ChartColor
 import com.hdil.saluschart.ui.theme.ColorUtils
@@ -59,8 +59,8 @@ fun PieChart(
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // 파이 차트의 핵심 요소 그리기 (섹션 및 레이블)
-                val (center, radius) = ChartMath.computePieMetrics(size)
-                val sections = ChartMath.computePieAngles(data)
+                val (center, radius) = ChartMath.Pie.computePieMetrics(size)
+                val sections = ChartMath.Pie.computePieAngles(data)
 
                 if (sections.isNotEmpty()) {
                     // 각 섹션 그리기

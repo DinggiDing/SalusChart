@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartDraw
-import com.hdil.saluschart.core.chart.ChartMath
+import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.ui.theme.ChartColor
 
@@ -45,7 +45,7 @@ fun RangeBarChart(
                 .height(height)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
-                val metrics = ChartMath.computeRangeMetrics(size, data)
+                val metrics = ChartMath.RangeBar.computeRangeMetrics(size, data)
 
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.drawYAxis(this, metrics)

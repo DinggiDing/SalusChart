@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Dp
+import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.*
@@ -91,7 +92,7 @@ object ChartDraw {
 
             // Calculate tangent-based label position
             val labelText = values[i].toInt().toString()
-            val labelPosition = ChartMath.calculateLabelPosition(
+            val labelPosition = ChartMath.Line.calculateLabelPosition(
                 pointIndex = i,
                 points = points,
                 labelText = labelText
@@ -357,7 +358,7 @@ object ChartDraw {
                 val midAngle = startAngle + sweepAngle / 2
 
                 // 레이블 위치 계산
-                val labelPos = ChartMath.calculateLabelPosition(center, radius, 0.7f, midAngle)
+                val labelPos = ChartMath.Pie.calculateLabelPosition(center, radius, 0.7f, midAngle)
 
                 // 레이블 그리기
                 drawScope.drawContext.canvas.nativeCanvas.drawText(
@@ -740,9 +741,9 @@ object ChartDraw {
      * @param barWidthRatio 바 너비 비율 (0.0 ~ 1.0, 기본값 0.6)
      */
     fun drawRangeBars(
-        drawScope: DrawScope, 
-        data: List<RangeChartPoint>, 
-        metrics: ChartMath.ChartMetrics, 
+        drawScope: DrawScope,
+        data: List<RangeChartPoint>,
+        metrics: ChartMath.ChartMetrics,
         color: Color,
         barWidthRatio: Float = 0.6f
     ) {

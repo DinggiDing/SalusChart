@@ -107,8 +107,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
     val widthOptions = listOf(150.dp, 200.dp, 250.dp, 300.dp, 350.dp)
     val heightOptions = listOf(150.dp, 200.dp, 250.dp, 300.dp, 350.dp)
 
-    var selectedWidth by remember { mutableStateOf(widthOptions[1]) }
-    var selectedHeight by remember { mutableStateOf(heightOptions[1]) }
+    var selectedWidth by remember { mutableStateOf(widthOptions.last()) }
+    var selectedHeight by remember { mutableStateOf(heightOptions.last()) }
 
     Column(
         modifier = modifier.padding(16.dp),

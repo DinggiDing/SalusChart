@@ -18,7 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartDraw
-import com.hdil.saluschart.core.chart.ChartMath
+import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -114,7 +114,7 @@ private fun SingleMonthCalendarChart(
     val dayOfWeeks = DayOfWeek.values()
 
     // 캘린더 정보 계산
-    val (firstDayOfWeek, totalDays, weeks) = ChartMath.computeCalendarMetrics(yearMonth)
+    val (firstDayOfWeek, totalDays, weeks) = ChartMath.Calendar.computeCalendarMetrics(yearMonth)
 
     // width가 지정된 경우 적용하고, 없으면 fillMaxWidth 사용
     val columnModifier = if (width != Dp.Unspecified) {
@@ -197,7 +197,7 @@ private fun SingleMonthCalendarChart(
                             val entry = entriesByDate[currentDate]
                             entry?.let { dataEntry ->
                                 // 원 크기 계산
-                                val bubbleRadius = ChartMath.calculateBubbleSize(
+                                val bubbleRadius = ChartMath.Calendar.calculateBubbleSize(
                                     value = dataEntry.value,
                                     maxValue = maxValue,
                                     minSize = minBubbleSize,
