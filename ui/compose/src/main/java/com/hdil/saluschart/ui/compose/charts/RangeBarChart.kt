@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.hdil.saluschart.core.chart.ChartDraw
+import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.ui.theme.ChartColor
@@ -49,8 +49,8 @@ fun RangeBarChart(
 
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.drawYAxis(this, metrics)
-                ChartDraw.drawRangeBars(this, data, metrics, barColor, barWidthRatio)
-                ChartDraw.drawBarXAxisLabels(drawContext, labels, metrics)
+                ChartDraw.RangeBar.drawRangeBars(this, data, metrics, barColor, barWidthRatio)
+                ChartDraw.Bar.drawBarXAxisLabels(drawContext, labels, metrics)
             }
         }
 

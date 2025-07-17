@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.hdil.saluschart.core.chart.ChartDraw
+import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -26,7 +26,6 @@ import java.time.format.TextStyle
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.text.get
 
 /**
  * 캘린더 차트에 표시할 데이터 모델
@@ -160,7 +159,7 @@ private fun SingleMonthCalendarChart(
 
                 // 그리드 그리기
                 if (showGrid) {
-                    ChartDraw.drawCalendarGrid(
+                    ChartDraw.Calendar.drawCalendarGrid(
                         drawScope = this,
                         cellWidth = cellWidth,
                         cellHeight = cellHeight,
@@ -184,7 +183,7 @@ private fun SingleMonthCalendarChart(
                             val y = cellHeight * week + 20f
 
                             // 날짜 텍스트 그리기
-                            ChartDraw.drawCalendarDay(
+                            ChartDraw.Calendar.drawCalendarDay(
                                 ctx = drawContext,
                                 day = dayOfMonth,
                                 x = x,
@@ -209,7 +208,7 @@ private fun SingleMonthCalendarChart(
                                 val bubbleY = y + 25f
 
                                 // 원 그리기
-                                ChartDraw.drawCalendarDataPoint(
+                                ChartDraw.Calendar.drawCalendarDataPoint(
                                     drawScope = this,
                                     x = bubbleX,
                                     y = bubbleY,

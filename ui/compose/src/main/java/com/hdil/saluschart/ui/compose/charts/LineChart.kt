@@ -12,12 +12,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.hdil.saluschart.core.chart.ChartDraw
+import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.ui.theme.ChartColor
@@ -54,9 +51,9 @@ fun LineChart(
                 val points = ChartMath.mapToCanvasPoints(data, size, metrics)
 
                 ChartDraw.drawGrid(this, size, metrics)
-                ChartDraw.drawLinePath(this, points, lineColor)
-                ChartDraw.drawPoints(this, points, yValues)
-                ChartDraw.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
+                ChartDraw.Line.drawLinePath(this, points, lineColor)
+                ChartDraw.Scatter.drawPoints(this, points, yValues)
+                ChartDraw.Line.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
             }
         }
 

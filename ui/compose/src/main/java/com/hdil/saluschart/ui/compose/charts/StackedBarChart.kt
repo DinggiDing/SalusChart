@@ -16,7 +16,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.hdil.saluschart.core.chart.ChartDraw
+import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.StackedChartPoint
@@ -78,10 +78,10 @@ fun StackedBarChart(
                 val metrics = ChartMath.computeMetrics(size, totalValues, chartType = ChartType.STACKED_BAR)
 
                 ChartDraw.drawGrid(this, size, metrics)
-                ChartDraw.drawStackedBars(this, data, metrics, colors, barWidthRatio)
+                ChartDraw.Bar.drawStackedBars(this, data, metrics, colors, barWidthRatio)
                 ChartDraw.drawXAxis(this, metrics)
                 ChartDraw.drawYAxis(this, metrics)
-                ChartDraw.drawBarXAxisLabels(drawContext, xLabels, metrics)
+                ChartDraw.Bar.drawBarXAxisLabels(drawContext, xLabels, metrics)
                 
                 // 범례 그리기 (통합된 범례 시스템 사용)
                 if (showLegend && segmentLabels.isNotEmpty()) {
