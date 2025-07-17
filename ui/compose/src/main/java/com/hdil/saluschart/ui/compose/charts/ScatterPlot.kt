@@ -49,7 +49,7 @@ fun ScatterPlot(
                 val points = ChartMath.mapToCanvasPoints(data, size, metrics)
 
                 ChartDraw.drawGrid(this, size, metrics)
-                ChartDraw.drawPoints(this, points, yValues)
+//                ChartDraw.drawPoints(this, points, yValues)
                 ChartDraw.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
             }
         }
