@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.hdil.saluschart.core.chart.ChartDraw
+import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
 
@@ -49,8 +49,8 @@ fun ScatterPlot(
                 val points = ChartMath.mapToCanvasPoints(data, size, metrics)
 
                 ChartDraw.drawGrid(this, size, metrics)
-                ChartDraw.drawPoints(this, points, yValues)
-                ChartDraw.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
+                ChartDraw.Scatter.drawPoints(this, points, yValues)
+                ChartDraw.Line.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
             }
         }
 

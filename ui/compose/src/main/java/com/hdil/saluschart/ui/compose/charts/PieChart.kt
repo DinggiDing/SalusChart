@@ -16,10 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.hdil.saluschart.core.chart.ChartDraw
+import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
-import com.hdil.saluschart.ui.theme.ChartColor
 import com.hdil.saluschart.ui.theme.ColorUtils
 
 /**
@@ -66,7 +65,7 @@ fun PieChart(
                     // 각 섹션 그리기
                     sections.forEachIndexed { i, (startAngle, sweepAngle, _) ->
                         val colorIndex = i % colors.size
-                        ChartDraw.drawPieSection(
+                        ChartDraw.Pie.drawPieSection(
                             drawScope = this,
                             center = center,
                             radius = radius,
@@ -79,7 +78,7 @@ fun PieChart(
                     }
 
                     // 레이블 그리기
-                    ChartDraw.drawPieLabels(
+                    ChartDraw.Pie.drawPieLabels(
                         drawScope = this,
                         center = center,
                         radius = radius,

@@ -18,13 +18,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.hdil.saluschart.core.chart.ChartDraw
+import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.ChartType
@@ -78,8 +75,8 @@ fun BarChart(
                 ChartDraw.drawYAxis(this, metrics)
 
                 // 바를 그리고 히트 영역을 반환 받음
-                val hitAreas = ChartDraw.drawBars(this, yValues, metrics, barColor)
-                ChartDraw.drawBarXAxisLabels(drawContext, xLabels, metrics)
+                val hitAreas = ChartDraw.Bar.drawBars(this, yValues, metrics, barColor)
+                ChartDraw.Bar.drawBarXAxisLabels(drawContext, xLabels, metrics)
 
                 // 터치한 위치가 어떤 바의 히트 영역에 있는지 확인
                 touchedPosition?.let { position ->
@@ -87,7 +84,7 @@ fun BarChart(
                         if (hitArea.contains(position)) {
                             // 터치한 바의 값을 저장하고 해당 위치에 툴팁 표시
                             touchedBarValue = value
-                            ChartDraw.drawBarTooltip(this, value, position)
+                            ChartDraw.Bar.drawBarTooltip(this, value, position)
                             break
                         }
                     }
