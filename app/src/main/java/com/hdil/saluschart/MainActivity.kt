@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedButton
@@ -34,6 +36,7 @@ import com.hdil.saluschart.ui.theme.SalusChartTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.ui.graphics.Color
 import com.hdil.saluschart.ui.compose.charts.BarChart
 import com.hdil.saluschart.ui.compose.charts.CalendarChart
@@ -47,6 +50,13 @@ import java.time.YearMonth
 
 
 import kotlin.text.toInt
+import com.hdil.saluschart.core.chart.ProgressChartPoint
+import com.hdil.saluschart.ui.compose.charts.ProgressChart
+import com.hdil.saluschart.ui.compose.charts.MinBarChart
+import com.hdil.saluschart.ui.compose.charts.MinLineChart
+import com.hdil.saluschart.ui.compose.charts.MinRangeBarChart
+import com.hdil.saluschart.ui.compose.charts.createLineData
+import com.hdil.saluschart.core.chart.RangeChartPoint
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,6 +79,9 @@ class MainActivity : ComponentActivity() {
 fun SampleCharts(modifier: Modifier = Modifier) {
     // 차트 타입 선택 상태 관리
     var selectedChartType by remember { mutableStateOf("Line") }
+    
+    // 프로그레스 차트 모드 선택 상태 관리 (도넛 vs 바)
+    var isProgressDonut by remember { mutableStateOf(true) }
 
 //    // 현재 연월과 랜덤 데이터 생성
     val yearMonth = YearMonth.now()
@@ -123,45 +136,87 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 SegmentedButton(
                     selected = selectedChartType == "Line",
                     onClick = { selectedChartType = "Line" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 7),
-                    label = { Text("Line", fontSize = 8.sp) }
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 11),
+                    label = { Text("Line", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Scatter",
                     onClick = { selectedChartType = "Scatter" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 7),
-                    label = { Text("Scatter", fontSize = 7.sp) }
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 11),
+                    label = { Text("Scatter", fontSize = 6.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Bar",
                     onClick = { selectedChartType = "Bar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 7),
-                    label = { Text("Bar", fontSize = 8.sp) }
+                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 11),
+                    label = { Text("Bar", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Stacked",
                     onClick = { selectedChartType = "Stacked" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 3, count = 7),
-                    label = { Text("Stacked", fontSize = 7.sp) }
+                    shape = SegmentedButtonDefaults.itemShape(index = 3, count = 11),
+                    label = { Text("Stacked", fontSize = 6.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Range",
                     onClick = { selectedChartType = "Range" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 4, count = 7),
-                    label = { Text("Range", fontSize = 8.sp) }
+                    shape = SegmentedButtonDefaults.itemShape(index = 4, count = 11),
+                    label = { Text("Range", fontSize = 6.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Pie",
                     onClick = { selectedChartType = "Pie" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 5, count = 7),
-                    label = { Text("Pie", fontSize = 8.sp) }
+                    shape = SegmentedButtonDefaults.itemShape(index = 5, count = 11),
+                    label = { Text("Pie", fontSize = 7.sp) }
+                )
+                SegmentedButton(
+                    selected = selectedChartType == "Progress",
+                    onClick = { selectedChartType = "Progress" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 6, count = 11),
+                    label = { Text("Progress", fontSize = 6.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Calendar",
                     onClick = { selectedChartType = "Calendar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 6, count = 7),
-                    label = { Text("Calendar", fontSize = 7.sp) }
+                    shape = SegmentedButtonDefaults.itemShape(index = 7, count = 11),
+                    label = { Text("Calendar", fontSize = 6.sp) }
                 )
+                SegmentedButton(
+                    selected = selectedChartType == "MinBar",
+                    onClick = { selectedChartType = "MinBar" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 8, count = 11),
+                    label = { Text("MinBar", fontSize = 6.sp) }
+                )
+                SegmentedButton(
+                    selected = selectedChartType == "MinLine",
+                    onClick = { selectedChartType = "MinLine" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 9, count = 11),
+                    label = { Text("MinLine", fontSize = 6.sp) }
+                )
+                SegmentedButton(
+                    selected = selectedChartType == "MinRange",
+                    onClick = { selectedChartType = "MinRange" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 10, count = 11),
+                    label = { Text("MinRange", fontSize = 5.sp) }
+                )
+            }
+        }
+
+        // 프로그레스 차트 모드 토글 (프로그레스 차트 선택 시에만 표시)
+        if (selectedChartType == "Progress") {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                Text("Bar Mode")
+                Spacer(modifier = Modifier.width(8.dp))
+                Switch(
+                    checked = isProgressDonut,
+                    onCheckedChange = { isProgressDonut = it }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Donut Mode")
             }
         }
 
@@ -357,6 +412,44 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     height = selectedHeight
                 )
             }
+                         "Progress" -> {
+                 // 더미 프로그레스 데이터 생성 - {"Move": 1200/2000 KJ, "Exercise": 20/60min, "Stand": 7/10 h}
+                 val progressData = listOf(
+                     ProgressChartPoint(
+                         x = 0f,
+                         current = 1200f,
+                         max = 2000f,
+                         label = "Move",
+                         unit = "KJ"
+                     ),
+                     ProgressChartPoint(
+                         x = 1f,
+                         current = 20f,
+                         max = 60f,
+                         label = "Exercise",
+                         unit = "min"
+                     ),
+                     ProgressChartPoint(
+                         x = 2f,
+                         current = 7f,
+                         max = 10f,
+                         label = "Stand",
+                         unit = "h"
+                     )
+                 )
+                 ProgressChart(
+                     data = progressData,
+                     title = "일일 활동 진행률",
+                     isDonut = isProgressDonut,
+                     width = selectedWidth,
+                     height = selectedHeight,
+                     colors = listOf(
+                         Color(0xFF00C7BE), // 청록색 (Move)
+                         Color(0xFFFF6B35), // 주황색 (Exercise)
+                         Color(0xFF3A86FF)  // 파란색 (Stand)
+                     )
+                 )
+             }
             "Calendar" -> {
                 CalendarChart(
                     entries = entries,
@@ -365,6 +458,39 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     height = selectedHeight
                 )
             }
+                         "MinBar" -> {
+                 MinBarChart(
+                     data = sampleData,
+                     color = Color.Blue,
+                     width = selectedWidth,
+                     height = selectedHeight
+                 )
+             }
+             "MinLine" -> {
+                 MinLineChart(
+                     data = chartPoints,
+                     color = Color.Blue,
+                     width = selectedWidth,
+                     height = selectedHeight,
+                     showPoints = true
+                 )
+             }
+             "MinRange" -> {
+                 // 단일 범위 데이터 생성 (심박수 범위 예시: 76-104 bpm)
+                 val singleRangeData = RangeChartPoint(
+                     x = 0f,
+                     yMin = 76f,
+                     yMax = 104f,
+                     label = "Heart Rate"
+                 )
+                 MinRangeBarChart(
+                     data = singleRangeData,
+                     containerColor = Color.LightGray,
+                     rangeColor = Color(0xFFFF9500),
+                     width = selectedWidth,
+                     height = selectedHeight
+                 )
+             }
         }
     }
 }

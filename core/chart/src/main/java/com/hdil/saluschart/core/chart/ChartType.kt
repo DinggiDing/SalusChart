@@ -6,6 +6,7 @@ enum class ChartType {
     RANGE_BAR,
     STACKED_BAR,
     PIE,
+    PROGRESS,
     SCATTERPLOT,
     SLEEPSTAGE_CHART,
     CALENDAR;
