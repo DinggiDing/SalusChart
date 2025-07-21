@@ -116,8 +116,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
     var widthExpanded by remember { mutableStateOf(false) }
     var heightExpanded by remember { mutableStateOf(false) }
 
-    val widthOptions = listOf(150.dp, 200.dp, 250.dp, 300.dp, 350.dp)
-    val heightOptions = listOf(150.dp, 200.dp, 250.dp, 300.dp, 350.dp)
+    val widthOptions = listOf(50.dp, 100.dp, 150.dp, 200.dp, 250.dp, 300.dp, 350.dp)
+    val heightOptions = listOf(50.dp, 100.dp, 150.dp, 200.dp, 250.dp, 300.dp, 350.dp)
 
     var selectedWidth by remember { mutableStateOf(widthOptions.last()) }
     var selectedHeight by remember { mutableStateOf(heightOptions.last()) }
@@ -482,6 +482,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                      showPoints = true
                  )
              }
+            /*
              "MinRange" -> {
                  // 단일 범위 데이터 생성 (심박수 범위 예시: 76-104 bpm)
                  val singleRangeData = RangeChartPoint(
@@ -492,12 +493,14 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                  )
                  MinRangeBarChart(
                      data = singleRangeData,
-                     containerColor = Color.LightGray,
+                     containerColor = Color.Red,
                      rangeColor = Color(0xFFFF9500),
                      width = selectedWidth,
                      height = selectedHeight
                  )
              }
+             */
+
         }
     }
 }

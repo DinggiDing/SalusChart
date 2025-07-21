@@ -115,7 +115,7 @@ object MinChartMath {
         val containerX = padding
         val containerY = (size.height - containerHeight) / 2f
         val container = BarPosition(containerX, containerY, chartWidth, containerHeight)
-        
+        15
         // 실제 범위 바는 컨테이너 전체를 채움 (단일 데이터 포인트이므로)
         val rangeBar = BarPosition(containerX, containerY, chartWidth, containerHeight)
         
