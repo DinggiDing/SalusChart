@@ -92,7 +92,7 @@ fun ProgressChart(
                 }
                 
                 // 라벨 표시
-                if (showLabels) {
+                if (isDonut == false && showLabels) {
                     ChartDraw.Progress.drawProgressLabels(
                         drawScope = this,
                         data = data,
@@ -104,7 +104,7 @@ fun ProgressChart(
                 }
                 
                 // 값 표시
-                if (showValues) {
+                if (isDonut == false && showValues) {
                     ChartDraw.Progress.drawProgressValues(
                         drawScope = this,
                         data = data,

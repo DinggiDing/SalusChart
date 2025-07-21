@@ -32,7 +32,12 @@ object LineChartDraw {
      * @param metrics 차트 메트릭 정보
      * @param centered 텍스트를 중앙 정렬할지 여부 (기본값: true)
      */
-    fun drawXAxisLabels(ctx: DrawContext, labels: List<String>, metrics: ChartMath.ChartMetrics, centered: Boolean = true) {
+    fun drawXAxisLabels(
+        ctx: DrawContext,
+        labels: List<String>,
+        metrics: ChartMath.ChartMetrics,
+        centered: Boolean = true
+    ) {
         val spacing = metrics.chartWidth / (labels.size - 1)
         labels.forEachIndexed { i, label ->
             val x = metrics.paddingX + i * spacing
@@ -50,5 +55,4 @@ object LineChartDraw {
             )
         }
     }
-
 }

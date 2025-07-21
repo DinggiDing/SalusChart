@@ -11,7 +11,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
@@ -34,7 +40,11 @@ fun ScatterPlot(
     val xLabels = data.map { it.x }
     val yValues = data.map { it.y }
 
-    // ScatterPlot implementation goes here
+    // State variables for points and selection
+    var canvasPoints by remember { mutableStateOf(listOf<Offset>()) }
+    var canvasSize by remember { mutableStateOf(Size.Zero) }
+    var selectedPointIndex by remember { mutableStateOf<Int?>(null) }
+
     Column(modifier = modifier.padding(16.dp)) {
         Text(text = title, style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
@@ -48,12 +58,26 @@ fun ScatterPlot(
                 val metrics = ChartMath.computeMetrics(size, yValues)
                 val points = ChartMath.mapToCanvasPoints(data, size, metrics)
 
+                // Store points and canvas size
+                canvasPoints = points
+                canvasSize = size
+
                 ChartDraw.drawGrid(this, size, metrics)
-                ChartDraw.Scatter.drawPoints(this, points, yValues)
                 ChartDraw.Line.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
             }
-        }
 
+            // Add PointMarkers for each data point
+            canvasPoints.forEachIndexed { index, point ->
+                ChartDraw.Scatter.PointMarker(
+                    center = point,
+                    value = yValues[index].toInt().toString(),
+                    isSelected = selectedPointIndex == null || selectedPointIndex == index,
+                    onClick = {
+                        selectedPointIndex = if (selectedPointIndex == index) null else index
+                    }
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(4.dp))
     }

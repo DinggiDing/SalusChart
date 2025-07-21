@@ -3,6 +3,7 @@ package com.hdil.saluschart.ui.compose.charts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -90,8 +91,3 @@ fun MinRangeBarChart(
     }
 }
 
-/**
- * 크기를 지정하는 확장 함수
- */
-private fun Modifier.size(width: Dp, height: Dp): Modifier =
-    this.then(androidx.compose.foundation.layout.size(width, height))

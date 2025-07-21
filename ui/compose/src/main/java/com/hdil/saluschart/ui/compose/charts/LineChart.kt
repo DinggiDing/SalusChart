@@ -75,7 +75,6 @@ fun LineChart(
 
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.Line.drawLinePath(this, points, lineColor)
-//                ChartDraw.drawPoints(points, yValues)
                 ChartDraw.Line.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
             }
             // Canvas 위에 각 포인트마다 PointMarker 배치

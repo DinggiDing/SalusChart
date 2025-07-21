@@ -29,7 +29,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hdil.saluschart.core.chart.ChartPoint
-import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.ui.compose.charts.LineChart
 import com.hdil.saluschart.ui.compose.charts.ScatterPlot
 import com.hdil.saluschart.ui.theme.SalusChartTheme
@@ -149,7 +148,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     selected = selectedChartType == "Bar",
                     onClick = { selectedChartType = "Bar" },
                     shape = SegmentedButtonDefaults.itemShape(index = 2, count = 11),
-                    label = { Text("Bar", fontSize = 7.sp) }
+                    label = { Text("Bar", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Stacked",
@@ -161,19 +160,19 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     selected = selectedChartType == "Range",
                     onClick = { selectedChartType = "Range" },
                     shape = SegmentedButtonDefaults.itemShape(index = 4, count = 11),
-                    label = { Text("Range", fontSize = 6.sp) }
+                    label = { Text("Range", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Pie",
                     onClick = { selectedChartType = "Pie" },
                     shape = SegmentedButtonDefaults.itemShape(index = 5, count = 11),
-                    label = { Text("Pie", fontSize = 7.sp) }
+                    label = { Text("Pie", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Progress",
                     onClick = { selectedChartType = "Progress" },
                     shape = SegmentedButtonDefaults.itemShape(index = 6, count = 11),
-                    label = { Text("Progress", fontSize = 6.sp) }
+                    label = { Text("Progress", fontSize = 5.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Calendar",
@@ -181,23 +180,31 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     shape = SegmentedButtonDefaults.itemShape(index = 7, count = 11),
                     label = { Text("Calendar", fontSize = 6.sp) }
                 )
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            SingleChoiceSegmentedButtonRow {
                 SegmentedButton(
                     selected = selectedChartType == "MinBar",
                     onClick = { selectedChartType = "MinBar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 8, count = 11),
-                    label = { Text("MinBar", fontSize = 6.sp) }
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
+                    label = { Text("Minimal Bar", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "MinLine",
                     onClick = { selectedChartType = "MinLine" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 9, count = 11),
-                    label = { Text("MinLine", fontSize = 6.sp) }
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
+                    label = { Text("Minimal Line", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "MinRange",
                     onClick = { selectedChartType = "MinRange" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 10, count = 11),
-                    label = { Text("MinRange", fontSize = 5.sp) }
+                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+                    label = { Text("Minimal Range", fontSize = 7.sp) }
                 )
             }
         }
