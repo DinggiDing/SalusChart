@@ -138,7 +138,8 @@ object ProgressChartDraw {
                     center = center,
                     radius = radius,
                     isDonut = true,
-                    point = point
+                    point = point,
+                    index = index
                 )
                 
                 // 라벨 텍스트 그리기
@@ -170,6 +171,7 @@ object ProgressChartDraw {
                     center = center,
                     isDonut = false,
                     point = point,
+                    index = index,
                     barY = barY,
                     barWidth = barWidth
                 )

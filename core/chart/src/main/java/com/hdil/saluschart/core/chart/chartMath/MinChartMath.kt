@@ -31,67 +31,6 @@ object MinChartMath {
     }
     
     /**
-     * 미니멀 바 차트용 바 위치를 계산합니다.
-     * 
-     * @param size 캔버스 크기
-     * @param values 데이터 값들
-     * @param padding 패딩
-     * @return List<바 정보: (x, y, 너비, 높이)>
-     */
-    fun computeMinimalBarPositions(
-        size: Size,
-        values: List<Float>,
-        padding: Float = 8f
-    ): List<BarPosition> {
-        val (chartWidth, chartHeight, range) = computeMinimalMetrics(size, values, padding)
-        val (minValue, maxValue) = range
-        
-        val barWidth = chartWidth / values.size * 0.8f // 80% 너비로 간격 생성
-        val spacing = chartWidth / values.size
-        
-        return values.mapIndexed { index, value ->
-            val normalizedValue = if (maxValue == minValue) 0.5f else (value - minValue) / (maxValue - minValue)
-            val barHeight = chartHeight * normalizedValue
-            
-            val x = padding + index * spacing + (spacing - barWidth) / 2f
-            val y = size.height - padding - barHeight
-            
-            BarPosition(x, y, barWidth, barHeight)
-        }
-    }
-    
-    /**
-     * 미니멀 라인 차트용 포인트들을 계산합니다.
-     * 
-     * @param size 캔버스 크기
-     * @param data 차트 데이터 포인트들
-     * @param padding 패딩
-     * @return 화면 좌표로 변환된 포인트들
-     */
-    fun computeMinimalLinePoints(
-        size: Size,
-        data: List<ChartPoint>,
-        padding: Float = 8f
-    ): List<Offset> {
-        if (data.isEmpty()) return emptyList()
-        
-        val values = data.map { it.y }
-        val (chartWidth, chartHeight, range) = computeMinimalMetrics(size, values, padding)
-        val (minValue, maxValue) = range
-        
-        val spacing = if (data.size > 1) chartWidth / (data.size - 1) else 0f
-        
-        return data.mapIndexed { index, point ->
-            val normalizedValue = if (maxValue == minValue) 0.5f else (point.y - minValue) / (maxValue - minValue)
-            
-            val x = padding + index * spacing
-            val y = size.height - padding - (chartHeight * normalizedValue)
-            
-            Offset(x, y)
-        }
-    }
-    
-    /**
      * 미니멀 범위 바 차트용 단일 바 위치를 계산합니다.
      * 
      * @param size 캔버스 크기

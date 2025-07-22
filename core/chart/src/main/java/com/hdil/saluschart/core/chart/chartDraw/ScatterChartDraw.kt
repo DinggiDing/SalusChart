@@ -28,11 +28,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Dp
 import kotlin.times
@@ -40,6 +40,7 @@ import kotlin.unaryMinus
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 
 object ScatterChartDraw {
+
     /**
      * 각 데이터 포인트를 원으로 표시하고 값을 레이블로 표시합니다.
      *

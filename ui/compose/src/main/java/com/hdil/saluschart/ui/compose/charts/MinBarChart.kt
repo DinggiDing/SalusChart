@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
+import com.hdil.saluschart.core.chart.chartDraw.BarChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 
 /**
@@ -45,18 +45,23 @@ fun MinBarChart(
             )
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            // 바 위치 계산
-            val barPositions = ChartMath.Min.computeMinimalBarPositions(
+            // 미니멀 차트 메트릭 계산
+            val metrics = ChartMath.computeMetrics(
                 size = size,
                 values = data,
-                padding = padding
+                isMinimal = true,
+                paddingX = padding,
+                paddingY = padding
             )
             
-            // 바 그리기
-            ChartDraw.Min.drawMinimalBars(
+            // 미니멀 바 그리기 (히트 영역 없음)
+            BarChartDraw.drawBars(
                 drawScope = this,
-                barPositions = barPositions,
-                color = color
+                values = data,
+                metrics = metrics,
+                color = color,
+                isMinimal = true,
+                barWidthMultiplier = 0.8f
             )
         }
     }

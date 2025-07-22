@@ -46,16 +46,31 @@ object BarChartDraw {
      * @param values 원본 데이터 값 목록
      * @param metrics 차트 메트릭 정보
      * @param color 바 색상
-     * @return 각 바의 히트 영역과 값의 쌍 목록 (터치 이벤트 처리용)
+     * @param isMinimal 미니멀 차트 모드인지 여부 (기본값: false)
+     * @param barWidthMultiplier 바 너비 배수 (normal=0.5, minimal=0.8)
+     * @return 각 바의 히트 영역과 값의 쌍 목록 (터치 이벤트 처리용, 미니멀 모드에서는 빈 리스트)
      */
-    fun drawBars(drawScope: DrawScope, values: List<Float>, metrics: ChartMath.ChartMetrics, color: Color): List<Pair<androidx.compose.ui.geometry.Rect, Float>> {
-        val barWidth = metrics.chartWidth / values.size / 2
+    fun drawBars(
+        drawScope: DrawScope, 
+        values: List<Float>, 
+        metrics: ChartMath.ChartMetrics, 
+        color: Color,
+        isMinimal: Boolean = false,
+        barWidthMultiplier: Float = if (isMinimal) 0.8f else 0.5f
+    ): List<Pair<androidx.compose.ui.geometry.Rect, Float>> {
+        val barWidth = metrics.chartWidth / values.size * barWidthMultiplier
         val spacing = metrics.chartWidth / values.size
         val hitAreas = mutableListOf<Pair<androidx.compose.ui.geometry.Rect, Float>>()
 
         values.forEachIndexed { i, value ->
             val barHeight = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
-            val barX = metrics.paddingX + barWidth / 2 + i * spacing  // Y축과 겹치지 않도록 시프트
+            
+            val barX = if (isMinimal) {
+                metrics.paddingX + i * spacing + (spacing - barWidth) / 2f
+            } else {
+                metrics.paddingX + barWidth / 2 + i * spacing
+            }
+            
             val barY = metrics.chartHeight - barHeight
 
             drawScope.drawRect(
@@ -65,13 +80,15 @@ object BarChartDraw {
             )
 
             // 히트 영역을 저장 (바 주변에 약간의 여백 추가)
-            val hitArea = androidx.compose.ui.geometry.Rect(
-                left = barX - 10f,
-                top = barY - 10f,
-                right = barX + barWidth + 10f,
-                bottom = metrics.chartHeight + 10f
-            )
-            hitAreas += Pair(hitArea, value)
+            if (!isMinimal) {
+                val hitArea = androidx.compose.ui.geometry.Rect(
+                    left = barX - 10f,
+                    top = barY - 10f,
+                    right = barX + barWidth + 10f,
+                    bottom = metrics.chartHeight + 10f
+                )
+                hitAreas += Pair(hitArea, value)
+            }
         }
 
         return hitAreas

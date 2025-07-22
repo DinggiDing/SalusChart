@@ -84,11 +84,20 @@ object ChartMath {
      * @param values 차트에 표시할 Y축 데이터 값 목록
      * @param tickCount 원하는 Y축 눈금 개수 (기본값: 5)
      * @param chartType 차트 타입 (BAR/STACKED_BAR 타입일 경우 minY를 항상 0으로 설정)
+     * @param isMinimal 미니멀 차트 모드인지 여부 (기본값: false)
+     * @param paddingX X축 패딩 값 (기본값: normal=60f, minimal=8f)
+     * @param paddingY Y축 패딩 값 (기본값: normal=40f, minimal=8f)
      * @return 차트 메트릭 객체
      */
-    fun computeMetrics(size: Size, values: List<Float>, tickCount: Int = 5, chartType: ChartType? = null): ChartMetrics { // TODO: tickCount = 5 고정
-        val paddingX = 60f
-        val paddingY = 40f
+    fun computeMetrics(
+        size: Size, 
+        values: List<Float>, 
+        tickCount: Int = 5, 
+        chartType: ChartType? = null,
+        isMinimal: Boolean = false,
+        paddingX: Float = if (isMinimal) 8f else 60f,
+        paddingY: Float = if (isMinimal) 8f else 40f
+    ): ChartMetrics {
         val chartWidth = size.width - paddingX
         val chartHeight = size.height - paddingY
 
@@ -103,10 +112,14 @@ object ChartMath {
         }
         val maxY = dataMax
 
-        val yTicks = computeNiceTicks(minY, maxY, tickCount)
+        val yTicks = if (isMinimal) {
+            listOf(minY, maxY)
+        } else {
+            computeNiceTicks(minY, maxY, tickCount)
+        }
 
-        val actualMinY = yTicks.minOrNull() ?: minY
-        val actualMaxY = yTicks.maxOrNull() ?: maxY
+        val actualMinY = if (isMinimal) minY else (yTicks.minOrNull() ?: minY)
+        val actualMaxY = if (isMinimal) maxY else (yTicks.maxOrNull() ?: maxY)
 
         return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, actualMinY, actualMaxY, yTicks)
     }

@@ -1,9 +1,47 @@
 package com.hdil.saluschart.core.chart.chartMath
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import com.hdil.saluschart.core.chart.ChartPoint
 import kotlin.math.sqrt
 
 object LineChartMath {
+    
+    /**
+     * 라인 차트용 포인트들을 계산합니다.
+     *
+     * @param data 차트 데이터 포인트 목록
+     * @param size Canvas의 전체 크기
+     * @param metrics 차트 메트릭 정보
+     * @param isMinimal 미니멀 차트 모드인지 여부
+     * @return 화면 좌표로 변환된 Offset 목록
+     */
+    fun computeLinePoints(
+        data: List<ChartPoint>, 
+        size: Size, 
+        metrics: ChartMath.ChartMetrics,
+        isMinimal: Boolean = false
+    ): List<Offset> {
+        if (data.isEmpty()) return emptyList()
+        
+        return if (isMinimal) {
+            // 미니멀: 간단한 좌표 변환
+            val spacing = if (data.size > 1) metrics.chartWidth / (data.size - 1) else 0f
+            data.mapIndexed { index, point ->
+                val normalizedValue = if (metrics.maxY == metrics.minY) 0.5f 
+                    else (point.y - metrics.minY) / (metrics.maxY - metrics.minY)
+                
+                val x = metrics.paddingX + index * spacing
+                val y = size.height - metrics.paddingY - (metrics.chartHeight * normalizedValue)
+                
+                Offset(x, y)
+            }
+        } else {
+            // 일반: 기존 ChartMath.mapToCanvasPoints 사용
+            ChartMath.mapToCanvasPoints(data, size, metrics)
+        }
+    }
+
     /**
      * 탄젠트 벡터를 기반으로 최적의 라벨 위치를 계산합니다.
      * 라인과의 겹침을 최소화하기 위해 접선에 수직인 방향으로 라벨을 배치합니다.

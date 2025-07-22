@@ -10,8 +10,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartPoint
-import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
+import com.hdil.saluschart.core.chart.chartDraw.LineChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
+import com.hdil.saluschart.core.chart.chartMath.LineChartMath
 
 /**
  * 미니멀 라인 차트 (스파크라인) - 위젯이나 스마트워치 등 작은 화면용
@@ -50,40 +51,32 @@ fun MinLineChart(
             )
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            // 라인 포인트 계산
-            val linePoints = ChartMath.Min.computeMinimalLinePoints(
+            // 미니멀 차트 메트릭 계산
+            val metrics = ChartMath.computeMetrics(
                 size = size,
-                data = data,
-                padding = padding
+                values = data.map { it.y },
+                isMinimal = true,
+                paddingX = padding,
+                paddingY = padding
             )
             
-            // 라인 그리기
-            ChartDraw.Min.drawMinimalLine(
+            // 라인 포인트 계산
+            val linePoints = LineChartMath.computeLinePoints(
+                data = data,
+                size = size,
+                metrics = metrics,
+                isMinimal = true
+            )
+            
+            // 라인 그리기 (포인트 표시 포함)
+            LineChartDraw.drawLine(
                 drawScope = this,
                 points = linePoints,
                 color = color,
-                strokeWidth = strokeWidth
+                strokeWidth = strokeWidth,
+                showPoints = showPoints,
+                pointRadius = strokeWidth * 1.5f
             )
-            
-            // 끝점 표시 (옵션)
-            if (showPoints && linePoints.isNotEmpty()) {
-                val endPoints = listOf(linePoints.first(), linePoints.last())
-                ChartDraw.Min.drawMinimalPoints(
-                    drawScope = this,
-                    points = endPoints,
-                    color = color,
-                    radius = strokeWidth * 1.5f
-                )
-            }
         }
-    }
-}
-
-/**
- * Float 값들로부터 ChartPoint 리스트를 생성하는 편의 함수
- */
-fun createLineData(values: List<Float>): List<ChartPoint> {
-    return values.mapIndexed { index, value ->
-        ChartPoint(x = index.toFloat(), y = value)
     }
 }

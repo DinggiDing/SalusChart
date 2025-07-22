@@ -11,51 +11,6 @@ import com.hdil.saluschart.core.chart.chartMath.MinChartMath
 object MinChartDraw {
     
     /**
-     * 미니멀 바들을 그립니다 (축이나 레이블 없이).
-     * 
-     * @param drawScope 그리기 영역
-     * @param barPositions 바 위치 정보 목록
-     * @param color 바 색상
-     */
-    fun drawMinimalBars(
-        drawScope: DrawScope,
-        barPositions: List<MinChartMath.BarPosition>,
-        color: Color
-    ) {
-        barPositions.forEach { bar ->
-            drawScope.drawRect(
-                color = color,
-                topLeft = Offset(bar.x, bar.y),
-                size = Size(bar.width, bar.height)
-            )
-        }
-    }
-    
-    /**
-     * 미니멀 라인을 그립니다 (스파크라인 스타일).
-     * 기존 LineChartDraw.drawLinePath를 재사용합니다.
-     * 
-     * @param drawScope 그리기 영역
-     * @param points 화면 좌표로 변환된 포인트들
-     * @param color 라인 색상
-     * @param strokeWidth 라인 두께
-     */
-    fun drawMinimalLine(
-        drawScope: DrawScope,
-        points: List<Offset>,
-        color: Color,
-        strokeWidth: Float = 2f
-    ) {
-        if (points.size < 2) return
-        
-        val path = androidx.compose.ui.graphics.Path().apply {
-            moveTo(points.first().x, points.first().y)
-            points.drop(1).forEach { lineTo(it.x, it.y) }
-        }
-        drawScope.drawPath(path, color = color, style = Stroke(width = strokeWidth))
-    }
-    
-    /**
      * 미니멀 범위 바를 그립니다 (컨테이너와 실제 범위 표시).
      * 
      * @param drawScope 그리기 영역

@@ -3,7 +3,8 @@ package com.hdil.saluschart.core.chart.chartMath
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import com.hdil.saluschart.core.chart.ProgressChartPoint
-import kotlin.math.*
+import kotlin.math.cos
+import kotlin.math.sin
 
 object ProgressChartMath {
     
@@ -100,6 +101,7 @@ object ProgressChartMath {
      * @param radius 반지름
      * @param isDonut 도넛 차트 여부
      * @param point 프로그레스 차트 포인트
+     * @param index 데이터 인덱스 (라벨 스택을 위해)
      * @param barY 바 차트일 경우 바의 Y 위치
      * @param barWidth 바 차트일 경우 바의 너비
      * @return 라벨 위치
@@ -109,12 +111,15 @@ object ProgressChartMath {
         radius: Float = 0f,
         isDonut: Boolean,
         point: ProgressChartPoint,
+        index: Int,
         barY: Float = 0f,
         barWidth: Float = 0f
     ): Offset {
         return if (isDonut) {
-            // 도넛 차트: 중심에서 약간 오른쪽으로 위치
-            Offset(center.x + radius * 0.3f, center.y)
+            // 도넛 차트: 라벨들을 수직으로 스택하여 겹침 방지
+            val labelSpacing = 25f
+            val startY = center.y - (labelSpacing * (index - 1)) // 중앙에서 시작하여 위아래로 분산
+            Offset(center.x + radius + 20f, startY + (index * labelSpacing))
         } else {
             // 바 차트: 바의 왼쪽에 위치
             Offset(center.x - barWidth / 2f - 20f, barY + 15f)
@@ -141,8 +146,20 @@ object ProgressChartMath {
         barWidth: Float = 0f
     ): Offset {
         return if (isDonut) {
-            // 도넛 차트: 중심에서 약간 오른쪽 아래로 위치
-            Offset(center.x + radius * 0.3f, center.y + 20f)
+            // 도넛 차트: 프로그레스 아크의 끝 지점에 위치
+            val startAngle = -90f // 12시 방향에서 시작
+            val sweepAngle = point.progress * 360f
+            val endAngle = startAngle + sweepAngle
+            
+            // 각도를 라디안으로 변환
+            val endAngleRadians = Math.toRadians(endAngle.toDouble())
+            
+            // 아크 끝 지점의 좌표 계산
+            val textRadius = radius + 15f // 아크보다 조금 바깥쪽에 위치
+            val x = center.x + (textRadius * cos(endAngleRadians)).toFloat()
+            val y = center.y + (textRadius * sin(endAngleRadians)).toFloat()
+            
+            Offset(x, y)
         } else {
             // 바 차트: 바의 오른쪽에 위치
             Offset(center.x + barWidth / 2f + 20f, barY + 15f)
