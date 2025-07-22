@@ -101,7 +101,7 @@ object ProgressChartMath {
      * @param radius 반지름
      * @param isDonut 도넛 차트 여부
      * @param point 프로그레스 차트 포인트
-     * @param index 데이터 인덱스 (라벨 스택을 위해)
+     * @param strokeWidth 도넛 차트의 링 두께
      * @param barY 바 차트일 경우 바의 Y 위치
      * @param barWidth 바 차트일 경우 바의 너비
      * @return 라벨 위치
@@ -111,15 +111,19 @@ object ProgressChartMath {
         radius: Float = 0f,
         isDonut: Boolean,
         point: ProgressChartPoint,
-        index: Int,
+        strokeWidth: Float = 40f,
         barY: Float = 0f,
         barWidth: Float = 0f
     ): Offset {
         return if (isDonut) {
-            // 도넛 차트: 라벨들을 수직으로 스택하여 겹침 방지
-            val labelSpacing = 25f
-            val startY = center.y - (labelSpacing * (index - 1)) // 중앙에서 시작하여 위아래로 분산
-            Offset(center.x + radius + 20f, startY + (index * labelSpacing))
+            val startAngle = -90f // 12시 방향
+            val startAngleRadians = Math.toRadians(startAngle.toDouble())
+
+            val labelRadius = radius - (strokeWidth / 2f)
+            val x = center.x + (labelRadius * cos(startAngleRadians)).toFloat()
+            val y = center.y + (labelRadius * sin(startAngleRadians)).toFloat()
+
+            Offset(x, y)
         } else {
             // 바 차트: 바의 왼쪽에 위치
             Offset(center.x - barWidth / 2f - 20f, barY + 15f)

@@ -54,7 +54,6 @@ import com.hdil.saluschart.ui.compose.charts.ProgressChart
 import com.hdil.saluschart.ui.compose.charts.MinBarChart
 import com.hdil.saluschart.ui.compose.charts.MinLineChart
 import com.hdil.saluschart.ui.compose.charts.MinRangeBarChart
-import com.hdil.saluschart.ui.compose.charts.createLineData
 import com.hdil.saluschart.core.chart.RangeChartPoint
 
 class MainActivity : ComponentActivity() {

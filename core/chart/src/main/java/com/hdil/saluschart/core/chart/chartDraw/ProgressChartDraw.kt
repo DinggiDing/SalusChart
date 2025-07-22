@@ -139,7 +139,6 @@ object ProgressChartDraw {
                     radius = radius,
                     isDonut = true,
                     point = point,
-                    index = index
                 )
                 
                 // 라벨 텍스트 그리기
@@ -171,7 +170,6 @@ object ProgressChartDraw {
                     center = center,
                     isDonut = false,
                     point = point,
-                    index = index,
                     barY = barY,
                     barWidth = barWidth
                 )
@@ -230,13 +228,15 @@ object ProgressChartDraw {
                     point = point
                 )
                 
-                // 값 텍스트 생성
-                val valueText = buildString {
-                    append("${point.current.toInt()}")
-                    point.unit?.let { append(" $it") }
-                    append(" / ${point.max.toInt()}")
-                    point.unit?.let { append(" $it") }
-                }
+//                // 값 텍스트 생성
+//                val valueText = buildString {
+//                    append("${point.current.toInt()}")
+//                    point.unit?.let { append(" $it") }
+//                    append(" / ${point.max.toInt()}")
+//                    point.unit?.let { append(" $it") }
+//                }
+                // 값 텍스트 생성 (퍼센트 표시)
+                val valueText = "${(point.percentage).toInt()}%"
                 
                 // 값 텍스트 그리기
                 drawScope.drawContext.canvas.nativeCanvas.drawText(
@@ -244,7 +244,7 @@ object ProgressChartDraw {
                     valuePosition.x,
                     valuePosition.y,
                     android.graphics.Paint().apply {
-                        color = android.graphics.Color.GRAY
+                        color = android.graphics.Color.BLACK
                         this.textSize = textSize
                         textAlign = android.graphics.Paint.Align.CENTER
                     }
@@ -268,13 +268,15 @@ object ProgressChartDraw {
                     barWidth = barWidth
                 )
                 
-                // 값 텍스트 생성
-                val valueText = buildString {
-                    append("${point.current.toInt()}")
-                    point.unit?.let { append(" $it") }
-                    append(" / ${point.max.toInt()}")
-                    point.unit?.let { append(" $it") }
-                }
+//                // 값 텍스트 생성
+//                val valueText = buildString {
+//                    append("${point.current.toInt()}")
+//                    point.unit?.let { append(" $it") }
+//                    append(" / ${point.max.toInt()}")
+//                    point.unit?.let { append(" $it") }
+//                }
+                // 값 텍스트 생성 (퍼센트 표시)
+                val valueText = "${(point.percentage).toInt()}%"
                 
                 // 값 텍스트 그리기
                 drawScope.drawContext.canvas.nativeCanvas.drawText(

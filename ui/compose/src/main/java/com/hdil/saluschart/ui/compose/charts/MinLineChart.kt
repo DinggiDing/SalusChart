@@ -74,8 +74,6 @@ fun MinLineChart(
                 points = linePoints,
                 color = color,
                 strokeWidth = strokeWidth,
-                showPoints = showPoints,
-                pointRadius = strokeWidth * 1.5f
             )
         }
     }
