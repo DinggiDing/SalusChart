@@ -48,13 +48,11 @@ object LineChartMath {
      *
      * @param pointIndex 현재 포인트의 인덱스
      * @param points 모든 데이터 포인트들
-     * @param labelText 표시할 라벨 텍스트
      * @return 최적의 라벨 위치
      */
     fun calculateLabelPosition(
         pointIndex: Int,
         points: List<Offset>,
-        labelText: String
     ): Offset {
         val currentPoint = points[pointIndex]
         val baseDistance = 25f

@@ -81,14 +81,18 @@ fun LineChart(
             canvasPoints.forEachIndexed { index, point ->
 
                 // PointMarker 컴포저블 배치
+                // In LineChart.kt, update the PointMarker call:
                 ChartDraw.Scatter.PointMarker(
                     center = point,
                     value = yValues[index].toInt().toString(),
                     isSelected = selectedPointIndex == null || selectedPointIndex == index,
                     onClick = {
-                        // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
                         selectedPointIndex = if (selectedPointIndex == index) null else index
-                    }
+                    },
+                    // Add these parameters for line chart label positioning
+                    isLineChart = true,
+                    pointIndex = index,
+                    allPoints = canvasPoints
                 )
             }
         }

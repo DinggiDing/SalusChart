@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import kotlin.times
 import kotlin.unaryMinus
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
+import com.hdil.saluschart.core.chart.chartMath.LineChartMath
 
 object ScatterChartDraw {
 
@@ -55,7 +56,10 @@ object ScatterChartDraw {
         pointRadius: Dp = 8.dp,
         innerRadius: Dp = 4.dp,
         isSelected: Boolean = true,  // true면 파란색, false면 회색
-        onClick: (() -> Unit)? = null
+        onClick: (() -> Unit)? = null,
+        isLineChart: Boolean = false,
+        pointIndex: Int = 0,
+        allPoints: List<Offset> = emptyList()
     ) {
         // 툴팁 표시 여부를 제어하는 상태
         var showTooltip by remember { mutableStateOf(false) }
@@ -95,9 +99,29 @@ object ScatterChartDraw {
             )
             // 툴팁 표시
             if (showTooltip) {
+                // Calculate label position based on chart type
+                val labelOffset = if (isLineChart && allPoints.isNotEmpty()) {
+                    val optimalPosition = LineChartMath.calculateLabelPosition(pointIndex, allPoints)
+
+                    // Convert absolute position to relative offset
+                    val relativeDx = with(LocalDensity.current) {
+                        (optimalPosition.x - center.x).toDp()
+                    }
+                    val relativeDy = with(LocalDensity.current) {
+                        (optimalPosition.y - center.y).toDp()
+                    }
+
+                    val adjustedDx = if (relativeDx > 0.dp) relativeDx + pointRadius else if (relativeDx == 0.dp) relativeDx else relativeDx - pointRadius
+                    val adjustedDy = if (relativeDy > 0.dp) relativeDy + pointRadius else if (relativeDy == 0.dp) relativeDy else relativeDy - pointRadius
+
+                    Modifier.offset(x = adjustedDx, y = adjustedDy)
+                } else {
+                    // Default positioning for scatter charts (above the point)
+                    Modifier.offset(x = 0.dp, y = -(pointRadius * 4))
+                }
+
                 Box(
-                    modifier = Modifier
-                        .offset(x = 0.dp, y = -(pointRadius * 4))
+                    modifier = labelOffset
                         .width(IntrinsicSize.Min)
                 ) {
                     Text(
