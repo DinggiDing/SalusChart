@@ -108,7 +108,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
     }.toList()
 
     // 기본적인 raw 데이터로 차트 그리기
-    val sampleData = listOf(12f, 25f, 40f, 15f, 35f, 50f, 45f)
+    val sampleData = listOf(10f, 25f, 40f, 20f, 35f, 55f, 45f)
     val weekDays = listOf("월", "화", "수", "목", "금", "토", "일")
 
     // 드롭다운 메뉴를 위한 상태 관리

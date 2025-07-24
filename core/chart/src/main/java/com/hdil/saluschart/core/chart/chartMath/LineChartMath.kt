@@ -50,7 +50,6 @@ object LineChartMath {
                 outgoing = normalizeVector(points[pointIndex + 1] - currentPoint)  // Direction FROM current TO next
             }
         }
-
         // Calculate tangent as average of incoming and outgoing (after the when block)
         val tangent = normalizeVector(
             Offset(
@@ -59,8 +58,6 @@ object LineChartMath {
             )
         )
 
-        // Log the calculated values
-        Log.d("LineChartMath", "Point $pointIndex: incoming=(${incoming.x}, ${incoming.y}), outgoing=(${outgoing.x}, ${outgoing.y}), tangent=(${tangent.x}, ${tangent.y})")
         // Step 2: Calculate normal vectors (perpendicular to tangent)
         val normal1 = Offset(-tangent.y, tangent.x)   // 90° counterclockwise
         val normal2 = Offset(tangent.y, -tangent.x)   // 90° clockwise
@@ -75,12 +72,10 @@ object LineChartMath {
             currentPoint.y + normal2.y * baseDistance
         )
 
-        // Step 4: Choose the better candidate with larger opening angle
-        val angleSum1 = angleBetween(normal1, incoming) +
-                angleBetween(normal1, outgoing)
-        val angleSum2 = angleBetween(normal2, incoming) +
-                angleBetween(normal2, outgoing)
-        return if (angleSum1 > angleSum2) candidate1 else candidate2
+        // Step 4: Choose the better candidate by checking the cross product
+        val crossProduct = incoming.x * outgoing.y - incoming.y * outgoing.x
+
+        return if (crossProduct >= 0) candidate2 else candidate1
     }
 
     /**
@@ -96,10 +91,5 @@ object LineChartMath {
         } else {
             Offset(1f, 0f)
         }
-    }
-
-    fun angleBetween(a: Offset, b: Offset): Float {
-        val dot = (a.x * b.x + a.y * b.y).coerceIn(-1f, 1f)
-        return acos(dot)           // result in radians, between 0 and π
     }
 }
