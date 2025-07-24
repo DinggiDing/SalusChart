@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.chartDraw.BarChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
+import com.hdil.saluschart.core.chart.ChartType
 
 /**
  * 미니멀 바 차트 - 위젯이나 스마트워치 등 작은 화면용
@@ -24,7 +25,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
  * @param padding 차트 주변 패딩
  */
 @Composable
-fun MinBarChart(
+fun MinimalBarChart(
     modifier: Modifier = Modifier,
     data: List<Float>,
     color: Color = Color.Blue,
@@ -51,7 +52,8 @@ fun MinBarChart(
                 values = data,
                 isMinimal = true,
                 paddingX = padding,
-                paddingY = padding
+                paddingY = padding,
+                chartType = ChartType.MINIMAL_BAR
             )
             
             // 미니멀 바 그리기 (히트 영역 없음)

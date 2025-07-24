@@ -9,7 +9,10 @@ enum class ChartType {
     PROGRESS,
     SCATTERPLOT,
     SLEEPSTAGE_CHART,
-    CALENDAR;
+    CALENDAR,
+    MINIMAL_BAR,
+    MINIMAL_LINE,
+    MINIMAL_RANGE_BAR;
 
     companion object {
         fun fromString(type: String): ChartType? {

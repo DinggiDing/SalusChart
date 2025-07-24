@@ -51,9 +51,9 @@ import java.time.YearMonth
 import kotlin.text.toInt
 import com.hdil.saluschart.core.chart.ProgressChartPoint
 import com.hdil.saluschart.ui.compose.charts.ProgressChart
-import com.hdil.saluschart.ui.compose.charts.MinBarChart
-import com.hdil.saluschart.ui.compose.charts.MinLineChart
-import com.hdil.saluschart.ui.compose.charts.MinRangeBarChart
+import com.hdil.saluschart.ui.compose.charts.MinimalBarChart
+import com.hdil.saluschart.ui.compose.charts.MinimalLineChart
+import com.hdil.saluschart.ui.compose.charts.MinimalRangeBarChart
 import com.hdil.saluschart.core.chart.RangeChartPoint
 
 class MainActivity : ComponentActivity() {
@@ -108,7 +108,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
     }.toList()
 
     // 기본적인 raw 데이터로 차트 그리기
-    val sampleData = listOf(10f, 25f, 40f, 20f, 35f, 55f, 45f)
+    val sampleData = listOf(12f, 25f, 40f, 15f, 35f, 50f, 45f)
     val weekDays = listOf("월", "화", "수", "목", "금", "토", "일")
 
     // 드롭다운 메뉴를 위한 상태 관리
@@ -465,7 +465,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 )
             }
                          "MinBar" -> {
-                 MinBarChart(
+                 MinimalBarChart(
                      data = sampleData,
                      color = Color.Blue,
                      width = selectedWidth,
@@ -473,7 +473,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                  )
              }
              "MinLine" -> {
-                 MinLineChart(
+                 MinimalLineChart(
                      data = chartPoints,
                      color = Color.Blue,
                      width = selectedWidth,
@@ -490,7 +490,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                      yMax = 104f,
                      label = "Heart Rate"
                  )
-                 MinRangeBarChart(
+                 MinimalRangeBarChart(
                      data = singleRangeData,
                      containerColor = Color.Red,
                      rangeColor = Color(0xFFFF9500),

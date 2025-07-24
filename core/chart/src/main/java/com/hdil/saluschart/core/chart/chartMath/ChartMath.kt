@@ -21,7 +21,7 @@ object ChartMath {
     val RangeBar = RangeBarChartMath
     val Line = LineChartMath
     val Progress = ProgressChartMath
-    val Min = MinChartMath
+    val Min = MinimalChartMath
 
     /**
      * 차트 그리기에 필요한 메트릭 정보를 담는 데이터 클래스
@@ -105,7 +105,7 @@ object ChartMath {
         val dataMin = values.minOrNull() ?: 0f
 
         // BAR 및 STACKED_BAR 차트의 경우 항상 minY를 0으로 설정
-        val minY = if (chartType == ChartType.BAR || chartType == ChartType.STACKED_BAR) {
+        val minY = if (chartType == ChartType.BAR || chartType == ChartType.STACKED_BAR || chartType == ChartType.MINIMAL_BAR) {
             0f
         } else {
             if (dataMin >= 0 && dataMin < dataMax * 0.1) 0f else dataMin

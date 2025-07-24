@@ -75,7 +75,6 @@ object ScatterChartDraw {
             modifier = Modifier
                 .offset(x = xDp - pointRadius, y = yDp - pointRadius)
                 .size(pointRadius * 2)
-                .border(1.dp, Color.Red)
                 // 클릭 리스너 추가
                 .clickable {
                     // 툴팁 표시 상태 토글
@@ -99,11 +98,10 @@ object ScatterChartDraw {
             )
             // 툴팁 표시
             if (showTooltip) {
-                // Calculate label position based on chart type
                 val labelOffset = if (isLineChart && allPoints.isNotEmpty()) {
                     val optimalPosition = LineChartMath.calculateLabelPosition(pointIndex, allPoints)
 
-                    // Convert absolute position to relative offset
+                    // 각 포인트마다 relative 위치를 계산
                     val relativeDx = with(LocalDensity.current) {
                         (optimalPosition.x - center.x).toDp()
                     }
@@ -117,56 +115,18 @@ object ScatterChartDraw {
                     Modifier.offset(x = adjustedDx, y = adjustedDy)
                 } else {
                     // Default positioning for scatter charts (above the point)
-                    Modifier.offset(x = 0.dp, y = -(pointRadius * 4))
+                    Modifier.offset(x = 0.dp, y = -(pointRadius * 3))
                 }
 
-                Box(
+                Text(
+                    text = value,
+                    color = Color.Black,
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
                     modifier = labelOffset
                         .width(IntrinsicSize.Min)
-                ) {
-                    Text(
-                        text = value,
-                        color = Color.Black,
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
+                )
             }
         }
     }
-
-//    @Composable
-//    fun PointMarker(
-//        center: Offset,
-//        value: String,
-//        pointRadius: Dp = 8.dp,
-//        innerRadius: Dp = 4.dp,
-//        onClick: (() -> Unit)? = null  // 클릭 이벤트 콜백 추가
-//    ) {
-//        // Float 좌표를 Dp로 변환
-//        val xDp = with(LocalDensity.current) { center.x.toDp() }
-//        val yDp = with(LocalDensity.current) { center.y.toDp() }
-//
-//        Box(
-//            modifier = Modifier
-//                .offset(x = xDp - pointRadius, y = yDp - pointRadius)
-//                .size(pointRadius * 2),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            // 바깥쪽 파란 원
-//            Box(
-//                modifier = Modifier
-//                    .size(pointRadius * 2)
-//                    .background(color = Color.Blue, shape = CircleShape)
-//            )
-//            // 안쪽 흰색 원
-//            Box(
-//                modifier = Modifier
-//                    .size(innerRadius * 2)
-//                    .background(color = Color.White, shape = CircleShape)
-//            )
-//        }
-//    }
-
 }

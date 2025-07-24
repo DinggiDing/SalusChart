@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.chartDraw.LineChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
-import com.hdil.saluschart.core.chart.chartMath.LineChartMath
 
 /**
  * 미니멀 라인 차트 (스파크라인) - 위젯이나 스마트워치 등 작은 화면용
@@ -28,7 +27,7 @@ import com.hdil.saluschart.core.chart.chartMath.LineChartMath
  * @param showPoints 끝점을 원으로 표시할지 여부
  */
 @Composable
-fun MinLineChart(
+fun MinimalLineChart(
     modifier: Modifier = Modifier,
     data: List<ChartPoint>,
     color: Color = Color.Blue,
@@ -59,22 +58,10 @@ fun MinLineChart(
                 paddingX = padding,
                 paddingY = padding
             )
-            
-            // 라인 포인트 계산
-            val linePoints = LineChartMath.computeLinePoints(
-                data = data,
-                size = size,
-                metrics = metrics,
-                isMinimal = true
-            )
-            
+            val points = ChartMath.mapToCanvasPoints(data, size, metrics)
+
             // 라인 그리기 (포인트 표시 포함)
-            LineChartDraw.drawLine(
-                drawScope = this,
-                points = linePoints,
-                color = color,
-                strokeWidth = strokeWidth,
-            )
+            LineChartDraw.drawLine(this, points, color, strokeWidth)
         }
     }
 }

@@ -11,7 +11,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 object LineChartDraw {
 
     /**
-     * 라인 차트를 그립니다.
+     * 데이터 포인트를 연결하는 라인을 그립니다.
      *
      * @param drawScope 그리기 영역
      * @param points 화면 좌표로 변환된 데이터 포인트 목록
@@ -19,34 +19,19 @@ object LineChartDraw {
      * @param strokeWidth 라인 두께
      */
     fun drawLine(
-        drawScope: DrawScope, 
-        points: List<Offset>, 
+        drawScope: DrawScope,
+        points: List<Offset>,
         color: Color,
         strokeWidth: Float = 4f
     ) {
         if (points.size < 2) return
-        
+
         // 라인 그리기
         val path = androidx.compose.ui.graphics.Path().apply {
             moveTo(points.first().x, points.first().y)
             points.drop(1).forEach { lineTo(it.x, it.y) }
         }
         drawScope.drawPath(path, color = color, style = Stroke(width = strokeWidth))
-    }
-    
-    /**
-     * 데이터 포인트를 연결하는 라인을 그립니다.
-     *
-     * @param drawScope 그리기 영역
-     * @param points 화면 좌표로 변환된 데이터 포인트 목록
-     * @param color 라인 색상
-     */
-    fun drawLinePath(drawScope: DrawScope, points: List<Offset>, color: Color) {
-        val path = androidx.compose.ui.graphics.Path().apply {
-            moveTo(points.first().x, points.first().y)
-            points.drop(1).forEach { lineTo(it.x, it.y) }
-        }
-        drawScope.drawPath(path, color = color, style = Stroke(width = 4f))
     }
 
     /**

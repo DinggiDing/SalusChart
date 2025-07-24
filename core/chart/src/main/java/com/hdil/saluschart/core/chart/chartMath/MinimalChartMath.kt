@@ -1,11 +1,9 @@
 package com.hdil.saluschart.core.chart.chartMath
 
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.RangeChartPoint
 
-object MinChartMath {
+object MinimalChartMath {
     
     /**
      * 미니멀 차트용 기본 메트릭을 계산합니다 (축이나 레이블 없이).

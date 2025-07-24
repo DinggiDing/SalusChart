@@ -30,7 +30,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
  * @param cornerRadius 바의 모서리 둥글기
  */
 @Composable
-fun MinRangeBarChart(
+fun MinimalRangeBarChart(
     modifier: Modifier = Modifier,
     data: RangeChartPoint,
     containerColor: Color = Color.LightGray,

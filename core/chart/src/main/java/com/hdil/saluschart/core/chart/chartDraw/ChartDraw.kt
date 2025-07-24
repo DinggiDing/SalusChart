@@ -30,7 +30,7 @@ object ChartDraw {
     val Bar = BarChartDraw
     val Scatter = ScatterChartDraw
     val Progress = ProgressChartDraw
-    val Min = MinChartDraw
+    val Min = MinimalChartDraw
 
     /**
      * 눈금 값을 적절한 형식으로 포맷합니다.
