@@ -16,10 +16,12 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 
 /**
  * 미니멀 범위 바 차트 - 위젯이나 스마트워치 등 작은 화면용
- * 단일 범위 데이터를 컨테이너와 범위 바로 표시하며, 상단에 범위 텍스트 표시
+ * 범위 데이터를 컨테이너 범위 내에서 표시하며, 상단에 범위 텍스트 표시
  * 
  * @param modifier 모디파이어
- * @param data 범위 차트 데이터 (단일 데이터 포인트)
+ * @param data 범위 차트 데이터 (yMin, yMax 포함)
+ * @param containerMin 컨테이너의 최소값 (전체 범위 시작)
+ * @param containerMax 컨테이너의 최대값 (전체 범위 끝)
  * @param containerColor 컨테이너(배경) 바 색상
  * @param rangeColor 범위 바 색상
  * @param textColor 범위 텍스트 색상
@@ -33,6 +35,8 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 fun MinimalRangeBarChart(
     modifier: Modifier = Modifier,
     data: RangeChartPoint,
+    containerMin: Float,
+    containerMax: Float,
     containerColor: Color = Color.LightGray,
     rangeColor: Color = Color(0xFFFF9500), // 오렌지색
     textColor: Color = Color.Black,
@@ -54,17 +58,22 @@ fun MinimalRangeBarChart(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             // 범위 바 위치 계산
-            val (container, rangeBar) = ChartMath.Min.computeMinimalRangeBarPosition(
-                size = size,
-                rangePoint = data,
-                padding = padding
-            )
+            val ((containerOffset, containerSize), (rangeBarOffset, rangeBarSize)) = 
+                ChartMath.Min.computeMinimalRangeBarPosition(
+                    size = size,
+                    rangePoint = data,
+                    containerMin = containerMin,
+                    containerMax = containerMax,
+                    padding = padding
+                )
             
             // 범위 바 그리기
             ChartDraw.Min.drawMinimalRangeBar(
                 drawScope = this,
-                container = container,
-                rangeBar = rangeBar,
+                containerOffset = containerOffset,
+                containerSize = containerSize,
+                rangeBarOffset = rangeBarOffset,
+                rangeBarSize = rangeBarSize,
                 containerColor = containerColor,
                 rangeColor = rangeColor,
                 cornerRadius = cornerRadius
@@ -72,10 +81,10 @@ fun MinimalRangeBarChart(
             
             // 범위 텍스트 표시
             if (showRangeText) {
-                val rangeText = "${data.yMin.toInt()} - ${data.yMax.toInt()}"
+                val rangeText = "${data.yMin.toInt()}-${data.yMax.toInt()}"
                 val textPosition = Offset(
                     x = size.width / 2f,
-                    y = container.y - 8f // 바 위쪽에 위치
+                    y = containerOffset.y - 8f // 바 위쪽에 위치
                 )
                 
                 ChartDraw.Min.drawMinimalText(
