@@ -87,6 +87,8 @@ object ChartMath {
      * @param isMinimal 미니멀 차트 모드인지 여부 (기본값: false)
      * @param paddingX X축 패딩 값 (기본값: normal=60f, minimal=8f)
      * @param paddingY Y축 패딩 값 (기본값: normal=40f, minimal=8f)
+     * @param minY 사용자 지정 최소 Y값 (지정시 nice ticks보다 우선적용)
+     * @param maxY 사용자 지정 최대 Y값 (지정시 nice ticks보다 우선적용)
      * @return 차트 메트릭 객체
      */
     fun computeMetrics(
@@ -96,7 +98,9 @@ object ChartMath {
         chartType: ChartType? = null,
         isMinimal: Boolean = false,
         paddingX: Float = if (isMinimal) 8f else 60f,
-        paddingY: Float = if (isMinimal) 8f else 40f
+        paddingY: Float = if (isMinimal) 8f else 40f,
+        minY: Float? = null,
+        maxY: Float? = null
     ): ChartMetrics {
         val chartWidth = size.width - paddingX
         val chartHeight = size.height - paddingY
@@ -104,22 +108,26 @@ object ChartMath {
         val dataMax = values.maxOrNull() ?: 1f
         val dataMin = values.minOrNull() ?: 0f
 
-        // BAR 및 STACKED_BAR 차트의 경우 항상 minY를 0으로 설정
-        val minY = if (chartType == ChartType.BAR || chartType == ChartType.STACKED_BAR || chartType == ChartType.MINIMAL_BAR) {
-            0f
-        } else {
-            if (dataMin >= 0 && dataMin < dataMax * 0.1) 0f else dataMin
-        }
-        val maxY = dataMax
-
         val yTicks = if (isMinimal) {
-            listOf(minY, maxY)
+            listOf(dataMin, dataMax)
         } else {
-            computeNiceTicks(minY, maxY, tickCount)
+            computeNiceTicks(dataMin, dataMax, tickCount)
         }
 
-        val actualMinY = if (isMinimal) minY else (yTicks.minOrNull() ?: minY)
-        val actualMaxY = if (isMinimal) maxY else (yTicks.maxOrNull() ?: maxY)
+        // 바 차트의 경우 항상 actualMinY를 0으로 설정 (사용자 입력보다 우선)
+        val actualMinY = if (chartType == ChartType.BAR || chartType == ChartType.STACKED_BAR || chartType == ChartType.MINIMAL_BAR) {
+            0f
+        } else if (isMinimal) {
+            minY ?: dataMin
+        } else {
+            minY ?: (yTicks.minOrNull() ?: dataMin)
+        }
+        
+        val actualMaxY = if (isMinimal) {
+            maxY ?: dataMax
+        } else {
+            maxY ?: (yTicks.maxOrNull() ?: dataMax)
+        }
 
         return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, actualMinY, actualMaxY, yTicks)
     }

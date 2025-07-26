@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.Dp
 import kotlin.times
 import kotlin.unaryMinus
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
-import com.hdil.saluschart.core.chart.chartMath.LineChartMath
 
 object ScatterChartDraw {
 
@@ -99,7 +98,7 @@ object ScatterChartDraw {
             // 툴팁 표시
             if (showTooltip) {
                 val labelOffset = if (isLineChart && allPoints.isNotEmpty()) {
-                    val optimalPosition = LineChartMath.calculateLabelPosition(pointIndex, allPoints)
+                    val optimalPosition = ChartMath.Line.calculateLabelPosition(pointIndex, allPoints)
 
                     // 각 포인트마다 relative 위치를 계산
                     val relativeDx = with(LocalDensity.current) {

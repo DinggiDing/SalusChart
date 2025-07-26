@@ -376,6 +376,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     title = "요일별 활동량",
                     yLabel = "활동량",
                     xLabel = "요일",
+                    maxY = 68f,
                     width = selectedWidth,
                     height = selectedHeight
                 )
@@ -481,7 +482,6 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                      showPoints = true
                  )
              }
-            /*
              "MinRange" -> {
                  // 단일 범위 데이터 생성 (심박수 범위 예시: 76-104 bpm)
                  val singleRangeData = RangeChartPoint(
@@ -492,13 +492,14 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                  )
                  MinimalRangeBarChart(
                      data = singleRangeData,
-                     containerColor = Color.Red,
+                     containerMin = 60f,  // 정상 심박수 범위 시작
+                     containerMax = 120f, // 정상 심박수 범위 끝
+                     containerColor = Color.LightGray,
                      rangeColor = Color(0xFFFF9500),
                      width = selectedWidth,
                      height = selectedHeight
                  )
              }
-             */
 
         }
     }

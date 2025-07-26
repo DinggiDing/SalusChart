@@ -58,14 +58,15 @@ fun MinimalRangeBarChart(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             // 범위 바 위치 계산
-            val ((containerOffset, containerSize), (rangeBarOffset, rangeBarSize)) = 
-                ChartMath.Min.computeMinimalRangeBarPosition(
-                    size = size,
-                    rangePoint = data,
-                    containerMin = containerMin,
-                    containerMax = containerMax,
-                    padding = padding
-                )
+            val result = ChartMath.Min.computeMinimalRangeBarPosition(
+                size = size,
+                rangePoint = data,
+                containerMin = containerMin,
+                containerMax = containerMax,
+                padding = padding
+            )
+            val (containerOffset, containerSize) = result.first
+            val (rangeBarOffset, rangeBarSize) = result.second
             
             // 범위 바 그리기
             ChartDraw.Min.drawMinimalRangeBar(
@@ -83,7 +84,7 @@ fun MinimalRangeBarChart(
             if (showRangeText) {
                 val rangeText = "${data.yMin.toInt()}-${data.yMax.toInt()}"
                 val textPosition = Offset(
-                    x = size.width / 2f,
+                    x = rangeBarOffset.x + (rangeBarSize.width / 2f), // 범위 바의 중앙에 위치
                     y = containerOffset.y - 8f // 바 위쪽에 위치
                 )
                 
