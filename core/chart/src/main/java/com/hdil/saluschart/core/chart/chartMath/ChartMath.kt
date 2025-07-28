@@ -51,12 +51,34 @@ object ChartMath {
      * @param min 데이터의 최소값
      * @param max 데이터의 최대값
      * @param tickCount 원하는 눈금 개수 (기본값: 5)
+     * @param chartType 차트 타입 (BAR/STACKED_BAR/MINIMAL_BAR일 경우 최소값을 0으로 강제)
+     * @param actualMin 사용자 지정 최소 Y값 (지정시 데이터 범위를 확장)
+     * @param actualMax 사용자 지정 최대 Y값 (지정시 데이터 범위를 확장)
      * @return 계산된 눈금 값들의 리스트
      */
-    fun computeNiceTicks(min: Float, max: Float, tickCount: Int = 5): List<Float> {
+    fun computeNiceTicks(
+        min: Float, 
+        max: Float, 
+        tickCount: Int = 5, 
+        chartType: ChartType? = null,
+        actualMin: Float? = null,
+        actualMax: Float? = null
+    ): List<Float> {
         if (min >= max) {
             return listOf(0f, 1f)
         }
+        
+        // 바 차트의 경우 최소값을 0으로 강제 설정
+        var min = if (chartType == ChartType.BAR || 
+                             chartType == ChartType.STACKED_BAR || 
+                             chartType == ChartType.MINIMAL_BAR ||
+                             chartType == ChartType.RANGE_BAR ||
+                             chartType == ChartType.MINIMAL_RANGE_BAR) {
+            0f
+        } else {
+            min
+        }
+        
         val rawStep = (max - min) / tickCount.toDouble()
         val power = 10.0.pow(floor(log10(rawStep)))
         val candidates = listOf(1.0, 2.0, 5.0).map { it * power }
@@ -65,16 +87,45 @@ object ChartMath {
         val niceMin = floor(min / step) * step
         val niceMax = ceil(max / step) * step
 
+        // 사용자 지정 범위가 있으면 항상 우선 사용 (확장 또는 축소 모두 허용)
+        val finalMin = actualMin?.toDouble() ?: niceMin
+        val finalMax = actualMax?.toDouble() ?: niceMax
+
+        // 최종 범위에 대해 ticks 생성
         val ticks = mutableListOf<Float>()
-        var t = niceMin
-        while (t <= niceMax + 1e-6) {
-            // Fix floating-point precision issues
+        
+        // 사용자 지정 최소값이 있으면 먼저 추가
+        actualMin?.let { userMin ->
+            ticks.add(userMin)
+        }
+        
+        // step에 따른 nice ticks 추가
+        var t = if (actualMin != null) {
+            // 사용자 최소값 다음부터 step 단위로 시작
+            ceil(finalMin / step) * step
+        } else {
+            finalMin
+        }
+        
+        while (t <= finalMax + 1e-6) {
             val roundedTick = round(t * 1000000) / 1000000
-            ticks.add(roundedTick.toFloat())
+            val tickValue = roundedTick.toFloat()
+            
+            // 사용자 지정 값과 중복되지 않는 경우만 추가
+            if (actualMin == null || abs(tickValue - actualMin) > 1e-6) {
+                if (actualMax == null || abs(tickValue - actualMax) > 1e-6) {
+                    ticks.add(tickValue)
+                }
+            }
             t += step
         }
+        
+        // 사용자 지정 최대값이 있으면 마지막에 추가
+        actualMax?.let { userMax ->
+            ticks.add(userMax)
+        }
 
-        return ticks
+        return ticks.distinct().sorted()
     }
 
     /**
@@ -83,11 +134,11 @@ object ChartMath {
      * @param size Canvas의 전체 크기
      * @param values 차트에 표시할 Y축 데이터 값 목록
      * @param tickCount 원하는 Y축 눈금 개수 (기본값: 5)
-     * @param chartType 차트 타입 (BAR/STACKED_BAR 타입일 경우 minY를 항상 0으로 설정)
+     * @param chartType 차트 타입 (BAR/STACKED_BAR 타입일 경우 기본적으로 minY를 0으로 설정)
      * @param isMinimal 미니멀 차트 모드인지 여부 (기본값: false)
      * @param paddingX X축 패딩 값 (기본값: normal=60f, minimal=8f)
      * @param paddingY Y축 패딩 값 (기본값: normal=40f, minimal=8f)
-     * @param minY 사용자 지정 최소 Y값 (지정시 nice ticks보다 우선적용)
+     * @param minY 사용자 지정 최소 Y값 (지정시 바 차트의 기본 동작을 오버라이드)
      * @param maxY 사용자 지정 최대 Y값 (지정시 nice ticks보다 우선적용)
      * @return 차트 메트릭 객체
      */
@@ -111,13 +162,11 @@ object ChartMath {
         val yTicks = if (isMinimal) {
             listOf(dataMin, dataMax)
         } else {
-            computeNiceTicks(dataMin, dataMax, tickCount)
+            computeNiceTicks(dataMin, dataMax, tickCount, chartType, actualMin = minY, actualMax = maxY)
         }
 
-        // 바 차트의 경우 항상 actualMinY를 0으로 설정 (사용자 입력보다 우선)
-        val actualMinY = if (chartType == ChartType.BAR || chartType == ChartType.STACKED_BAR || chartType == ChartType.MINIMAL_BAR) {
-            0f
-        } else if (isMinimal) {
+        // Y축 범위 계산: 사용자 지정 값이 있으면 우선 사용, 없으면 nice ticks 또는 데이터 범위 사용
+        val actualMinY = if (isMinimal) {
             minY ?: dataMin
         } else {
             minY ?: (yTicks.minOrNull() ?: dataMin)

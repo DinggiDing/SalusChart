@@ -18,8 +18,15 @@ object BarChartDraw {
      * @param labels X축에 표시할 레이블 목록
      * @param metrics 차트 메트릭 정보
      * @param centered 텍스트를 중앙 정렬할지 여부 (기본값: true)
+     * @param textSize 레이블 텍스트 크기 (기본값: 28f)
      */
-    fun drawBarXAxisLabels(ctx: DrawContext, labels: List<String>, metrics: ChartMath.ChartMetrics, centered: Boolean = true) {
+    fun drawBarXAxisLabels(
+        ctx: DrawContext, 
+        labels: List<String>, 
+        metrics: ChartMath.ChartMetrics, 
+        centered: Boolean = true,
+        textSize: Float = 28f
+    ) {
         val barWidth = metrics.chartWidth / labels.size / 2
         val spacing = metrics.chartWidth / labels.size
         labels.forEachIndexed { i, label ->
@@ -30,7 +37,7 @@ object BarChartDraw {
                 metrics.chartHeight + 50f,
                 android.graphics.Paint().apply {
                     color = android.graphics.Color.DKGRAY
-                    textSize = 28f
+                    textSize = textSize
                     if (centered) {
                         textAlign = android.graphics.Paint.Align.CENTER
                     }
@@ -48,7 +55,9 @@ object BarChartDraw {
      * @param color 바 색상
      * @param isMinimal 미니멀 차트 모드인지 여부 (기본값: false)
      * @param barWidthMultiplier 바 너비 배수 (normal=0.5, minimal=0.8)
-     * @return 각 바의 히트 영역과 값의 쌍 목록 (터치 이벤트 처리용, 미니멀 모드에서는 빈 리스트)
+     * @param isInteractiveBars 터치 상호작용용 바를 그릴지 여부 (true: 전체 크기 투명 바, false: 데이터 시각화 바)
+     * @param showTouchAreas 터치 영역을 시각적으로 표시할지 여부 (isInteractiveBars=true일 때만 적용, 기본값: false)
+     * @return 각 바의 히트 영역과 값의 쌍 목록 (isInteractiveBars=true일 때만 반환, 아니면 빈 리스트)
      */
     fun drawBars(
         drawScope: DrawScope, 
@@ -56,38 +65,67 @@ object BarChartDraw {
         metrics: ChartMath.ChartMetrics, 
         color: Color,
         isMinimal: Boolean = false,
-        barWidthMultiplier: Float = if (isMinimal) 0.8f else 0.5f
+        barWidthMultiplier: Float = if (isMinimal) 0.8f else 0.5f,
+        isInteractiveBars: Boolean = false,
+        showTouchAreas: Boolean = false
     ): List<Pair<androidx.compose.ui.geometry.Rect, Float>> {
-        val barWidth = metrics.chartWidth / values.size * barWidthMultiplier
-        val spacing = metrics.chartWidth / values.size
         val hitAreas = mutableListOf<Pair<androidx.compose.ui.geometry.Rect, Float>>()
 
-        values.forEachIndexed { i, value ->
-            val barHeight = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+        if (isInteractiveBars) {
+            // 터치 상호작용용 바 그리기 (전체 너비, 전체 높이)
+            val touchBarWidth = metrics.chartWidth / values.size
+            val spacing = metrics.chartWidth / values.size
             
-            val barX = if (isMinimal) {
-                metrics.paddingX + i * spacing + (spacing - barWidth) / 2f
-            } else {
-                metrics.paddingX + barWidth / 2 + i * spacing
-            }
-            
-            val barY = metrics.chartHeight - barHeight
-
-            drawScope.drawRect(
-                color = color,
-                topLeft = Offset(barX, barY),
-                size = Size(barWidth, barHeight)
-            )
-
-            // 히트 영역을 저장 (바 주변에 약간의 여백 추가)
-            if (!isMinimal) {
-                val hitArea = androidx.compose.ui.geometry.Rect(
-                    left = barX - 10f,
-                    top = barY - 10f,
-                    right = barX + barWidth + 10f,
-                    bottom = metrics.chartHeight + 10f
+            values.forEachIndexed { i, value ->
+                val touchBarX = metrics.paddingX + i * spacing
+                
+                // 터치 영역 바 색상 결정
+                val touchBarColor = if (showTouchAreas) {
+                    Color(0x33FF69B4)  // 반투명 핑크 (디버깅용)
+                } else {
+                    Color.Transparent  // 완전 투명 (실제 사용)
+                }
+                
+                drawScope.drawRect(
+                    color = touchBarColor,
+                    topLeft = Offset(touchBarX, 0f),
+                    size = Size(touchBarWidth, metrics.chartHeight)
                 )
-                hitAreas += Pair(hitArea, value)
+                
+                // 터치 영역 저장
+                if (!isMinimal) {
+                    val hitArea = androidx.compose.ui.geometry.Rect(
+                        left = touchBarX,
+                        top = 0f,
+                        right = touchBarX + touchBarWidth,
+                        bottom = metrics.chartHeight
+                    )
+                    hitAreas += Pair(hitArea, value)
+                }
+            }
+        } else {
+            // 데이터 시각화용 바 그리기 (커스텀 너비, 데이터 높이)
+            val barWidth = metrics.chartWidth / values.size * barWidthMultiplier
+            val spacing = metrics.chartWidth / values.size
+            
+            values.forEachIndexed { i, value ->
+                val barHeight = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+                
+                val barX = if (isMinimal) {
+                    // 미니멀 모드: 중앙 정렬
+                    metrics.paddingX + i * spacing + (spacing - barWidth) / 2f
+                } else {
+                    // 기본 모드: 바 너비의 절반만큼 오프셋 적용
+                    metrics.paddingX + barWidth / 2 + i * spacing
+                }
+                
+                val barY = metrics.chartHeight - barHeight
+
+                drawScope.drawRect(
+                    color = color,
+                    topLeft = Offset(barX, barY),
+                    size = Size(barWidth, barHeight)
+                )
             }
         }
 
@@ -102,18 +140,20 @@ object BarChartDraw {
      * @param position 툴팁이 표시될 위치
      * @param backgroundColor 툴팁 배경 색상
      * @param textColor 텍스트 색상
+     * @param textSize 툴팁 텍스트 크기 (기본값: 32f)
      */
     fun drawBarTooltip(
         drawScope: DrawScope,
         value: Float,
         position: Offset,
         backgroundColor: Color = Color(0xE6333333), // 반투명 다크 그레이
-        textColor: Int = android.graphics.Color.WHITE
+        textColor: Int = android.graphics.Color.WHITE,
+        textSize: Float = 32f
     ) {
         val tooltipText = formatTickLabel(value)
         val textPaint = android.graphics.Paint().apply {
             color = textColor
-            textSize = 32f
+            textSize = textSize
             textAlign = android.graphics.Paint.Align.CENTER
         }
 

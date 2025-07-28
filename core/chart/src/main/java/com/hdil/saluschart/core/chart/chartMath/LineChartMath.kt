@@ -1,10 +1,6 @@
 package com.hdil.saluschart.core.chart.chartMath
 
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import com.hdil.saluschart.core.chart.ChartPoint
-import kotlin.math.acos
 import kotlin.math.sqrt
 
 object LineChartMath {

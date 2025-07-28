@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import com.hdil.saluschart.core.chart.ProgressChartPoint
-import com.hdil.saluschart.core.chart.chartMath.ProgressChartMath
+import com.hdil.saluschart.core.chart.chartMath.ChartMath
 
 object ProgressChartDraw {
     
@@ -36,7 +36,7 @@ object ProgressChartDraw {
     ) {
         if (isDonut) {
             // 도넛 차트 그리기
-            val (center, maxRadius, ringRadii) = ProgressChartMath.computeProgressDonutMetrics(
+            val (center, maxRadius, ringRadii) = ChartMath.Progress.computeProgressDonutMetrics(
                 size = size,
                 data = data,
                 strokeWidth = strokeWidth
@@ -46,7 +46,7 @@ object ProgressChartDraw {
                 if (index < ringRadii.size) {
                     val radius = ringRadii[index]
                     val color = colors.getOrElse(index) { colors.first() }
-                    val angles = ProgressChartMath.computeProgressAngles(listOf(point))
+                    val angles = ChartMath.Progress.computeProgressAngles(listOf(point))
                     val (startAngle, sweepAngle) = angles.first()
                     
                     // 배경 링 그리기 (전체 원)
@@ -74,7 +74,7 @@ object ProgressChartDraw {
             }
         } else {
             // 바 차트 그리기
-            val (barWidth, barYPositions) = ProgressChartMath.computeProgressBarMetrics(
+            val (barWidth, barYPositions) = ChartMath.Progress.computeProgressBarMetrics(
                 size = size,
                 data = data,
                 barHeight = barHeight
@@ -126,7 +126,7 @@ object ProgressChartDraw {
         textSize: Float = 32f
     ) {
         if (isDonut) {
-            val (center, maxRadius, ringRadii) = ProgressChartMath.computeProgressDonutMetrics(
+            val (center, maxRadius, ringRadii) = ChartMath.Progress.computeProgressDonutMetrics(
                 size = size,
                 data = data,
                 strokeWidth = strokeWidth
@@ -134,7 +134,7 @@ object ProgressChartDraw {
             
             data.forEachIndexed { index, point ->
                 val radius = ringRadii.getOrElse(index) { 0f }
-                val labelPosition = ProgressChartMath.computeLabelPosition(
+                val labelPosition = ChartMath.Progress.computeLabelPosition(
                     center = center,
                     radius = radius,
                     isDonut = true,
@@ -157,7 +157,7 @@ object ProgressChartDraw {
                 }
             }
         } else {
-            val (barWidth, barYPositions) = ProgressChartMath.computeProgressBarMetrics(
+            val (barWidth, barYPositions) = ChartMath.Progress.computeProgressBarMetrics(
                 size = size,
                 data = data,
                 barHeight = barHeight
@@ -166,7 +166,7 @@ object ProgressChartDraw {
             
             data.forEachIndexed { index, point ->
                 val barY = barYPositions.getOrElse(index) { 0f }
-                val labelPosition = ProgressChartMath.computeLabelPosition(
+                val labelPosition = ChartMath.Progress.computeLabelPosition(
                     center = center,
                     isDonut = false,
                     point = point,
@@ -213,7 +213,7 @@ object ProgressChartDraw {
         textSize: Float = 28f
     ) {
         if (isDonut) {
-            val (center, maxRadius, ringRadii) = ProgressChartMath.computeProgressDonutMetrics(
+            val (center, maxRadius, ringRadii) = ChartMath.Progress.computeProgressDonutMetrics(
                 size = size,
                 data = data,
                 strokeWidth = strokeWidth
@@ -221,7 +221,7 @@ object ProgressChartDraw {
             
             data.forEachIndexed { index, point ->
                 val radius = ringRadii.getOrElse(index) { 0f }
-                val valuePosition = ProgressChartMath.computeValuePosition(
+                val valuePosition = ChartMath.Progress.computeValuePosition(
                     center = center,
                     radius = radius,
                     isDonut = true,
@@ -251,7 +251,7 @@ object ProgressChartDraw {
                 )
             }
         } else {
-            val (barWidth, barYPositions) = ProgressChartMath.computeProgressBarMetrics(
+            val (barWidth, barYPositions) = ChartMath.Progress.computeProgressBarMetrics(
                 size = size,
                 data = data,
                 barHeight = barHeight
@@ -260,7 +260,7 @@ object ProgressChartDraw {
             
             data.forEachIndexed { index, point ->
                 val barY = barYPositions.getOrElse(index) { 0f }
-                val valuePosition = ProgressChartMath.computeValuePosition(
+                val valuePosition = ChartMath.Progress.computeValuePosition(
                     center = center,
                     isDonut = false,
                     point = point,

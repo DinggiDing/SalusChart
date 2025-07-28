@@ -26,6 +26,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.ui.theme.ChartColor
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun BarChart(
@@ -36,7 +37,12 @@ fun BarChart(
     title: String = "Bar Chart Example",
     barColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
     width: Dp = 250.dp,
-    height: Dp = 250.dp
+    height: Dp = 250.dp,
+    minY: Float? = null,                    // 사용자 지정 최소 Y값
+    maxY: Float? = null,                    // 사용자 지정 최대 Y값
+    barWidthMultiplier: Float = 0.5f,       // 바 너비 배수
+    labelTextSize: Float = 28f,             // X축 레이블 텍스트 크기
+    showTouchAreas: Boolean = false         // 터치 영역 시각적 표시 여부 (디버깅용)
 ) {
     if (data.isEmpty()) return
 
@@ -68,15 +74,45 @@ fun BarChart(
                         }
                     }
             ) {
-                val metrics = ChartMath.computeMetrics(size, yValues, chartType = ChartType.BAR)
+                val metrics = ChartMath.computeMetrics(
+                    size = size, 
+                    values = yValues, 
+                    chartType = ChartType.BAR,
+                    minY = minY,
+                    maxY = maxY
+                )
 
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.drawXAxis(this, metrics)
                 ChartDraw.drawYAxis(this, metrics)
 
-                // 바를 그리고 히트 영역을 반환 받음
-                val hitAreas = ChartDraw.Bar.drawBars(this, yValues, metrics, barColor)
-                ChartDraw.Bar.drawBarXAxisLabels(drawContext, xLabels, metrics)
+                // 1. 터치 상호작용용 투명 바 그리기 (히트 영역 생성)
+                val hitAreas = ChartDraw.Bar.drawBars(
+                    drawScope = this, 
+                    values = yValues, 
+                    metrics = metrics, 
+                    color = Color.Transparent,  // 색상은 사용되지 않음
+                    barWidthMultiplier = 1.0f,  // 전체 너비 사용
+                    isInteractiveBars = true,
+                    showTouchAreas = showTouchAreas
+                )
+                
+                // 2. 실제 데이터 시각화용 바 그리기
+                ChartDraw.Bar.drawBars(
+                    drawScope = this, 
+                    values = yValues, 
+                    metrics = metrics, 
+                    color = barColor,
+                    barWidthMultiplier = barWidthMultiplier,
+                    isInteractiveBars = false
+                )
+
+                ChartDraw.Bar.drawBarXAxisLabels(
+                    ctx = drawContext, 
+                    labels = xLabels, 
+                    metrics = metrics,
+                    textSize = labelTextSize
+                )
 
                 // 터치한 위치가 어떤 바의 히트 영역에 있는지 확인
                 touchedPosition?.let { position ->
