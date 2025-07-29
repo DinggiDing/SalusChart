@@ -378,6 +378,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     xLabel = "요일",
                     maxY = 68f,
                     width = selectedWidth,
+                    barWidthMultiplier = 0.2f,
                     height = selectedHeight
                 )
             }

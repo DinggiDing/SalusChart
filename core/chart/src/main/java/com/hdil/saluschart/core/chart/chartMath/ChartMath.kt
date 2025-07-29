@@ -71,9 +71,7 @@ object ChartMath {
         // 바 차트의 경우 최소값을 0으로 강제 설정
         var min = if (chartType == ChartType.BAR || 
                              chartType == ChartType.STACKED_BAR || 
-                             chartType == ChartType.MINIMAL_BAR ||
-                             chartType == ChartType.RANGE_BAR ||
-                             chartType == ChartType.MINIMAL_RANGE_BAR) {
+                             chartType == ChartType.MINIMAL_BAR) {
             0f
         } else {
             min

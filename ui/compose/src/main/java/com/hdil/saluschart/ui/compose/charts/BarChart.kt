@@ -42,7 +42,6 @@ fun BarChart(
     maxY: Float? = null,                    // 사용자 지정 최대 Y값
     barWidthMultiplier: Float = 0.5f,       // 바 너비 배수
     labelTextSize: Float = 28f,             // X축 레이블 텍스트 크기
-    showTouchAreas: Boolean = false         // 터치 영역 시각적 표시 여부 (디버깅용)
 ) {
     if (data.isEmpty()) return
 
@@ -86,7 +85,7 @@ fun BarChart(
                 ChartDraw.drawXAxis(this, metrics)
                 ChartDraw.drawYAxis(this, metrics)
 
-                // 1. 터치 상호작용용 투명 바 그리기 (히트 영역 생성)
+                // 터치 상호작용용 투명 바 그리기 (히트 영역 생성)
                 val hitAreas = ChartDraw.Bar.drawBars(
                     drawScope = this, 
                     values = yValues, 
@@ -94,10 +93,9 @@ fun BarChart(
                     color = Color.Transparent,  // 색상은 사용되지 않음
                     barWidthMultiplier = 1.0f,  // 전체 너비 사용
                     isInteractiveBars = true,
-                    showTouchAreas = showTouchAreas
                 )
                 
-                // 2. 실제 데이터 시각화용 바 그리기
+                // 실제 데이터 시각화용 바 그리기
                 ChartDraw.Bar.drawBars(
                     drawScope = this, 
                     values = yValues, 

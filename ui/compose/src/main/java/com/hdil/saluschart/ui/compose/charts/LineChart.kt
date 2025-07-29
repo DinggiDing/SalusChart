@@ -1,6 +1,7 @@
 package com.hdil.saluschart.ui.compose.charts
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -38,7 +40,7 @@ fun LineChart(
     title: String = "Line Chart Example",
     lineColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
     width: Dp = 250.dp,
-    height: Dp = 250.dp
+    height: Dp = 250.dp,
 ) {
     if (data.isEmpty()) return
 
@@ -53,6 +55,11 @@ fun LineChart(
     // null일 경우 모든 포인트가 기본색상(파란색)
     var selectedPointIndex by remember { mutableStateOf<Int?>(null) }
 
+    // 터치한 바의 위치와 값을 저장할 상태 변수
+    var touchedBarValue by remember { mutableStateOf<Float?>(null) }
+    var touchedPosition by remember { mutableStateOf<Offset?>(null) }
+
+
     Column(modifier = modifier.padding(16.dp)) {
         Text(title, style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
@@ -63,7 +70,16 @@ fun LineChart(
                 .height(height)
         ) {
             Canvas(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures { tapOffset ->
+                            // 터치 이벤트 발생 시 처리
+                            touchedPosition = tapOffset
+                            // 툴팁을 표시하기 위해 상태 초기화 (바를 탭하지 않았을 때)
+                            touchedBarValue = null
+                        }
+                    }
             ) {
 
                 val metrics = ChartMath.computeMetrics(size, yValues)
@@ -76,6 +92,31 @@ fun LineChart(
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.Line.drawLine(this, points, lineColor)
                 ChartDraw.Line.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
+
+                val hitAreas = ChartDraw.Bar.drawBars(
+                    drawScope = this,
+                    values = yValues,
+                    metrics = metrics,
+                    color = Color.Transparent,  // 색상은 사용되지 않음
+                    barWidthMultiplier = 1.0f,  // 전체 너비 사용
+                    isInteractiveBars = true,
+                )
+
+                touchedPosition?.let { position ->
+                    for ((hitArea, value) in hitAreas) {
+                        if (hitArea.contains(position)) {
+                            // 터치한 바의 값을 저장하고 해당 위치에 툴팁 표시
+                            touchedBarValue = value
+                            ChartDraw.Bar.drawBarTooltip(this, value, position)
+                            break
+                        }
+                    }
+
+                    // 터치한 위치에 바가 없으면 툴팁 숨김
+                    if (touchedBarValue == null) {
+                        touchedPosition = null
+                    }
+                }
             }
             // Canvas 위에 각 포인트마다 PointMarker 배치
             canvasPoints.forEachIndexed { index, point ->
