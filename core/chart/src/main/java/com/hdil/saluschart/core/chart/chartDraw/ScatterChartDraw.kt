@@ -42,11 +42,15 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 object ScatterChartDraw {
 
     /**
-     * 각 데이터 포인트를 원으로 표시하고 값을 레이블로 표시합니다.
+     * 각 데이터 포인트를 원으로 표시합니다 (시각적 표시용, 비상호작용).
      *
-     * @param drawScope 그리기 영역
-     * @param points 화면 좌표로 변환된 데이터 포인트 목록
-     * @param values 데이터 포인트의 Y축 값 목록
+     * @param center 포인트 중심 좌표
+     * @param pointRadius 포인트 외부 반지름
+     * @param innerRadius 포인트 내부 반지름 
+     * @param isSelected 선택 상태 (색상 결정용)
+     * @param isLineChart 라인 차트 여부 (미사용, 호환성용)
+     * @param pointIndex 포인트 인덱스 (미사용, 호환성용)
+     * @param allPoints 모든 포인트 (미사용, 호환성용)
      */
     @Composable
     fun PointMarker(
@@ -55,32 +59,22 @@ object ScatterChartDraw {
         pointRadius: Dp = 8.dp,
         innerRadius: Dp = 4.dp,
         isSelected: Boolean = true,  // true면 파란색, false면 회색
-        onClick: (() -> Unit)? = null,
-        isLineChart: Boolean = false,
-        pointIndex: Int = 0,
-        allPoints: List<Offset> = emptyList()
+        onClick: (() -> Unit)? = null,  // 호환성용, 무시됨
+        isLineChart: Boolean = false,   // 호환성용, 무시됨
+        pointIndex: Int = 0,            // 호환성용, 무시됨
+        allPoints: List<Offset> = emptyList()  // 호환성용, 무시됨
     ) {
-        // 툴팁 표시 여부를 제어하는 상태
-        var showTooltip by remember { mutableStateOf(false) }
         // Float 좌표를 Dp로 변환
         val xDp = with(LocalDensity.current) { center.x.toDp() }
         val yDp = with(LocalDensity.current) { center.y.toDp() }
 
         // 선택 상태에 따라 색상 결정
-        // isSelected가 true이면 파란색(기본색), false이면 회색
         val outerColor = if (isSelected) Color.Blue else Color.Gray
 
         Box(
             modifier = Modifier
                 .offset(x = xDp - pointRadius, y = yDp - pointRadius)
-                .size(pointRadius * 2)
-                // 클릭 리스너 추가
-                .clickable {
-                    // 툴팁 표시 상태 토글
-                    showTooltip = !showTooltip
-                    // 외부 클릭 이벤트도 처리
-                    onClick?.invoke()
-                },
+                .size(pointRadius * 2),
             contentAlignment = Alignment.Center
         ) {
             // 바깥쪽 원 - 선택 상태에 따라 색상 변경
@@ -95,37 +89,6 @@ object ScatterChartDraw {
                     .size(innerRadius * 2)
                     .background(color = Color.White, shape = CircleShape)
             )
-            // 툴팁 표시
-            if (showTooltip) {
-                val labelOffset = if (isLineChart && allPoints.isNotEmpty()) {
-                    val optimalPosition = ChartMath.Line.calculateLabelPosition(pointIndex, allPoints)
-
-                    // 각 포인트마다 relative 위치를 계산
-                    val relativeDx = with(LocalDensity.current) {
-                        (optimalPosition.x - center.x).toDp()
-                    }
-                    val relativeDy = with(LocalDensity.current) {
-                        (optimalPosition.y - center.y).toDp()
-                    }
-
-                    val adjustedDx = if (relativeDx > 0.dp) relativeDx + pointRadius else if (relativeDx == 0.dp) relativeDx else relativeDx - pointRadius
-                    val adjustedDy = if (relativeDy > 0.dp) relativeDy + pointRadius else if (relativeDy == 0.dp) relativeDy else relativeDy - pointRadius
-
-                    Modifier.offset(x = adjustedDx, y = adjustedDy)
-                } else {
-                    // Default positioning for scatter charts (above the point)
-                    Modifier.offset(x = 0.dp, y = -(pointRadius * 3))
-                }
-
-                Text(
-                    text = value,
-                    color = Color.Black,
-                    fontSize = 12.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = labelOffset
-                        .width(IntrinsicSize.Min)
-                )
-            }
         }
     }
 }

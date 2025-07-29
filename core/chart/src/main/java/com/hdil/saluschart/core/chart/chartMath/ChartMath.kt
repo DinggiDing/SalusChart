@@ -157,11 +157,7 @@ object ChartMath {
         val dataMax = values.maxOrNull() ?: 1f
         val dataMin = values.minOrNull() ?: 0f
 
-        val yTicks = if (isMinimal) {
-            listOf(dataMin, dataMax)
-        } else {
-            computeNiceTicks(dataMin, dataMax, tickCount, chartType, actualMin = minY, actualMax = maxY)
-        }
+        val yTicks = computeNiceTicks(dataMin, dataMax, tickCount, chartType, actualMin = minY, actualMax = maxY)
 
         // Y축 범위 계산: 사용자 지정 값이 있으면 우선 사용, 없으면 nice ticks 또는 데이터 범위 사용
         val actualMinY = if (isMinimal) {

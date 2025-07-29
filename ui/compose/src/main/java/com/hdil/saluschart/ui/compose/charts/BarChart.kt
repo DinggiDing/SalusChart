@@ -42,6 +42,7 @@ fun BarChart(
     maxY: Float? = null,                    // 사용자 지정 최대 Y값
     barWidthMultiplier: Float = 0.5f,       // 바 너비 배수
     labelTextSize: Float = 28f,             // X축 레이블 텍스트 크기
+    tooltipTextSize: Float = 32f            // 툴팁 텍스트 크기
 ) {
     if (data.isEmpty()) return
 
@@ -118,7 +119,20 @@ fun BarChart(
                         if (hitArea.contains(position)) {
                             // 터치한 바의 값을 저장하고 해당 위치에 툴팁 표시
                             touchedBarValue = value
-                            ChartDraw.Bar.drawBarTooltip(this, value, position)
+                            
+                            // 바 차트의 경우 터치 위치 위쪽에 툴팁 표시
+                            val tooltipPosition = Offset(
+                                position.x,
+                                position.y - 40f  // 터치 위치보다 위쪽에 표시
+                            )
+                            
+                            // 통합 툴팁 메서드 사용
+                            ChartDraw.drawTooltip(
+                                drawScope = this,
+                                value = value,
+                                position = tooltipPosition,
+                                textSize = tooltipTextSize
+                            )
                             break
                         }
                     }

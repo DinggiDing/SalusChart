@@ -41,6 +41,8 @@ fun LineChart(
     lineColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
     width: Dp = 250.dp,
     height: Dp = 250.dp,
+    labelTextSize: Float = 28f,         // X축 레이블 텍스트 크기
+    tooltipTextSize: Float = 32f        // 툴팁 텍스트 크기
 ) {
     if (data.isEmpty()) return
 
@@ -50,10 +52,6 @@ fun LineChart(
     // 포인트 위치를 저장할 상태 변수
     var canvasPoints by remember { mutableStateOf(listOf<Offset>()) }
     var canvasSize by remember { mutableStateOf(Size.Zero) }
-
-    // 선택된 포인트의 인덱스를 추적하는 상태 변수 추가
-    // null일 경우 모든 포인트가 기본색상(파란색)
-    var selectedPointIndex by remember { mutableStateOf<Int?>(null) }
 
     // 터치한 바의 위치와 값을 저장할 상태 변수
     var touchedBarValue by remember { mutableStateOf<Float?>(null) }
@@ -91,7 +89,12 @@ fun LineChart(
 
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.Line.drawLine(this, points, lineColor)
-                ChartDraw.Line.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
+                ChartDraw.Line.drawXAxisLabels(
+                    drawContext = drawContext, 
+                    labels = xLabels.map { it.toString() }, 
+                    metrics = metrics,
+                    textSize = labelTextSize
+                )
 
                 val hitAreas = ChartDraw.Bar.drawBars(
                     drawScope = this,
@@ -103,12 +106,22 @@ fun LineChart(
                 )
 
                 touchedPosition?.let { position ->
-                    for ((hitArea, value) in hitAreas) {
+                    hitAreas.forEachIndexed { index, (hitArea, value) ->
                         if (hitArea.contains(position)) {
-                            // 터치한 바의 값을 저장하고 해당 위치에 툴팁 표시
+                            // 터치한 바의 값을 저장하고 최적 위치 계산 후 통합 툴팁 표시
                             touchedBarValue = value
-                            ChartDraw.Bar.drawBarTooltip(this, value, position)
-                            break
+                            
+                            // calculateLabelPosition을 사용하여 최적 툴팁 위치 계산
+                            val optimalPosition = ChartMath.Line.calculateLabelPosition(index, points)
+                            
+                            // 통합 툴팁 메서드 사용
+                            ChartDraw.drawTooltip(
+                                drawScope = this,
+                                value = value,
+                                position = optimalPosition,
+                                textSize = tooltipTextSize
+                            )
+                            return@forEachIndexed  // 첫 번째 매치에서 중단
                         }
                     }
 
@@ -120,20 +133,11 @@ fun LineChart(
             }
             // Canvas 위에 각 포인트마다 PointMarker 배치
             canvasPoints.forEachIndexed { index, point ->
-
-                // PointMarker 컴포저블 배치
-                // In LineChart.kt, update the PointMarker call:
                 ChartDraw.Scatter.PointMarker(
                     center = point,
                     value = yValues[index].toInt().toString(),
-                    isSelected = selectedPointIndex == null || selectedPointIndex == index,
-                    onClick = {
-                        selectedPointIndex = if (selectedPointIndex == index) null else index
-                    },
-                    // Add these parameters for line chart label positioning
-                    isLineChart = true,
-                    pointIndex = index,
-                    allPoints = canvasPoints
+                    isSelected = true  // 항상 기본 색상으로 표시
+                    // 모든 상호작용 매개변수 제거 - 이제 시각적 표시용으로만 사용
                 )
             }
         }

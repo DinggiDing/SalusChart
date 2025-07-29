@@ -103,13 +103,8 @@ object BarChartDraw {
             values.forEachIndexed { i, value ->
                 val barHeight = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
                 
-                val barX = if (isMinimal) {
-                    // 미니멀 모드: 중앙 정렬
-                    metrics.paddingX + i * spacing + (spacing - barWidth) / 2f
-                } else {
-                    // 기본 모드: 바 너비의 절반만큼 오프셋 적용
-                    metrics.paddingX + barWidth / 2 + i * spacing
-                }
+                // 모든 차트에서 바를 할당된 공간의 중앙에 배치
+                val barX = metrics.paddingX + i * spacing + (spacing - barWidth) / 2f
                 
                 val barY = metrics.chartHeight - barHeight
 
@@ -122,61 +117,6 @@ object BarChartDraw {
         }
 
         return hitAreas
-    }
-
-    /**
-     * 바 차트의 툴팁을 그립니다.
-     *
-     * @param drawScope 그리기 영역
-     * @param value 표시할 값
-     * @param position 툴팁이 표시될 위치
-     * @param backgroundColor 툴팁 배경 색상
-     * @param textColor 텍스트 색상
-     * @param textSize 툴팁 텍스트 크기 (기본값: 32f)
-     */
-    fun drawBarTooltip(
-        drawScope: DrawScope,
-        value: Float,
-        position: Offset,
-        backgroundColor: Color = Color(0xE6333333), // 반투명 다크 그레이
-        textColor: Int = android.graphics.Color.WHITE,
-        textSize: Float = 32f
-    ) {
-        val tooltipText = formatTickLabel(value)
-        val textPaint = android.graphics.Paint().apply {
-            color = textColor
-            this.textSize = textSize
-            textAlign = android.graphics.Paint.Align.CENTER
-        }
-
-        // 텍스트 크기 측정
-        val textBounds = android.graphics.Rect()
-        textPaint.getTextBounds(tooltipText, 0, tooltipText.length, textBounds)
-
-        // 툴팁 크기 계산 (패딩 포함)
-        val padding = 16f
-        val tooltipWidth = textBounds.width() + padding * 2
-        val tooltipHeight = textBounds.height() + padding * 2
-
-        // 툴팁이 화면 밖으로 나가지 않도록 위치 조정
-        val tooltipX = position.x.coerceIn(tooltipWidth / 2, drawScope.size.width - tooltipWidth / 2)
-        val tooltipY = (position.y - tooltipHeight - 10f).coerceAtLeast(10f) // 바 위에 표시
-
-        // 배경 그리기
-        drawScope.drawRoundRect(
-            color = backgroundColor,
-            topLeft = Offset(tooltipX - tooltipWidth / 2, tooltipY),
-            size = Size(tooltipWidth, tooltipHeight),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(4f)
-        )
-
-        // 텍스트 그리기
-        drawScope.drawContext.canvas.nativeCanvas.drawText(
-            tooltipText,
-            tooltipX,
-            tooltipY + tooltipHeight - padding - textBounds.bottom,
-            textPaint
-        )
     }
 
     /**

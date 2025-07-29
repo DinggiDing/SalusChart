@@ -41,12 +41,14 @@ object LineChartDraw {
      * @param labels X축에 표시할 레이블 목록
      * @param metrics 차트 메트릭 정보
      * @param centered 텍스트를 중앙 정렬할지 여부 (기본값: true)
+     * @param textSize 레이블 텍스트 크기 (기본값: 28f)
      */
     fun drawXAxisLabels(
         ctx: DrawContext,
         labels: List<String>,
         metrics: ChartMath.ChartMetrics,
-        centered: Boolean = true
+        centered: Boolean = true,
+        textSize: Float = 28f
     ) {
         val spacing = metrics.chartWidth / (labels.size - 1)
         labels.forEachIndexed { i, label ->
@@ -57,7 +59,7 @@ object LineChartDraw {
                 metrics.chartHeight + 50f,
                 android.graphics.Paint().apply {
                     color = android.graphics.Color.DKGRAY
-                    textSize = 28f
+                    this.textSize = textSize
                     if (centered) {
                         textAlign = android.graphics.Paint.Align.CENTER
                     }
@@ -65,4 +67,5 @@ object LineChartDraw {
             )
         }
     }
+
 }

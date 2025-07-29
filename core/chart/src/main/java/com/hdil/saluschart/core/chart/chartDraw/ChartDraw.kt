@@ -245,5 +245,66 @@ object ChartDraw {
             }
         )
     }
+
+    /**
+     * 차트 툴팁을 그립니다 (모든 차트 타입에서 공통 사용).
+     *
+     * @param drawScope 그리기 영역
+     * @param value 표시할 값
+     * @param position 툴팁이 표시될 위치 (미리 계산된 최적 위치)
+     * @param backgroundColor 툴팁 배경 색상
+     * @param textColor 텍스트 색상
+     * @param textSize 툴팁 텍스트 크기 (기본값: 32f)
+     */
+    fun drawTooltip(
+        drawScope: DrawScope,
+        value: Float,
+        position: Offset,
+        backgroundColor: Color = Color(0xE6333333), // 반투명 다크 그레이
+        textColor: Int = android.graphics.Color.WHITE,
+        textSize: Float = 32f
+    ) {
+        val tooltipText = formatTickLabel(value)
+        val textPaint = android.graphics.Paint().apply {
+            color = textColor
+            this.textSize = textSize
+            textAlign = android.graphics.Paint.Align.CENTER
+        }
+
+        // 텍스트 크기 측정
+        val textBounds = android.graphics.Rect()
+        textPaint.getTextBounds(tooltipText, 0, tooltipText.length, textBounds)
+
+        // 툴팁 크기 계산 (패딩 포함)
+        val padding = 16f
+        val tooltipWidth = textBounds.width() + padding * 2
+        val tooltipHeight = textBounds.height() + padding * 2
+
+        // 툴팁이 화면 밖으로 나가지 않도록 위치 조정
+        val tooltipX = position.x.coerceIn(
+            tooltipWidth / 2, 
+            drawScope.size.width - tooltipWidth / 2
+        )
+        val tooltipY = position.y.coerceIn(
+            tooltipHeight / 2,
+            drawScope.size.height - tooltipHeight / 2
+        )
+
+        // 배경 그리기
+        drawScope.drawRoundRect(
+            color = backgroundColor,
+            topLeft = Offset(tooltipX - tooltipWidth / 2, tooltipY - tooltipHeight / 2),
+            size = Size(tooltipWidth, tooltipHeight),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(4f)
+        )
+
+        // 텍스트 그리기
+        drawScope.drawContext.canvas.nativeCanvas.drawText(
+            tooltipText,
+            tooltipX,
+            tooltipY + textBounds.height() / 2,
+            textPaint
+        )
+    }
 }
 
