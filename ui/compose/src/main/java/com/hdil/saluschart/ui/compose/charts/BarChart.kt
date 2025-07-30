@@ -18,15 +18,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
-import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.ChartType
+import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
+import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.ui.theme.ChartColor
-import androidx.compose.ui.graphics.Color
 
 @Composable
 fun BarChart(
@@ -40,7 +40,7 @@ fun BarChart(
     height: Dp = 250.dp,
     minY: Float? = null,                    // 사용자 지정 최소 Y값
     maxY: Float? = null,                    // 사용자 지정 최대 Y값
-    barWidthMultiplier: Float = 0.5f,       // 바 너비 배수
+    barWidthMultiplier: Float = 0.8f,       // 바 너비 배수
     labelTextSize: Float = 28f,             // X축 레이블 텍스트 크기
     tooltipTextSize: Float = 32f            // 툴팁 텍스트 크기
 ) {

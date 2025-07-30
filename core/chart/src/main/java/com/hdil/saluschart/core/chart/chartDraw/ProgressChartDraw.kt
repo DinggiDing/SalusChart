@@ -210,7 +210,8 @@ object ProgressChartDraw {
         isDonut: Boolean,
         strokeWidth: Float = 40f,
         barHeight: Float = 30f,
-        textSize: Float = 28f
+        textSize: Float = 28f,
+        isPercentage: Boolean
     ) {
         if (isDonut) {
             val (center, maxRadius, ringRadii) = ChartMath.Progress.computeProgressDonutMetrics(
@@ -228,16 +229,18 @@ object ProgressChartDraw {
                     point = point
                 )
                 
-//                // 값 텍스트 생성
-//                val valueText = buildString {
-//                    append("${point.current.toInt()}")
-//                    point.unit?.let { append(" $it") }
-//                    append(" / ${point.max.toInt()}")
-//                    point.unit?.let { append(" $it") }
-//                }
-                // 값 텍스트 생성 (퍼센트 표시)
-                val valueText = "${(point.percentage).toInt()}%"
-                
+                // 값 텍스트 생성
+                val valueText = if (isPercentage) {
+                    "${(point.percentage).toInt()}%"
+                } else {
+                    buildString {
+                        append("${point.current.toInt()}")
+                        point.unit?.let { append(" $it") }
+                        append(" / ${point.max.toInt()}")
+                        point.unit?.let { append(" $it") }
+                    }
+                }
+
                 // 값 텍스트 그리기
                 drawScope.drawContext.canvas.nativeCanvas.drawText(
                     valueText,
@@ -267,16 +270,18 @@ object ProgressChartDraw {
                     barY = barY,
                     barWidth = barWidth
                 )
-                
-//                // 값 텍스트 생성
-//                val valueText = buildString {
-//                    append("${point.current.toInt()}")
-//                    point.unit?.let { append(" $it") }
-//                    append(" / ${point.max.toInt()}")
-//                    point.unit?.let { append(" $it") }
-//                }
-                // 값 텍스트 생성 (퍼센트 표시)
-                val valueText = "${(point.percentage).toInt()}%"
+
+                // 값 텍스트 생성
+                val valueText = if (isPercentage) {
+                    "${(point.percentage).toInt()}%"
+                } else {
+                    buildString {
+                        append("${point.current.toInt()}")
+                        point.unit?.let { append(" $it") }
+                        append(" / ${point.max.toInt()}")
+                        point.unit?.let { append(" $it") }
+                    }
+                }
                 
                 // 값 텍스트 그리기
                 drawScope.drawContext.canvas.nativeCanvas.drawText(

@@ -86,6 +86,14 @@ object BarChartDraw {
                     size = Size(touchBarWidth, metrics.chartHeight)
                 )
                 
+                // 디버깅용 테두리 추가
+                drawScope.drawRect(
+                    color = Color.Red,
+                    topLeft = Offset(touchBarX, 0f),
+                    size = Size(touchBarWidth, metrics.chartHeight),
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                )
+
                 // 터치 영역 저장
                 val hitArea = androidx.compose.ui.geometry.Rect(
                     left = touchBarX,
@@ -164,6 +172,4 @@ object BarChartDraw {
             }
         }
     }
-
-
 }

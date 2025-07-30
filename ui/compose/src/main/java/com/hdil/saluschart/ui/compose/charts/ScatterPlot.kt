@@ -96,7 +96,7 @@ fun ScatterPlot(
                             val pointPosition = points[index]
                             val optimalPosition = Offset(
                                 x = pointPosition.x,
-                                y = pointPosition.y - 40f  // 40 픽셀 위로
+                                y = pointPosition.y - 40f
                             )
 
                             ChartDraw.drawTooltip(
@@ -105,7 +105,7 @@ fun ScatterPlot(
                                 position = optimalPosition,
                                 textSize = tooltipTextSize
                             )
-                            return@forEachIndexed  // 첫 번째 매치에서 중단
+                            return@forEachIndexed
                         }
                     }
 
@@ -120,7 +120,7 @@ fun ScatterPlot(
                 ChartDraw.Scatter.PointMarker(
                     center = point,
                     value = yValues[index].toInt().toString(),
-                    isSelected = true  // 항상 기본 색상으로 표시
+                    isSelected = true
                 )
             }
         }

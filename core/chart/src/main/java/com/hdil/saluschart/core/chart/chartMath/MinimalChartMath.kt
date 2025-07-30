@@ -25,11 +25,15 @@ object MinimalChartMath {
     ): Pair<Pair<Offset, Size>, Pair<Offset, Size>> {
         val chartWidth = size.width - (padding * 2)
         val chartHeight = size.height - (padding * 2)
-        val containerHeight = chartHeight * 0.6f // 컨테이너는 60% 높이
-        
+
+        // 텍스트 공간을 예약하는 경우 바 높이를 줄이고 위치를 조정
+        val textSpaceHeight = 24f
+        val availableBarHeight = chartHeight - textSpaceHeight
+        val containerHeight = availableBarHeight * 0.6f // 사용 가능한 높이의 60%
+
         // 전체 컨테이너 바 (배경)
         val containerX = padding
-        val containerY = (size.height - containerHeight) / 2f
+        val containerY = padding + textSpaceHeight + (availableBarHeight - containerHeight) / 2f
         val containerOffset = Offset(containerX, containerY)
         val containerSize = Size(chartWidth, containerHeight)
         

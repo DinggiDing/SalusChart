@@ -357,7 +357,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     yLabel = "활동량",
                     xLabel = "요일",
                     width = selectedWidth,
-                    height = selectedHeight
+                    height = selectedHeight,
+                    strokeWidth = 10f
                 )
             }
             "Scatter" -> {
@@ -376,9 +377,9 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     title = "요일별 활동량",
                     yLabel = "활동량",
                     xLabel = "요일",
-                    maxY = 68f,
+                    minY = 2f,
+                    maxY = 108f,
                     width = selectedWidth,
-                    barWidthMultiplier = 0.2f,
                     height = selectedHeight
                 )
             }
@@ -420,8 +421,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     height = selectedHeight
                 )
             }
-                         "Progress" -> {
-                 // 더미 프로그레스 데이터 생성 - {"Move": 1200/2000 KJ, "Exercise": 20/60min, "Stand": 7/10 h}
+            "Progress" -> {
                  val progressData = listOf(
                      ProgressChartPoint(
                          x = 0f,
@@ -449,6 +449,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                      data = progressData,
                      title = "일일 활동 진행률",
                      isDonut = isProgressDonut,
+                     isPercentage = false,
                      width = selectedWidth,
                      height = selectedHeight,
                      colors = listOf(

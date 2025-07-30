@@ -40,8 +40,9 @@ fun LineChart(
     lineColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
     width: Dp = 250.dp,
     height: Dp = 250.dp,
-    labelTextSize: Float = 28f,         // X축 레이블 텍스트 크기
-    tooltipTextSize: Float = 32f        // 툴팁 텍스트 크기
+    strokeWidth: Float = 4f,
+    labelTextSize: Float = 28f,
+    tooltipTextSize: Float = 32f
 ) {
     if (data.isEmpty()) return
 
@@ -82,7 +83,7 @@ fun LineChart(
                 // 포인트 위치와 캔버스 크기를 상태 변수에 저장
                 canvasPoints = points
                 canvasSize = size
-
+                
                 val hitAreas = ChartDraw.Bar.drawBars(
                     drawScope = this,
                     values = yValues,
@@ -91,9 +92,9 @@ fun LineChart(
                     barWidthMultiplier = 1.0f,
                     isInteractiveBars = true,
                 )
-
+                
                 ChartDraw.drawGrid(this, size, metrics)
-                ChartDraw.Line.drawLine(this, points, lineColor)
+                ChartDraw.Line.drawLine(this, points, lineColor, strokeWidth)
                 ChartDraw.Line.drawXAxisLabels(
                     ctx = drawContext,
                     labels = xLabels.map { it.toString() },

@@ -45,6 +45,7 @@ fun ProgressChart(
     data: List<ProgressChartPoint>,
     title: String = "Progress Chart",
     isDonut: Boolean = true,
+    isPercentage: Boolean = true,
     colors: List<Color> = ColorUtils.ColorUtils(data.size.coerceAtLeast(1)),
     width: Dp = 300.dp,
     height: Dp = 300.dp,
@@ -111,7 +112,8 @@ fun ProgressChart(
                         size = size,
                         isDonut = isDonut,
                         strokeWidth = strokeWidth,
-                        barHeight = barHeight
+                        barHeight = barHeight,
+                        isPercentage = isPercentage
                     )
                 }
             }

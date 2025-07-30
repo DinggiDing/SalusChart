@@ -22,7 +22,7 @@ object LineChartDraw {
         drawScope: DrawScope,
         points: List<Offset>,
         color: Color,
-        strokeWidth: Float = 4f
+        strokeWidth: Float
     ) {
         if (points.size < 2) return
 

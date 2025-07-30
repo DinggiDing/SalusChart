@@ -38,7 +38,7 @@ fun MinimalRangeBarChart(
     containerMin: Float,
     containerMax: Float,
     containerColor: Color = Color.LightGray,
-    rangeColor: Color = Color(0xFFFF9500), // 오렌지색
+    rangeColor: Color = Color(0xFFFF9500),
     textColor: Color = Color.Black,
     width: Dp = 120.dp,
     height: Dp = 50.dp,
@@ -85,7 +85,7 @@ fun MinimalRangeBarChart(
                 val rangeText = "${data.yMin.toInt()}-${data.yMax.toInt()}"
                 val textPosition = Offset(
                     x = rangeBarOffset.x + (rangeBarSize.width / 2f), // 범위 바의 중앙에 위치
-                    y = containerOffset.y - 8f // 바 위쪽에 위치
+                    y = containerOffset.y - 12f // 바 위쪽에 위치
                 )
                 
                 ChartDraw.Min.drawMinimalText(
@@ -100,4 +100,3 @@ fun MinimalRangeBarChart(
         }
     }
 }
-
