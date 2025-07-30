@@ -69,7 +69,7 @@ object ChartMath {
         }
         
         // 바 차트의 경우 최소값을 0으로 강제 설정
-        var min = if (chartType == ChartType.BAR || 
+        var min = if (chartType == ChartType.BAR ||
                              chartType == ChartType.STACKED_BAR || 
                              chartType == ChartType.MINIMAL_BAR) {
             0f
@@ -160,17 +160,8 @@ object ChartMath {
         val yTicks = computeNiceTicks(dataMin, dataMax, tickCount, chartType, actualMin = minY, actualMax = maxY)
 
         // Y축 범위 계산: 사용자 지정 값이 있으면 우선 사용, 없으면 nice ticks 또는 데이터 범위 사용
-        val actualMinY = if (isMinimal) {
-            minY ?: dataMin
-        } else {
-            minY ?: (yTicks.minOrNull() ?: dataMin)
-        }
-        
-        val actualMaxY = if (isMinimal) {
-            maxY ?: dataMax
-        } else {
-            maxY ?: (yTicks.maxOrNull() ?: dataMax)
-        }
+        val actualMinY = minY ?: (yTicks.minOrNull() ?: dataMin)
+        val actualMaxY = maxY ?: (yTicks.maxOrNull() ?: dataMax)
 
         return ChartMetrics(paddingX, paddingY, chartWidth, chartHeight, actualMinY, actualMaxY, yTicks)
     }

@@ -18,7 +18,7 @@ object LineChartMath {
         points: List<Offset>,
     ): Offset {
         val currentPoint = points[pointIndex]
-        val baseDistance = 25f
+        val baseDistance = 50f
         var incoming: Offset = Offset(0f, 0f)
         var outgoing: Offset = Offset(0f, 0f)
 

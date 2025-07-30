@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun BarChart(
     modifier: Modifier = Modifier,
-    data: List<ChartPoint>,      // ✅ ChartPoint 기반
+    data: List<ChartPoint>,      // ChartPoint 기반
     xLabel: String = "Time",
     yLabel: String = "Value",
     title: String = "Bar Chart Example",
@@ -49,7 +49,6 @@ fun BarChart(
     val xLabels = data.map { it.label ?: it.x.toString() }
     val yValues = data.map { it.y }
 
-    // 터치한 바의 위치와 값을 저장할 상태 변수
     var touchedBarValue by remember { mutableStateOf<Float?>(null) }
     var touchedPosition by remember { mutableStateOf<Offset?>(null) }
 
@@ -86,17 +85,15 @@ fun BarChart(
                 ChartDraw.drawXAxis(this, metrics)
                 ChartDraw.drawYAxis(this, metrics)
 
-                // 터치 상호작용용 투명 바 그리기 (히트 영역 생성)
                 val hitAreas = ChartDraw.Bar.drawBars(
                     drawScope = this, 
                     values = yValues, 
                     metrics = metrics, 
-                    color = Color.Transparent,  // 색상은 사용되지 않음
-                    barWidthMultiplier = 1.0f,  // 전체 너비 사용
+                    color = Color.Transparent,
+                    barWidthMultiplier = 1.0f,
                     isInteractiveBars = true,
                 )
                 
-                // 실제 데이터 시각화용 바 그리기
                 ChartDraw.Bar.drawBars(
                     drawScope = this, 
                     values = yValues, 
@@ -113,27 +110,25 @@ fun BarChart(
                     textSize = labelTextSize
                 )
 
-                // 터치한 위치가 어떤 바의 히트 영역에 있는지 확인
                 touchedPosition?.let { position ->
-                    for ((hitArea, value) in hitAreas) {
+                    hitAreas.forEachIndexed { _, (hitArea, value) ->
                         if (hitArea.contains(position)) {
-                            // 터치한 바의 값을 저장하고 해당 위치에 툴팁 표시
                             touchedBarValue = value
-                            
+
                             // 바 차트의 경우 터치 위치 위쪽에 툴팁 표시
+                            // TODO: 툴팁 위치 바 위쪽으로 변경
                             val tooltipPosition = Offset(
                                 position.x,
-                                position.y - 40f  // 터치 위치보다 위쪽에 표시
+                                position.y - 40f
                             )
-                            
-                            // 통합 툴팁 메서드 사용
+
                             ChartDraw.drawTooltip(
                                 drawScope = this,
                                 value = value,
                                 position = tooltipPosition,
                                 textSize = tooltipTextSize
                             )
-                            break
+                            return@forEachIndexed
                         }
                     }
 

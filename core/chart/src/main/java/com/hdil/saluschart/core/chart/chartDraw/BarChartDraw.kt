@@ -54,7 +54,7 @@ object BarChartDraw {
      * @param metrics 차트 메트릭 정보
      * @param color 바 색상
      * @param isMinimal 미니멀 차트 모드인지 여부 (기본값: false)
-     * @param barWidthMultiplier 바 너비 배수 (normal=0.5, minimal=0.8)
+     * @param barWidthMultiplier 바 너비 배수 (기본값: normal=0.5, minimal=0.8)
      * @param isInteractiveBars 터치 상호작용용 바를 그릴지 여부 (true: 전체 크기 투명 바, false: 데이터 시각화 바)
      * @return 각 바의 히트 영역과 값의 쌍 목록 (isInteractiveBars=true일 때만 반환, 아니면 빈 리스트)
      */

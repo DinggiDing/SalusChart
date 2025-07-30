@@ -46,7 +46,6 @@ fun MinimalBarChart(
             )
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            // 미니멀 차트 메트릭 계산
             val metrics = ChartMath.computeMetrics(
                 size = size,
                 values = data,
@@ -55,8 +54,6 @@ fun MinimalBarChart(
                 paddingY = padding,
                 chartType = ChartType.MINIMAL_BAR
             )
-            
-            // 미니멀 바 그리기 (히트 영역 없음)
             BarChartDraw.drawBars(
                 drawScope = this,
                 values = data,
