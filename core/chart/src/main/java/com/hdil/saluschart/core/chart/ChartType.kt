@@ -20,3 +20,8 @@ enum class ChartType {
         }
     }
 }
+
+enum class InteractionType {
+    POINT,         // Direct point touching using PointMarker()
+    NEAR_X_AXIS    // Area-based touching using BarMarker()
+}

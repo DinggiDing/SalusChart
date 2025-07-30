@@ -1,11 +1,34 @@
 package com.hdil.saluschart.core.chart.chartDraw
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hdil.saluschart.core.chart.StackedChartPoint
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw.formatTickLabel
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
@@ -53,78 +76,119 @@ object BarChartDraw {
      * @param values 원본 데이터 값 목록
      * @param metrics 차트 메트릭 정보
      * @param color 바 색상
-     * @param isMinimal 미니멀 차트 모드인지 여부 (기본값: false)
-     * @param barWidthMultiplier 바 너비 배수 (기본값: normal=0.5, minimal=0.8)
-     * @param isInteractiveBars 터치 상호작용용 바를 그릴지 여부 (true: 전체 크기 투명 바, false: 데이터 시각화 바)
-     * @return 각 바의 히트 영역과 값의 쌍 목록 (isInteractiveBars=true일 때만 반환, 아니면 빈 리스트)
+     * @param barWidthMultiplier 바 너비 배수 (기본값: 0.5f)
      */
     fun drawBars(
         drawScope: DrawScope, 
         values: List<Float>, 
         metrics: ChartMath.ChartMetrics, 
         color: Color,
-        isMinimal: Boolean = false,
-        barWidthMultiplier: Float = if (isMinimal) 0.8f else 0.5f,
-        isInteractiveBars: Boolean = false,
-    ): List<Pair<androidx.compose.ui.geometry.Rect, Float>> {
-        val hitAreas = mutableListOf<Pair<androidx.compose.ui.geometry.Rect, Float>>()
-
-        if (isInteractiveBars) {
-            // 터치 상호작용용 바 그리기 (전체 너비, 전체 높이)
-            val touchBarWidth = metrics.chartWidth / values.size
-            val spacing = metrics.chartWidth / values.size
+        barWidthMultiplier: Float = 0.5f
+    ) {
+        // 데이터 시각화용 바 그리기 (커스텀 너비, 데이터 높이)
+        val barWidth = metrics.chartWidth / values.size * barWidthMultiplier
+        val spacing = metrics.chartWidth / values.size
+        
+        values.forEachIndexed { i, value ->
+            val barHeight = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
             
-            values.forEachIndexed { i, value ->
-                val touchBarX = metrics.paddingX + i * spacing
-                
-                // 터치 영역 바 색상 결정
-                val touchBarColor = Color.Transparent
-                
-                drawScope.drawRect(
-                    color = touchBarColor,
-                    topLeft = Offset(touchBarX, 0f),
-                    size = Size(touchBarWidth, metrics.chartHeight)
-                )
-                
-                // 디버깅용 테두리 추가
-                drawScope.drawRect(
-                    color = Color.Red,
-                    topLeft = Offset(touchBarX, 0f),
-                    size = Size(touchBarWidth, metrics.chartHeight),
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                )
+            // 모든 차트에서 바를 할당된 공간의 중앙에 배치
+            val barX = metrics.paddingX + i * spacing + (spacing - barWidth) / 2f
+            
+            val barY = metrics.chartHeight - barHeight
 
-                // 터치 영역 저장
-                val hitArea = androidx.compose.ui.geometry.Rect(
-                    left = touchBarX,
-                    top = 0f,
-                    right = touchBarX + touchBarWidth,
-                    bottom = metrics.chartHeight
-                )
-                hitAreas += Pair(hitArea, value)
+            drawScope.drawRect(
+                color = color,
+                topLeft = Offset(barX, barY),
+                size = Size(barWidth, barHeight)
+            )
+        }
+    }
+
+    /**
+     * 상호작용 가능한 바 차트 막대들을 Composable로 생성합니다.
+     * 각 바는 클릭 가능하며 툴팁을 표시합니다.
+     *
+     * @param values 원본 데이터 값 목록
+     * @param metrics 차트 메트릭 정보
+     * @param color 바 색상
+     * @param barWidthMultiplier 바 너비 배수 (기본값: 0.8f)
+     * @param useFullHeight true이면 전체 차트 높이, false이면 데이터에 맞는 높이 (기본값: false)
+     * @param onBarClick 바 클릭 시 호출되는 콜백 (바 인덱스, 값)
+     */
+    @Composable
+    fun BarMarker(
+        values: List<Float>,
+        metrics: ChartMath.ChartMetrics,
+        color: Color,
+        barWidthMultiplier: Float = 0.8f,
+        useFullHeight: Boolean = false,
+        onBarClick: ((Int, Float) -> Unit)? = null
+    ) {
+        val density = LocalDensity.current
+        
+        val barWidth = metrics.chartWidth / values.size * barWidthMultiplier
+        val spacing = metrics.chartWidth / values.size
+        
+        values.forEachIndexed { index, value ->
+            // 바 높이와 위치 계산
+            val (barHeight, barY) = if (useFullHeight) {
+                // 전체 차트 높이 사용 (터치 영역용)
+                Pair(metrics.chartHeight, 0f)
+            } else {
+                // 데이터에 맞는 높이 사용 (시각화용)
+                val height = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+                Pair(height, metrics.chartHeight - height)
             }
-        } else {
-            // 데이터 시각화용 바 그리기 (커스텀 너비, 데이터 높이)
-            val barWidth = metrics.chartWidth / values.size * barWidthMultiplier
-            val spacing = metrics.chartWidth / values.size
             
-            values.forEachIndexed { i, value ->
-                val barHeight = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
-                
-                // 모든 차트에서 바를 할당된 공간의 중앙에 배치
-                val barX = metrics.paddingX + i * spacing + (spacing - barWidth) / 2f
-                
-                val barY = metrics.chartHeight - barHeight
-
-                drawScope.drawRect(
-                    color = color,
-                    topLeft = Offset(barX, barY),
-                    size = Size(barWidth, barHeight)
-                )
+            // 바 X 위치 계산 (할당된 공간의 중앙에 배치)
+            val barX = metrics.paddingX + index * spacing + (spacing - barWidth) / 2f
+            
+            // Float 좌표를 Dp로 변환
+            val barXDp = with(density) { barX.toDp() }
+            val barYDp = with(density) { barY.toDp() }
+            val barWidthDp = with(density) { barWidth.toDp() }
+            val barHeightDp = with(density) { barHeight.toDp() }
+            
+            // 각 바의 툴팁 표시 상태
+            var showTooltip by remember { mutableStateOf(false) }
+            
+            Box(
+                modifier = Modifier
+                    .offset(x = barXDp, y = barYDp)
+                    .size(width = barWidthDp, height = barHeightDp)
+                    .background(color = color)
+                    .clickable {
+                        // 툴팁 상태 토글
+                        showTooltip = !showTooltip
+                        // 외부 클릭 이벤트 처리
+                        onBarClick?.invoke(index, value)
+                    }
+            ) {
+                // 툴팁 표시
+                if (showTooltip) {
+                    Box(
+                        modifier = Modifier
+                            .offset(x = 0.dp, y = if (useFullHeight) 10.dp else -(barHeightDp + 40.dp))
+                            .width(IntrinsicSize.Min)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .background(
+                                color = Color.Black.copy(alpha = 0.8f),
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                    ) {
+                        Text(
+                            text = value.toInt().toString(),
+                            color = Color.White,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
             }
         }
-
-        return hitAreas
     }
 
     /**
