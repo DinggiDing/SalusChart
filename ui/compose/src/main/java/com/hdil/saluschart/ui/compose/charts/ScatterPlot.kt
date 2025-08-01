@@ -83,6 +83,8 @@ fun ScatterPlot(
                             color = Color.Transparent,
                             barWidthMultiplier = 1.0f,
                             useFullHeight = true,
+                            interactive = true,
+                            useLineChartPositioning = true,
                             onBarClick = { index, value ->
                                 // Handle bar click - same logic as point click
                                 selectedPointIndex = if (selectedPointIndex == index) null else index
@@ -100,7 +102,17 @@ fun ScatterPlot(
                             // Handle point click - toggle selection
                             selectedPointIndex = if (selectedPointIndex == index) null else index
                         },
-                        chartType = ChartType.SCATTER
+                        chartType = ChartType.SCATTERPLOT
+                    )
+                }
+                else -> {
+                    // Default to non-interactive rendering
+                    ChartDraw.Scatter.PointMarker(
+                        points = canvasPoints,
+                        values = yValues.map { it.toInt().toString() },
+                        selectedPointIndex = null, // No selection in non-interactive mode
+                        onPointClick = null,
+                        chartType = ChartType.SCATTERPLOT
                     )
                 }
             }

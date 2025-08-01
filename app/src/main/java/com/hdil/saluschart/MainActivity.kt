@@ -37,6 +37,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.ui.graphics.Color
+import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.ui.compose.charts.BarChart
 import com.hdil.saluschart.ui.compose.charts.CalendarChart
 import com.hdil.saluschart.ui.compose.charts.CalendarEntry
@@ -358,7 +359,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     xLabel = "요일",
                     width = selectedWidth,
                     height = selectedHeight,
-                    strokeWidth = 10f
+                    strokeWidth = 10f,
+                    interactionType = InteractionType.NEAR_X_AXIS,
                 )
             }
             "Scatter" -> {

@@ -44,9 +44,9 @@ object BarChartDraw {
      * @param textSize 레이블 텍스트 크기 (기본값: 28f)
      */
     fun drawBarXAxisLabels(
-        ctx: DrawContext, 
-        labels: List<String>, 
-        metrics: ChartMath.ChartMetrics, 
+        ctx: DrawContext,
+        labels: List<String>,
+        metrics: ChartMath.ChartMetrics,
         centered: Boolean = true,
         textSize: Float = 28f
     ) {
@@ -69,51 +69,19 @@ object BarChartDraw {
         }
     }
 
-    /**
-     * 바차트의 막대들을 그립니다.
-     *
-     * @param drawScope 그리기 영역
-     * @param values 원본 데이터 값 목록
-     * @param metrics 차트 메트릭 정보
-     * @param color 바 색상
-     * @param barWidthMultiplier 바 너비 배수 (기본값: 0.5f)
-     */
-    fun drawBars(
-        drawScope: DrawScope, 
-        values: List<Float>, 
-        metrics: ChartMath.ChartMetrics, 
-        color: Color,
-        barWidthMultiplier: Float = 0.5f
-    ) {
-        // 데이터 시각화용 바 그리기 (커스텀 너비, 데이터 높이)
-        val barWidth = metrics.chartWidth / values.size * barWidthMultiplier
-        val spacing = metrics.chartWidth / values.size
-        
-        values.forEachIndexed { i, value ->
-            val barHeight = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
-            
-            // 모든 차트에서 바를 할당된 공간의 중앙에 배치
-            val barX = metrics.paddingX + i * spacing + (spacing - barWidth) / 2f
-            
-            val barY = metrics.chartHeight - barHeight
 
-            drawScope.drawRect(
-                color = color,
-                topLeft = Offset(barX, barY),
-                size = Size(barWidth, barHeight)
-            )
-        }
-    }
 
     /**
-     * 상호작용 가능한 바 차트 막대들을 Composable로 생성합니다.
-     * 각 바는 클릭 가능하며 툴팁을 표시합니다.
+     * 바 차트 막대들을 Composable로 생성합니다.
+     * 상호작용 여부를 제어할 수 있습니다.
      *
      * @param values 원본 데이터 값 목록
      * @param metrics 차트 메트릭 정보
      * @param color 바 색상
      * @param barWidthMultiplier 바 너비 배수 (기본값: 0.8f)
      * @param useFullHeight true이면 전체 차트 높이, false이면 데이터에 맞는 높이 (기본값: false)
+     * @param interactive true이면 클릭 가능하고 툴팁 표시, false이면 순수 시각적 렌더링 (기본값: true)
+     * @param useLineChartPositioning true이면 라인차트 포지셔닝 사용, false이면 바차트 포지셔닝 사용 (기본값: false)
      * @param onBarClick 바 클릭 시 호출되는 콜백 (바 인덱스, 값)
      */
     @Composable
@@ -123,13 +91,12 @@ object BarChartDraw {
         color: Color,
         barWidthMultiplier: Float = 0.8f,
         useFullHeight: Boolean = false,
+        interactive: Boolean = true,
+        useLineChartPositioning: Boolean = false,
         onBarClick: ((Int, Float) -> Unit)? = null
     ) {
         val density = LocalDensity.current
-        
-        val barWidth = metrics.chartWidth / values.size * barWidthMultiplier
-        val spacing = metrics.chartWidth / values.size
-        
+
         values.forEachIndexed { index, value ->
             // 바 높이와 위치 계산
             val (barHeight, barY) = if (useFullHeight) {
@@ -140,53 +107,77 @@ object BarChartDraw {
                 val height = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
                 Pair(height, metrics.chartHeight - height)
             }
-            
-            // 바 X 위치 계산 (할당된 공간의 중앙에 배치)
-            val barX = metrics.paddingX + index * spacing + (spacing - barWidth) / 2f
-            
+
+            // 바 X 위치 계산 - 차트 타입에 따라 다른 포지셔닝 로직 사용
+            val (barWidth, barX) = if (useLineChartPositioning) {
+                // 라인차트 포지셔닝: 포인트 중심에 바 배치
+                val pointSpacing = if (values.size > 1) metrics.chartWidth / (values.size - 1) else 0f
+                val pointX = metrics.paddingX + index * pointSpacing
+                val barW = if (values.size > 1) pointSpacing * barWidthMultiplier else metrics.chartWidth * barWidthMultiplier
+                val barXPos = pointX - barW / 2f
+                Pair(barW, barXPos)
+            } else {
+                // 바차트 포지셔닝: 할당된 공간의 중앙에 배치
+                val barW = metrics.chartWidth / values.size * barWidthMultiplier
+                val spacing = metrics.chartWidth / values.size
+                val barXPos = metrics.paddingX + index * spacing + (spacing - barW) / 2f
+                Pair(barW, barXPos)
+            }
+
             // Float 좌표를 Dp로 변환
             val barXDp = with(density) { barX.toDp() }
             val barYDp = with(density) { barY.toDp() }
             val barWidthDp = with(density) { barWidth.toDp() }
             val barHeightDp = with(density) { barHeight.toDp() }
-            
-            // 각 바의 툴팁 표시 상태
-            var showTooltip by remember { mutableStateOf(false) }
-            
-            Box(
-                modifier = Modifier
-                    .offset(x = barXDp, y = barYDp)
-                    .size(width = barWidthDp, height = barHeightDp)
-                    .background(color = color)
-                    .clickable {
-                        // 툴팁 상태 토글
-                        showTooltip = !showTooltip
-                        // 외부 클릭 이벤트 처리
-                        onBarClick?.invoke(index, value)
-                    }
-            ) {
-                // 툴팁 표시
-                if (showTooltip) {
-                    Box(
-                        modifier = Modifier
-                            .offset(x = 0.dp, y = if (useFullHeight) 10.dp else -(barHeightDp + 40.dp))
-                            .width(IntrinsicSize.Min)
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .background(
-                                color = Color.Black.copy(alpha = 0.8f),
-                                shape = RoundedCornerShape(4.dp)
+
+            if (interactive) {
+                // 각 바의 툴팁 표시 상태
+                var showTooltip by remember { mutableStateOf(false) }
+
+                Box(
+                    modifier = Modifier
+                        .offset(x = barXDp, y = barYDp)
+                        .size(width = barWidthDp, height = barHeightDp)
+                        .background(color = color)
+                        .border(1.dp, Color.Red)
+                        .clickable {
+                            // 툴팁 상태 토글
+                            showTooltip = !showTooltip
+                            // 외부 클릭 이벤트 처리
+                            onBarClick?.invoke(index, value)
+                        }
+                ) {
+                    // 툴팁 표시
+                    if (showTooltip) {
+                        Box(
+                            modifier = Modifier
+                                .offset(x = 0.dp, y = if (useFullHeight) 10.dp else -(barHeightDp + 40.dp))
+                                .width(IntrinsicSize.Min)
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .background(
+                                    color = Color.Black.copy(alpha = 0.8f),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                        ) {
+                            Text(
+                                text = value.toInt().toString(),
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.align(Alignment.Center)
                             )
-                            .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
-                    ) {
-                        Text(
-                            text = value.toInt().toString(),
-                            color = Color.White,
-                            fontSize = 12.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
+                        }
                     }
                 }
+            } else {
+                // 비상호작용 모드: 순수 시각적 렌더링만
+                Box(
+                    modifier = Modifier
+                        .offset(x = barXDp, y = barYDp)
+                        .size(width = barWidthDp, height = barHeightDp)
+                        .background(color = color)
+                )
             }
         }
     }

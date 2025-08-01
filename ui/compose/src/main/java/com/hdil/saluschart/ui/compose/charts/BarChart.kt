@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.ChartType
+import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.ui.theme.ChartColor
@@ -41,6 +42,7 @@ fun BarChart(
     barWidthMultiplier: Float = 0.8f,       // 바 너비 배수
     labelTextSize: Float = 28f,             // X축 레이블 텍스트 크기
     tooltipTextSize: Float = 32f,           // 툴팁 텍스트 크기
+    interactionType: InteractionType = InteractionType.BAR, // 상호작용 타입
     onBarClick: ((Int, Float) -> Unit)? = null  // 바 클릭 콜백
 ) {
     if (data.isEmpty()) return
@@ -64,8 +66,8 @@ fun BarChart(
                 modifier = Modifier.fillMaxSize()
             ) {
                 val metrics = ChartMath.computeMetrics(
-                    size = size, 
-                    values = yValues, 
+                    size = size,
+                    values = yValues,
                     chartType = ChartType.BAR,
                     minY = minY,
                     maxY = maxY
@@ -79,33 +81,69 @@ fun BarChart(
                 ChartDraw.drawXAxis(this, metrics)
                 ChartDraw.drawYAxis(this, metrics)
 
-                // Draw visual bars only (no interaction)
-                ChartDraw.Bar.drawBars(
-                    drawScope = this, 
-                    values = yValues, 
-                    metrics = metrics, 
-                    color = barColor,
-                    barWidthMultiplier = barWidthMultiplier
-                )
-
                 ChartDraw.Bar.drawBarXAxisLabels(
-                    ctx = drawContext, 
-                    labels = xLabels, 
+                    ctx = drawContext,
+                    labels = xLabels,
                     metrics = metrics,
                     textSize = labelTextSize
                 )
             }
-            
-            // Interactive bars overlay
-            chartMetrics?.let { metrics ->
-                ChartDraw.Bar.BarMarker(
-                    values = yValues,
-                    metrics = metrics,
-                    color = Color.Transparent, // Transparent so only tooltips are visible
-                    barWidthMultiplier = 1.0f, // Full width for easier clicking
-                    useFullHeight = true, // Full height for easier clicking
-                    onBarClick = onBarClick
-                )
+
+            // Conditional interaction based on interactionType parameter
+            when (interactionType) {
+                InteractionType.NEAR_X_AXIS -> {
+                    // Visual bars (non-interactive)
+                    chartMetrics?.let { metrics ->
+                        ChartDraw.Bar.BarMarker(
+                            values = yValues,
+                            metrics = metrics,
+                            color = barColor,
+                            barWidthMultiplier = barWidthMultiplier,
+                            useFullHeight = false, // Data-matching height
+                            interactive = false // Pure visual rendering
+                        )
+                    }
+
+                    // Interactive bars overlay (transparent bars for easier touching)
+                    chartMetrics?.let { metrics ->
+                        ChartDraw.Bar.BarMarker(
+                            values = yValues,
+                            metrics = metrics,
+                            color = Color.Transparent, // Transparent so only tooltips are visible
+                            barWidthMultiplier = 1.0f, // Full width for easier clicking
+                            useFullHeight = true, // Full height for easier clicking
+                            interactive = true, // Enable interactions
+                            onBarClick = onBarClick
+                        )
+                    }
+                }
+                InteractionType.BAR -> {
+                    // Interactive visual bars (direct bar touching)
+                    chartMetrics?.let { metrics ->
+                        ChartDraw.Bar.BarMarker(
+                            values = yValues,
+                            metrics = metrics,
+                            color = barColor,
+                            barWidthMultiplier = barWidthMultiplier,
+                            useFullHeight = false, // Data-matching height
+                            interactive = true, // Enable interactions on visual bars
+                            onBarClick = onBarClick
+                        )
+                    }
+                }
+                else -> {
+                    // Visual bars (non-interactive)
+                    chartMetrics?.let { metrics ->
+                        ChartDraw.Bar.BarMarker(
+                            values = yValues,
+                            metrics = metrics,
+                            color = barColor,
+                            barWidthMultiplier = barWidthMultiplier,
+                            useFullHeight = false, // Data-matching height
+                            interactive = false // Pure visual rendering
+                        )
+                    }
+                }
             }
         }
 

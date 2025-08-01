@@ -4,22 +4,10 @@ import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import com.hdil.saluschart.core.chart.ChartPoint
-import com.hdil.saluschart.core.chart.RangeChartPoint
-import com.hdil.saluschart.core.chart.StackedChartPoint
-import com.hdil.saluschart.core.chart.chartMath.CalendarChartMath
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
-import com.hdil.saluschart.core.chart.chartMath.LineChartMath
-import com.hdil.saluschart.core.chart.chartMath.PieChartMath
-import com.hdil.saluschart.core.chart.chartMath.RangeBarChartMath
-import java.time.DayOfWeek
-import java.time.format.TextStyle
-import java.util.*
-import kotlin.collections.plusAssign
 
 object ChartDraw {
 
@@ -28,7 +16,7 @@ object ChartDraw {
     val RangeBar = RangeBarChartDraw
     val Line = LineChartDraw
     val Bar = BarChartDraw
-    val Scatter = ScatterChartDraw
+    val Scatter = ScatterPlotDraw
     val Progress = ProgressChartDraw
     val Min = MinimalChartDraw
 

@@ -95,6 +95,8 @@ fun LineChart(
                             color = Color.Transparent,
                             barWidthMultiplier = 1.0f,
                             useFullHeight = true,
+                            interactive = true,
+                            useLineChartPositioning = true,
                             onBarClick = { index, value ->
                                 // Handle bar click - same logic as point click
                                 selectedPointIndex = if (selectedPointIndex == index) null else index
@@ -104,6 +106,19 @@ fun LineChart(
                 }
                 InteractionType.POINT -> {
                     // PointMarker interactions (direct point touching)
+                    ChartDraw.Scatter.PointMarker(
+                        points = canvasPoints,
+                        values = yValues.map { it.toInt().toString() },
+                        selectedPointIndex = selectedPointIndex,
+                        onPointClick = { index ->
+                            // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
+                            selectedPointIndex = if (selectedPointIndex == index) null else index
+                        },
+                        chartType = ChartType.LINE
+                    )
+                }
+                else -> {
+                    // 기본적으로 포인트 마커 사용
                     ChartDraw.Scatter.PointMarker(
                         points = canvasPoints,
                         values = yValues.map { it.toInt().toString() },
