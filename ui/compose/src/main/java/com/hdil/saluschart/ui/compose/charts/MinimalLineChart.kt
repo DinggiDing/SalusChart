@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartPoint
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.chartDraw.LineChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 
@@ -25,6 +26,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
  * @param strokeWidth 라인 두께
  * @param padding 차트 주변 패딩
  * @param showPoints 끝점을 원으로 표시할지 여부
+ * @param chartType 차트 타입 (툴팁 위치 결정용)
  */
 @Composable
 fun MinimalLineChart(
@@ -35,7 +37,8 @@ fun MinimalLineChart(
     height: Dp = 40.dp,
     strokeWidth: Float = 2f,
     padding: Float = 4f,
-    showPoints: Boolean = false
+    showPoints: Boolean = false,
+    chartType: ChartType = ChartType.MINIMAL_LINE // 차트 타입 (툴팁 위치 결정용)
 ) {
     if (data.isEmpty()) return
 

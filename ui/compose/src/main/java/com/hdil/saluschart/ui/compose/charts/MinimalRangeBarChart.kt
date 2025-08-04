@@ -8,8 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
@@ -44,7 +46,8 @@ fun MinimalRangeBarChart(
     height: Dp = 50.dp,
     padding: Float = 8f,
     showRangeText: Boolean = true,
-    cornerRadius: Float = 8f
+    cornerRadius: Float = 8f,
+    chartType: ChartType = ChartType.MINIMAL_RANGE_BAR // 차트 타입 (툴팁 위치 결정용)
 ) {
     Box(
         modifier = modifier
@@ -83,19 +86,28 @@ fun MinimalRangeBarChart(
             // 범위 텍스트 표시
             if (showRangeText) {
                 val rangeText = "${data.yMin.toInt()}-${data.yMax.toInt()}"
-                val textPosition = Offset(
-                    x = rangeBarOffset.x + (rangeBarSize.width / 2f), // 범위 바의 중앙에 위치
-                    y = containerOffset.y - 12f // 바 위쪽에 위치
-                )
-                
-                ChartDraw.Min.drawMinimalText(
-                    drawScope = this,
-                    text = rangeText,
-                    position = textPosition,
-                    color = textColor,
-                    textSize = 16f,
-                    alignment = android.graphics.Paint.Align.CENTER
-                )
+                val textY = padding + 16f // Position text in the reserved space at the top
+                val textX = rangeBarOffset.x + (rangeBarSize.width / 2f)
+
+                // Use Compose's native text drawing instead of Android Paint
+                drawContext.canvas.nativeCanvas.apply {
+                    val paint = android.graphics.Paint().apply {
+                        color = textColor.value.toInt()
+                        textSize = 16f
+                        textAlign = android.graphics.Paint.Align.CENTER
+                        isAntiAlias = true
+                    }
+
+                    // Calculate text bounds to ensure it's within canvas
+                    val textBounds = android.graphics.Rect()
+                    paint.getTextBounds(rangeText, 0, rangeText.length, textBounds)
+
+                    // Ensure text doesn't go outside canvas bounds
+                    val adjustedY = maxOf(textBounds.height().toFloat() + padding, textY)
+                    val adjustedX = textX.coerceIn(textBounds.width() / 2f, size.width - textBounds.width() / 2f)
+
+                    drawText(rangeText, adjustedX, adjustedY, paint)
+                }
             }
         }
     }

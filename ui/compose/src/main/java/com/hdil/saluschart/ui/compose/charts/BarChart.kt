@@ -39,11 +39,12 @@ fun BarChart(
     height: Dp = 250.dp,
     minY: Float? = null,                    // 사용자 지정 최소 Y값
     maxY: Float? = null,                    // 사용자 지정 최대 Y값
-    barWidthMultiplier: Float = 0.8f,       // 바 너비 배수
+    barWidthRatio: Float = 0.8f,       // 바 너비 배수
     labelTextSize: Float = 28f,             // X축 레이블 텍스트 크기
     tooltipTextSize: Float = 32f,           // 툴팁 텍스트 크기
     interactionType: InteractionType = InteractionType.BAR, // 상호작용 타입
-    onBarClick: ((Int, Float) -> Unit)? = null  // 바 클릭 콜백
+    onBarClick: ((Int, Float) -> Unit)? = null,  // 바 클릭 콜백
+    chartType: ChartType = ChartType.BAR // 차트 타입 (툴팁 위치 결정용)
 ) {
     if (data.isEmpty()) return
 
@@ -98,9 +99,10 @@ fun BarChart(
                             values = yValues,
                             metrics = metrics,
                             color = barColor,
-                            barWidthMultiplier = barWidthMultiplier,
+                            barWidthRatio = barWidthRatio,
                             useFullHeight = false, // Data-matching height
-                            interactive = false // Pure visual rendering
+                            interactive = false, // Pure visual rendering
+                            chartType = ChartType.BAR
                         )
                     }
 
@@ -110,10 +112,11 @@ fun BarChart(
                             values = yValues,
                             metrics = metrics,
                             color = Color.Transparent, // Transparent so only tooltips are visible
-                            barWidthMultiplier = 1.0f, // Full width for easier clicking
+                            barWidthRatio = 1.0f, // Full width for easier clicking
                             useFullHeight = true, // Full height for easier clicking
                             interactive = true, // Enable interactions
-                            onBarClick = onBarClick
+                            onBarClick = onBarClick,
+                            chartType = chartType
                         )
                     }
                 }
@@ -124,10 +127,11 @@ fun BarChart(
                             values = yValues,
                             metrics = metrics,
                             color = barColor,
-                            barWidthMultiplier = barWidthMultiplier,
+                            barWidthRatio = barWidthRatio,
                             useFullHeight = false, // Data-matching height
                             interactive = true, // Enable interactions on visual bars
-                            onBarClick = onBarClick
+                            onBarClick = onBarClick,
+                            chartType = chartType
                         )
                     }
                 }
@@ -138,9 +142,10 @@ fun BarChart(
                             values = yValues,
                             metrics = metrics,
                             color = barColor,
-                            barWidthMultiplier = barWidthMultiplier,
+                            barWidthRatio = barWidthRatio,
                             useFullHeight = false, // Data-matching height
-                            interactive = false // Pure visual rendering
+                            interactive = false, // Pure visual rendering
+                            chartType = ChartType.BAR
                         )
                     }
                 }

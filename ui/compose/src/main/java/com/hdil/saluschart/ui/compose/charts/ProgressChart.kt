@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
-import com.hdil.saluschart.core.chart.chartMath.ChartMath
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.ProgressChartPoint
 import com.hdil.saluschart.ui.theme.ColorUtils
 
@@ -38,6 +38,7 @@ import com.hdil.saluschart.ui.theme.ColorUtils
  * @param showCenterInfo 중앙 정보를 표시할지 여부 (도넛 모드일 때만)
  * @param centerTitle 중앙 제목 텍스트 (도넛 모드일 때만)
  * @param centerSubtitle 중앙 부제목 텍스트 (도넛 모드일 때만)
+ * @param chartType 차트 타입 (툴팁 위치 결정용)
  */
 @Composable
 fun ProgressChart(
@@ -55,7 +56,8 @@ fun ProgressChart(
     showValues: Boolean = true,
     showCenterInfo: Boolean = true,
     centerTitle: String = "Activity",
-    centerSubtitle: String = "Progress"
+    centerSubtitle: String = "Progress",
+    chartType: ChartType = ChartType.PROGRESS // 차트 타입 (툴팁 위치 결정용)
 ) {
     if (data.isEmpty()) return
 
@@ -87,8 +89,8 @@ fun ProgressChart(
                     ChartDraw.Progress.drawProgressCenterInfo(
                         drawScope = this,
                         center = center,
-                        title = centerTitle,
-                        subtitle = centerSubtitle
+                        title = centerTitle ?: "",
+                        subtitle = centerSubtitle ?: ""
                     )
                 }
                 
@@ -122,4 +124,3 @@ fun ProgressChart(
         Spacer(Modifier.height(4.dp))
     }
 }
-

@@ -37,8 +37,8 @@ fun ScatterPlot(
     width: androidx.compose.ui.unit.Dp = 250.dp,
     height: androidx.compose.ui.unit.Dp = 250.dp,
     tooltipTextSize: Float = 32f,        // 툴팁 텍스트 크기
-    interactionType: InteractionType = InteractionType.POINT
-
+    interactionType: InteractionType = InteractionType.POINT,
+    chartType: ChartType = ChartType.SCATTERPLOT // 차트 타입 (툴팁 위치 결정용
 ) {
     if (data.isEmpty()) return
 
@@ -81,16 +81,25 @@ fun ScatterPlot(
                             values = yValues,
                             metrics = metrics,
                             color = Color.Transparent,
-                            barWidthMultiplier = 1.0f,
+                            barWidthRatio = 1.0f,
                             useFullHeight = true,
                             interactive = true,
                             useLineChartPositioning = true,
                             onBarClick = { index, value ->
                                 // Handle bar click - same logic as point click
                                 selectedPointIndex = if (selectedPointIndex == index) null else index
-                            }
+                            },
+                            chartType = chartType
                         )
                     }
+                    ChartDraw.Scatter.PointMarker(
+                        points = canvasPoints,
+                        values = yValues.map { it.toInt().toString() },
+                        selectedPointIndex = selectedPointIndex,
+                        onPointClick = null, // No point interaction in this mode
+                        interactive = false, // Visual only, no interactions
+                        chartType = chartType
+                    )
                 }
                 InteractionType.POINT -> {
                     // PointMarker interactions (direct point touching)
@@ -102,7 +111,7 @@ fun ScatterPlot(
                             // Handle point click - toggle selection
                             selectedPointIndex = if (selectedPointIndex == index) null else index
                         },
-                        chartType = ChartType.SCATTERPLOT
+                        chartType = chartType
                     )
                 }
                 else -> {
@@ -112,7 +121,7 @@ fun ScatterPlot(
                         values = yValues.map { it.toInt().toString() },
                         selectedPointIndex = null, // No selection in non-interactive mode
                         onPointClick = null,
-                        chartType = ChartType.SCATTERPLOT
+                        chartType = chartType
                     )
                 }
             }

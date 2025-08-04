@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.ui.theme.ColorUtils
 
 /**
@@ -42,7 +43,8 @@ fun PieChart(
     colors: List<androidx.compose.ui.graphics.Color> = ColorUtils.ColorUtils(data.size.coerceAtLeast(1)),
     showLegend: Boolean = false,
     width: Dp = 250.dp,
-    height: Dp = 250.dp
+    height: Dp = 250.dp,
+    chartType: ChartType = ChartType.PIE // 차트 타입 (툴팁 위치 결정용)
 ) {
     if (data.isEmpty()) return
 

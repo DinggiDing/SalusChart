@@ -32,7 +32,7 @@ import com.hdil.saluschart.core.chart.ChartType
 object ScatterPlotDraw {
 
     /**
-     * 각 데이터 포인트를 원으로 표시합니다 (시각적 표시용, 비상호작용).
+     * 각 데이터 포인트를 원으로 표시합니다.
      *
      * @param points 포인트 중심 좌표 목록
      * @param values 표시할 값 목록
@@ -40,6 +40,8 @@ object ScatterPlotDraw {
      * @param innerRadius 포인트 내부 반지름
      * @param selectedPointIndex 현재 선택된 포인트 인덱스 (null이면 모든 포인트 선택됨)
      * @param onPointClick 포인트 클릭 시 호출되는 콜백 (포인트 인덱스)
+     * @param interactive true이면 클릭 가능하고 툴팁 표시, false이면 순수 시각적 렌더링 (기본값: true)
+     * @param chartType 차트 타입 (툴팁 위치 결정용)
      */
     @Composable
     fun PointMarker(
@@ -49,6 +51,7 @@ object ScatterPlotDraw {
         innerRadius: Dp = 4.dp,
         selectedPointIndex: Int? = null,
         onPointClick: ((Int) -> Unit)? = null,
+        interactive: Boolean = true,
         chartType: ChartType
     ) {
         val density = LocalDensity.current
@@ -56,7 +59,7 @@ object ScatterPlotDraw {
         points.forEachIndexed { index, center ->
             // 각 포인트의 툴팁 표시 상태
             var showTooltip by remember { mutableStateOf(false) }
-            
+
             // Float 좌표를 Dp로 변환
             val xDp = with(density) { center.x.toDp() }
             val yDp = with(density) { center.y.toDp() }
@@ -65,81 +68,106 @@ object ScatterPlotDraw {
             val isSelected = selectedPointIndex == null || selectedPointIndex == index
             val outerColor = if (isSelected) Color.Blue else Color.Gray
 
-            Box(
-                modifier = Modifier
-                    .offset(x = xDp - pointRadius, y = yDp - pointRadius)
-                    .size(pointRadius * 2)
-                    .border(1.dp, Color.Red)
-                    .clickable {
-                        // 툴팁 표시 상태 토글
-                        showTooltip = !showTooltip
-                        // 외부 클릭 이벤트 처리
-                        onPointClick?.invoke(index)
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                // 바깥쪽 원 - 선택 상태에 따라 색상 변경
+            if (interactive) {
+                // 상호작용 모드: 클릭 가능하고 툴팁 표시
                 Box(
                     modifier = Modifier
+                        .offset(x = xDp - pointRadius, y = yDp - pointRadius)
                         .size(pointRadius * 2)
-                        .background(color = outerColor, shape = CircleShape)
-                )
-                // 안쪽 흰색 원
+                        .clickable {
+                            // 툴팁 표시 상태 토글
+                            showTooltip = !showTooltip
+                            // 외부 클릭 이벤트 처리
+                            onPointClick?.invoke(index)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    // 바깥쪽 원 - 선택 상태에 따라 색상 변경
+                    Box(
+                        modifier = Modifier
+                            .size(pointRadius * 2)
+                            .background(color = outerColor, shape = CircleShape)
+                    )
+                    // 안쪽 흰색 원
+                    Box(
+                        modifier = Modifier
+                            .size(innerRadius * 2)
+                            .background(color = Color.White, shape = CircleShape)
+                    )
+
+                    // 툴팁 표시
+                    if (showTooltip) {
+                        val labelOffset = when (chartType) {
+                            ChartType.LINE -> {
+                                // 라인 차트의 경우 calculateLabelPosition 사용
+                                val optimalPosition = ChartMath.Line.calculateLabelPosition(index, points)
+
+                                // 각 포인트마다 relative 위치를 계산
+                                val relativeDx = with(density) {
+                                    (optimalPosition.x - center.x).toDp()
+                                }
+                                val relativeDy = with(density) {
+                                    (optimalPosition.y - center.y).toDp()
+                                }
+
+                                // 포인트 반지름을 고려하여 위치 조정
+                                val adjustedDx = if (relativeDx > 0.dp) relativeDx + pointRadius
+                                else if (relativeDx == 0.dp) relativeDx
+                                else relativeDx - pointRadius
+                                val adjustedDy = if (relativeDy > 0.dp) relativeDy + pointRadius
+                                else if (relativeDy == 0.dp) relativeDy
+                                else relativeDy - pointRadius
+
+                                Modifier.offset(x = adjustedDx, y = adjustedDy)
+                            }
+                            else -> {
+                                // 스캐터 차트의 경우 기본 위치 (포인트 위쪽)
+                                Modifier.offset(x = 0.dp, y = -(pointRadius * 4))
+                            }
+                        }
+
+                        Box(
+                            modifier = labelOffset
+                                .width(IntrinsicSize.Min)
+                                .background(
+                                    color = Color.Black.copy(alpha = 0.8f),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = values.getOrElse(index) { "N/A" },
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+                }
+            } else {
+                // 비상호작용 모드: 순수 시각적 렌더링만 (클릭 불가, 툴팁 없음)
                 Box(
                     modifier = Modifier
-                        .size(innerRadius * 2)
-                        .background(color = Color.White, shape = CircleShape)
-                )
-                // 툴팁 표시
-                if (showTooltip) {
-                    val labelOffset = if (chartType == ChartType.LINE && points.isNotEmpty()) {
-                        // 라인 차트의 경우 calculateLabelPosition 사용
-                        val optimalPosition = ChartMath.Line.calculateLabelPosition(index, points)
-                        
-                        // 각 포인트마다 relative 위치를 계산
-                        val relativeDx = with(density) {
-                            (optimalPosition.x - center.x).toDp()
-                        }
-                        val relativeDy = with(density) {
-                            (optimalPosition.y - center.y).toDp()
-                        }
-                        
-                        // 포인트 반지름을 고려하여 위치 조정
-                        val adjustedDx = if (relativeDx > 0.dp) relativeDx + pointRadius 
-                                        else if (relativeDx == 0.dp) relativeDx 
-                                        else relativeDx - pointRadius
-                        val adjustedDy = if (relativeDy > 0.dp) relativeDy + pointRadius 
-                                        else if (relativeDy == 0.dp) relativeDy 
-                                        else relativeDy - pointRadius
-                        
-                        Modifier.offset(x = adjustedDx, y = adjustedDy)
-                    } else {
-                        // 스캐터 차트의 경우 기본 위치 (포인트 위쪽)
-                        Modifier.offset(x = 0.dp, y = -(pointRadius * 4))
-                    }
-                    
+                        .offset(x = xDp - pointRadius, y = yDp - pointRadius)
+                        .size(pointRadius * 2),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // 바깥쪽 원 - 선택 상태에 따라 색상 변경
                     Box(
-                        modifier = labelOffset
-                            .width(IntrinsicSize.Min)
-                            .background(
-                                color = Color.Black.copy(alpha = 0.8f),
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = values.getOrElse(index) { "N/A" },
-                            color = Color.White,
-                            fontSize = 12.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
+                        modifier = Modifier
+                            .size(pointRadius * 2)
+                            .background(color = outerColor, shape = CircleShape)
+                    )
+                    // 안쪽 흰색 원
+                    Box(
+                        modifier = Modifier
+                            .size(innerRadius * 2)
+                            .background(color = Color.White, shape = CircleShape)
+                    )
                 }
             }
         }
     }
-
-
 }

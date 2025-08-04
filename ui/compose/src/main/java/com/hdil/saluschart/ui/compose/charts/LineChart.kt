@@ -40,7 +40,8 @@ fun LineChart(
     strokeWidth: Float = 4f,
     labelTextSize: Float = 28f,
     tooltipTextSize: Float = 32f,
-    interactionType: InteractionType = InteractionType.POINT
+    interactionType: InteractionType = InteractionType.POINT,
+    chartType : ChartType = ChartType.LINE // 차트 타입 (툴팁 위치 결정용
 ) {
     if (data.isEmpty()) return
 
@@ -73,7 +74,7 @@ fun LineChart(
                 canvasPoints = points
                 canvasSize = size
                 chartMetrics = metrics
-                
+
                 ChartDraw.drawGrid(this, size, metrics)
                 ChartDraw.Line.drawLine(this, points, lineColor, strokeWidth)
                 ChartDraw.Line.drawXAxisLabels(
@@ -83,7 +84,7 @@ fun LineChart(
                     textSize = labelTextSize
                 )
             }
-            
+
             // Conditional interaction based on interactionType parameter
             when (interactionType) {
                 InteractionType.NEAR_X_AXIS -> {
@@ -93,19 +94,28 @@ fun LineChart(
                             values = yValues,
                             metrics = metrics,
                             color = Color.Transparent,
-                            barWidthMultiplier = 1.0f,
+                            barWidthRatio = 1.0f,
                             useFullHeight = true,
                             interactive = true,
                             useLineChartPositioning = true,
                             onBarClick = { index, value ->
                                 // Handle bar click - same logic as point click
                                 selectedPointIndex = if (selectedPointIndex == index) null else index
-                            }
+                            },
+                            chartType = chartType
                         )
                     }
+                    ChartDraw.Scatter.PointMarker(
+                        points = canvasPoints,
+                        values = yValues.map { it.toInt().toString() },
+                        selectedPointIndex = selectedPointIndex,
+                        onPointClick = null, // No point interaction in this mode
+                        interactive = false, // Visual only, no interactions
+                        chartType = chartType
+                    )
                 }
                 InteractionType.POINT -> {
-                    // PointMarker interactions (direct point touching)
+                    // PointMarker interactions (interactive data points)
                     ChartDraw.Scatter.PointMarker(
                         points = canvasPoints,
                         values = yValues.map { it.toInt().toString() },
@@ -114,11 +124,12 @@ fun LineChart(
                             // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
                             selectedPointIndex = if (selectedPointIndex == index) null else index
                         },
-                        chartType = ChartType.LINE
+                        interactive = true, // Full interaction enabled
+                        chartType = chartType
                     )
                 }
                 else -> {
-                    // 기본적으로 포인트 마커 사용
+                    // 기본적으로 포인트 마커 사용 (interactive)
                     ChartDraw.Scatter.PointMarker(
                         points = canvasPoints,
                         values = yValues.map { it.toInt().toString() },
@@ -127,7 +138,8 @@ fun LineChart(
                             // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
                             selectedPointIndex = if (selectedPointIndex == index) null else index
                         },
-                        chartType = ChartType.LINE
+                        interactive = true, // Full interaction enabled
+                        chartType = chartType
                     )
                 }
             }

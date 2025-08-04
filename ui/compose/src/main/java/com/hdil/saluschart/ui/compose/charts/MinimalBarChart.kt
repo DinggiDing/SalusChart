@@ -36,7 +36,8 @@ fun MinimalBarChart(
     color: Color = Color.Blue,
     width: Dp = 100.dp,
     height: Dp = 40.dp,
-    padding: Float = 4f
+    padding: Float = 4f,
+    chartType: ChartType = ChartType.MINIMAL_BAR // 차트 타입 (툴팁 위치 결정용
 ) {
     if (data.isEmpty()) return
 
@@ -72,9 +73,10 @@ fun MinimalBarChart(
                 values = data,
                 metrics = metrics,
                 color = color,
-                barWidthMultiplier = 0.8f,
+                barWidthRatio = 0.8f,
                 useFullHeight = false, // Data-matching height
-                interactive = false // Pure visual rendering
+                interactive = false, // Pure visual rendering
+                chartType = chartType
             )
         }
     }

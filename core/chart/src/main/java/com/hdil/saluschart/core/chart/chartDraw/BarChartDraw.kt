@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.StackedChartPoint
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw.formatTickLabel
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
@@ -69,8 +70,6 @@ object BarChartDraw {
         }
     }
 
-
-
     /**
      * 바 차트 막대들을 Composable로 생성합니다.
      * 상호작용 여부를 제어할 수 있습니다.
@@ -78,22 +77,24 @@ object BarChartDraw {
      * @param values 원본 데이터 값 목록
      * @param metrics 차트 메트릭 정보
      * @param color 바 색상
-     * @param barWidthMultiplier 바 너비 배수 (기본값: 0.8f)
+     * @param barWidthRatio 바 너비 배수 (기본값: 0.8f)
      * @param useFullHeight true이면 전체 차트 높이, false이면 데이터에 맞는 높이 (기본값: false)
      * @param interactive true이면 클릭 가능하고 툴팁 표시, false이면 순수 시각적 렌더링 (기본값: true)
      * @param useLineChartPositioning true이면 라인차트 포지셔닝 사용, false이면 바차트 포지셔닝 사용 (기본값: false)
      * @param onBarClick 바 클릭 시 호출되는 콜백 (바 인덱스, 값)
+     * @param chartType 차트 타입 (툴팁 위치 결정용)
      */
     @Composable
     fun BarMarker(
         values: List<Float>,
         metrics: ChartMath.ChartMetrics,
         color: Color,
-        barWidthMultiplier: Float = 0.8f,
+        barWidthRatio: Float = 0.8f,
         useFullHeight: Boolean = false,
         interactive: Boolean = true,
         useLineChartPositioning: Boolean = false,
-        onBarClick: ((Int, Float) -> Unit)? = null
+        onBarClick: ((Int, Float) -> Unit)? = null,
+        chartType: ChartType
     ) {
         val density = LocalDensity.current
 
@@ -113,12 +114,12 @@ object BarChartDraw {
                 // 라인차트 포지셔닝: 포인트 중심에 바 배치
                 val pointSpacing = if (values.size > 1) metrics.chartWidth / (values.size - 1) else 0f
                 val pointX = metrics.paddingX + index * pointSpacing
-                val barW = if (values.size > 1) pointSpacing * barWidthMultiplier else metrics.chartWidth * barWidthMultiplier
+                val barW = if (values.size > 1) pointSpacing * barWidthRatio else metrics.chartWidth * barWidthRatio
                 val barXPos = pointX - barW / 2f
                 Pair(barW, barXPos)
             } else {
                 // 바차트 포지셔닝: 할당된 공간의 중앙에 배치
-                val barW = metrics.chartWidth / values.size * barWidthMultiplier
+                val barW = metrics.chartWidth / values.size * barWidthRatio
                 val spacing = metrics.chartWidth / values.size
                 val barXPos = metrics.paddingX + index * spacing + (spacing - barW) / 2f
                 Pair(barW, barXPos)
@@ -139,7 +140,6 @@ object BarChartDraw {
                         .offset(x = barXDp, y = barYDp)
                         .size(width = barWidthDp, height = barHeightDp)
                         .background(color = color)
-                        .border(1.dp, Color.Red)
                         .clickable {
                             // 툴팁 상태 토글
                             showTooltip = !showTooltip
@@ -149,9 +149,27 @@ object BarChartDraw {
                 ) {
                     // 툴팁 표시
                     if (showTooltip) {
+                        val tooltipOffset = when (chartType) {
+                            ChartType.BAR -> {
+                                // 바 차트 툴팁: 바 위에 표시
+                                Modifier.offset(x = 0.dp, y = -(barHeightDp + 40.dp))
+                            }
+                            ChartType.LINE -> {
+                                // 라인 차트 툴팁: 바 위에 표시
+                                Modifier.offset(x = 0.dp, y = -(barHeightDp + 40.dp))
+                            }
+                            ChartType.STACKED_BAR -> {
+                                // 스택 바 차트 툴팁: 바 위에 표시
+                                Modifier.offset(x = 0.dp, y = -(barHeightDp + 40.dp))
+                            }
+                            else -> {
+                                // 기본 툴팁 위치: 바 위에 표시
+                                Modifier.offset(x = 0.dp, y = -(barHeightDp + 40.dp))
+                            }
+                        }
+
                         Box(
-                            modifier = Modifier
-                                .offset(x = 0.dp, y = if (useFullHeight) 10.dp else -(barHeightDp + 40.dp))
+                            modifier = tooltipOffset
                                 .width(IntrinsicSize.Min)
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                                 .background(

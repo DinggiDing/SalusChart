@@ -360,7 +360,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     width = selectedWidth,
                     height = selectedHeight,
                     strokeWidth = 10f,
-                    interactionType = InteractionType.NEAR_X_AXIS,
+                    interactionType = InteractionType.NEAR_X_AXIS
                 )
             }
             "Scatter" -> {
@@ -370,7 +370,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     yLabel = "활동량",
                     xLabel = "요일",
                     width = selectedWidth,
-                    height = selectedHeight
+                    height = selectedHeight,
+                    interactionType = InteractionType.NEAR_X_AXIS
                 )
             }
             "Bar" -> {
@@ -382,7 +383,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     minY = 2f,
                     maxY = 108f,
                     width = selectedWidth,
-                    height = selectedHeight
+                    height = selectedHeight,
+                    interactionType = InteractionType.NEAR_X_AXIS
                 )
             }
             "Stacked" -> {

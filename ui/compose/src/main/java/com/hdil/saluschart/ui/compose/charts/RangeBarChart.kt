@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.ui.theme.ChartColor
 
@@ -30,6 +31,7 @@ fun RangeBarChart(
     width: Dp = 250.dp,
     height: Dp = 250.dp,
     barWidthRatio: Float = 0.6f,
+    chartType: ChartType = ChartType.RANGE_BAR // 차트 타입 (툴팁 위치 결정용)
 ) {
     if (data.isEmpty()) return
     
@@ -56,4 +58,4 @@ fun RangeBarChart(
 
         Spacer(Modifier.height(4.dp))
     }
-} 
+}
