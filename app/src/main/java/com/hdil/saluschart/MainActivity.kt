@@ -35,6 +35,7 @@ import com.hdil.saluschart.ui.theme.SalusChartTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.ui.graphics.Color
 import com.hdil.saluschart.core.chart.InteractionType
@@ -63,9 +64,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SalusChartTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    SampleCharts(
-                        modifier = Modifier.padding(innerPadding)
+//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                    SampleCharts(
+//                        modifier = Modifier.padding(innerPadding)
+//                    )
+//                }
+                Surface {
+                    ExampleUI(
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
@@ -382,8 +388,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     xLabel = "요일",
                     minY = 2f,
                     maxY = 108f,
-                    width = selectedWidth,
-                    height = selectedHeight,
+//                    width = selectedWidth,
+//                    height = selectedHeight,
                     interactionType = InteractionType.BAR
                 )
             }
