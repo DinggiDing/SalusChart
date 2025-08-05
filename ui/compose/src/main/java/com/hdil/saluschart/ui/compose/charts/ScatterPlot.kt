@@ -98,7 +98,8 @@ fun ScatterPlot(
                         selectedPointIndex = selectedPointIndex,
                         onPointClick = null, // No point interaction in this mode
                         interactive = false, // Visual only, no interactions
-                        chartType = chartType
+                        chartType = chartType,
+                        showTooltipForIndex = selectedPointIndex
                     )
                 }
                 InteractionType.POINT -> {
@@ -111,7 +112,8 @@ fun ScatterPlot(
                             // Handle point click - toggle selection
                             selectedPointIndex = if (selectedPointIndex == index) null else index
                         },
-                        chartType = chartType
+                        chartType = chartType,
+                        showTooltipForIndex = null
                     )
                 }
                 else -> {
@@ -121,7 +123,8 @@ fun ScatterPlot(
                         values = yValues.map { it.toInt().toString() },
                         selectedPointIndex = null, // No selection in non-interactive mode
                         onPointClick = null,
-                        chartType = chartType
+                        chartType = chartType,
+                        showTooltipForIndex = null
                     )
                 }
             }

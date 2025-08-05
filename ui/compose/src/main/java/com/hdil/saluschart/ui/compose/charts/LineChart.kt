@@ -109,9 +109,10 @@ fun LineChart(
                         points = canvasPoints,
                         values = yValues.map { it.toInt().toString() },
                         selectedPointIndex = selectedPointIndex,
-                        onPointClick = null, // No point interaction in this mode
-                        interactive = false, // Visual only, no interactions
-                        chartType = chartType
+                        onPointClick = null,
+                        interactive = false,
+                        chartType = chartType,
+                        showTooltipForIndex = selectedPointIndex
                     )
                 }
                 InteractionType.POINT -> {
@@ -124,22 +125,21 @@ fun LineChart(
                             // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
                             selectedPointIndex = if (selectedPointIndex == index) null else index
                         },
-                        interactive = true, // Full interaction enabled
-                        chartType = chartType
+                        interactive = true,
+                        chartType = chartType,
+                        showTooltipForIndex = null
                     )
                 }
                 else -> {
-                    // 기본적으로 포인트 마커 사용 (interactive)
+                    // Non-interactive rendering
                     ChartDraw.Scatter.PointMarker(
                         points = canvasPoints,
                         values = yValues.map { it.toInt().toString() },
                         selectedPointIndex = selectedPointIndex,
-                        onPointClick = { index ->
-                            // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
-                            selectedPointIndex = if (selectedPointIndex == index) null else index
-                        },
-                        interactive = true, // Full interaction enabled
-                        chartType = chartType
+                        onPointClick = null,
+                        interactive = false,
+                        chartType = chartType,
+                        showTooltipForIndex = null
                     )
                 }
             }

@@ -360,7 +360,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     width = selectedWidth,
                     height = selectedHeight,
                     strokeWidth = 10f,
-                    interactionType = InteractionType.NEAR_X_AXIS
+                    interactionType = InteractionType.POINT
                 )
             }
             "Scatter" -> {
@@ -384,7 +384,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     maxY = 108f,
                     width = selectedWidth,
                     height = selectedHeight,
-                    interactionType = InteractionType.NEAR_X_AXIS
+                    interactionType = InteractionType.BAR
                 )
             }
             "Stacked" -> {

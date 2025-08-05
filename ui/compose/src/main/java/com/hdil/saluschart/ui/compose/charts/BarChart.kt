@@ -128,8 +128,8 @@ fun BarChart(
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
-                            useFullHeight = false, // Data-matching height
-                            interactive = true, // Enable interactions on visual bars
+                            useFullHeight = false,
+                            interactive = true,
                             onBarClick = onBarClick,
                             chartType = chartType
                         )
@@ -143,9 +143,9 @@ fun BarChart(
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
-                            useFullHeight = false, // Data-matching height
-                            interactive = false, // Pure visual rendering
-                            chartType = ChartType.BAR
+                            useFullHeight = false,
+                            interactive = false,
+                            chartType = chartType
                         )
                     }
                 }
