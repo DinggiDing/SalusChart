@@ -64,16 +64,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SalusChartTheme {
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    SampleCharts(
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-//                }
-                Surface {
-                    ExampleUI(
-                        modifier = Modifier.fillMaxSize()
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    SampleCharts(
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
+//                Surface {
+//                    ExampleUI(
+//                        modifier = Modifier.fillMaxSize()
+//                    )
+//                }
             }
         }
     }
@@ -386,8 +386,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     title = "요일별 활동량",
                     yLabel = "활동량",
                     xLabel = "요일",
-                    minY = 2f,
-                    maxY = 108f,
+                    maxY = 88f,
                     width = selectedWidth,
                     height = selectedHeight,
                     interactionType = InteractionType.NEAR_X_AXIS

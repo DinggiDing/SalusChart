@@ -78,11 +78,11 @@ fun ScatterPlot(
                     // BarMarker interactions (invisible bars for easier touching)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
-                            values = yValues,
+                            minValues = List(yValues.size) { metrics.minY },
+                            maxValues = yValues,
                             metrics = metrics,
                             useLineChartPositioning = true,
-                            onBarClick = { index, value ->
-                                // Handle bar click - same logic as point click
+                            onBarClick = { index, tooltipText ->
                                 selectedPointIndex = if (selectedPointIndex == index) null else index
                             },
                             chartType = chartType,

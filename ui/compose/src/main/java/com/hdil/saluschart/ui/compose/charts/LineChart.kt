@@ -41,7 +41,7 @@ fun LineChart(
     labelTextSize: Float = 28f,
     tooltipTextSize: Float = 32f,
     interactionType: InteractionType = InteractionType.POINT,
-    chartType : ChartType = ChartType.LINE // 차트 타입 (툴팁 위치 결정용
+    chartType : ChartType = ChartType.LINE
 ) {
     if (data.isEmpty()) return
 
@@ -66,7 +66,6 @@ fun LineChart(
             Canvas(
                 modifier = Modifier.fillMaxSize()
             ) {
-
                 val metrics = ChartMath.computeMetrics(size, yValues)
                 val points = ChartMath.mapToCanvasPoints(data, size, metrics)
 
@@ -91,11 +90,11 @@ fun LineChart(
                     // BarMarker interactions (invisible bars for easier touching)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
-                            values = yValues,
+                            minValues = List(yValues.size) { metrics.minY },
+                            maxValues = yValues,
                             metrics = metrics,
                             useLineChartPositioning = true,
-                            onBarClick = { index, value ->
-                                // Handle bar click - same logic as point click
+                            onBarClick = { index, tooltipText ->
                                 selectedPointIndex = if (selectedPointIndex == index) null else index
                             },
                             chartType = chartType,

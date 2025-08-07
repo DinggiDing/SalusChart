@@ -35,8 +35,8 @@ fun BarChart(
     yLabel: String = "Value",
     title: String = "Bar Chart Example",
     barColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
-//    width: Dp = 250.dp,
-//    height: Dp = 250.dp,
+    width: Dp = 250.dp,
+    height: Dp = 250.dp,
     minY: Float? = null,                    // 사용자 지정 최소 Y값
     maxY: Float? = null,                    // 사용자 지정 최대 Y값
     barWidthRatio: Float = 0.8f,       // 바 너비 배수
@@ -61,8 +61,8 @@ fun BarChart(
 
         Box(
             modifier = modifier
-//                .width(width)
-//                .height(height)
+                .width(width)
+                .height(height)
         ) {
             Canvas(
                 modifier = Modifier.fillMaxSize()
@@ -97,7 +97,8 @@ fun BarChart(
                     // Visual bars (non-interactive)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
-                            values = yValues,
+                            minValues = List(yValues.size) { metrics.minY },
+                            maxValues = yValues,
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
@@ -110,12 +111,13 @@ fun BarChart(
                     // Interactive bars overlay (transparent bars for easier touching)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
-                            values = yValues,
+                            minValues = List(yValues.size) { metrics.minY },
+                            maxValues = yValues,
                             metrics = metrics,
-                            onBarClick = { index, value ->
+                            onBarClick = { index, tooltipText ->
                                 // Handle bar click - toggle selection
                                 selectedBarIndex = if (selectedBarIndex == index) null else index
-                                onBarClick?.invoke(index, value)
+                                onBarClick?.invoke(index, tooltipText.toFloat())
                             },
                             chartType = chartType,
                             showTooltipForIndex = selectedBarIndex,
@@ -127,12 +129,15 @@ fun BarChart(
                     // Interactive visual bars (direct bar touching)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
-                            values = yValues,
+                            minValues = List(yValues.size) { metrics.minY },
+                            maxValues = yValues,
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
                             interactive = true,
-                            onBarClick = onBarClick,
+                            onBarClick = { index, tooltipText ->
+                                onBarClick?.invoke(index, tooltipText.toFloat())
+                            },
                             chartType = chartType
                         )
                     }
@@ -141,7 +146,8 @@ fun BarChart(
                     // Visual bars (non-interactive)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
-                            values = yValues,
+                            minValues = List(yValues.size) { metrics.minY },
+                            maxValues = yValues,
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,

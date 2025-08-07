@@ -70,7 +70,8 @@ fun MinimalBarChart(
         // Visual bars (non-interactive) using BarMarker
         chartMetrics?.let { metrics ->
             ChartDraw.Bar.BarMarker(
-                values = data,
+                minValues = List(data.size) { 0f },
+                maxValues = data,
                 metrics = metrics,
                 color = color,
                 barWidthRatio = 0.8f,

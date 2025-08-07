@@ -69,15 +69,16 @@ fun RangeBarChart(
                 InteractionType.BAR -> {
                     // Interactive range bars
                     chartMetrics?.let { metrics ->
-                        ChartDraw.RangeBar.RangeBarMarker(
-                            data = data,
+                        ChartDraw.Bar.BarMarker(
+                            minValues = data.map { it.yMin },
+                            maxValues = data.map { it.yMax },
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
                             interactive = true,
-                            onBarClick = { index, rangePoint ->
+                            onBarClick = { index, tooltipText ->
                                 selectedBarIndex = if (selectedBarIndex == index) null else index
-                                onBarClick?.invoke(index, rangePoint)
+                                onBarClick?.invoke(index, data[index])
                             },
                             chartType = chartType,
                             showTooltipForIndex = selectedBarIndex
@@ -87,8 +88,9 @@ fun RangeBarChart(
                 InteractionType.NEAR_X_AXIS -> {
                     // Non-interactive range bars
                     chartMetrics?.let { metrics ->
-                        ChartDraw.RangeBar.RangeBarMarker(
-                            data = data,
+                        ChartDraw.Bar.BarMarker(
+                            minValues = data.map { it.yMin },
+                            maxValues = data.map { it.yMax },
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
@@ -100,7 +102,8 @@ fun RangeBarChart(
 
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
-                            values = data.map { it.yMin },
+                            minValues = List(data.size) { metrics.minY },
+                            maxValues = data.map { it.yMax },
                             metrics = metrics,
                             onBarClick = { index, _ ->
                                 selectedBarIndex = if (selectedBarIndex == index) null else index
@@ -115,8 +118,9 @@ fun RangeBarChart(
                 else -> {
                     // Default case - no interaction
                     chartMetrics?.let { metrics ->
-                        ChartDraw.RangeBar.RangeBarMarker(
-                            data = data,
+                        ChartDraw.Bar.BarMarker(
+                            minValues = data.map { it.yMin },
+                            maxValues = data.map { it.yMax },
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
