@@ -29,8 +29,10 @@ import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.core.chart.chartDraw.LegendPosition
 import com.hdil.saluschart.ui.compose.charts.BarChart
+import com.hdil.saluschart.ui.compose.charts.BubbleType
 import com.hdil.saluschart.ui.compose.charts.CalendarChart
 import com.hdil.saluschart.ui.compose.charts.CalendarEntry
+import com.hdil.saluschart.ui.compose.charts.LineChart
 import com.hdil.saluschart.ui.compose.charts.PieChart
 import com.hdil.saluschart.ui.theme.Orange
 import com.hdil.saluschart.ui.theme.Primary_Purple
@@ -54,7 +56,6 @@ private val entries = generateSequence(startDate) { date ->
     CalendarEntry(
         date = date,
         value = value,
-        color = if (random.nextBoolean()) null else Color.Green
     )
 }.toList()
 
@@ -80,9 +81,10 @@ fun ExampleUI(modifier: Modifier = Modifier) {
         "LineChart 2",
         "PieChart 1",
         "CalendarChart 1",
+        "CalendarChart 2"
     )
 
-    var selectedChartType by remember { mutableStateOf<String?>("PieChart 1") }
+    var selectedChartType by remember { mutableStateOf<String?>("LineChart 1") }
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         if (selectedChartType == null) {
@@ -120,6 +122,7 @@ fun ExampleUI(modifier: Modifier = Modifier) {
                 "LineChart 2" -> LineChart_2()
                 "PieChart 1" -> PieChart_1()
                 "CalendarChart 1" -> ChalendarChart_1()
+                "CalendarChart 2" -> ChalendarChart_2()
             }
         }
     }
@@ -175,7 +178,14 @@ fun DonutChart_1() {
 
 @Composable
 fun LineChart_1() {
-    Text("Displaying LineChart 1")
+    LineChart(
+        data = chartPoints,
+        title = "요일별 활동량",
+        yLabel = "활동량",
+        xLabel = "요일",
+        strokeWidth = 10f,
+        interactionType = InteractionType.POINT,
+    )
 }
 
 @Composable
@@ -200,7 +210,24 @@ fun PieChart_1() {
 @Composable
 fun ChalendarChart_1() {
     CalendarChart(
+        modifier = Modifier.fillMaxWidth().height(600.dp),
         entries = entries,
         yearMonth = yearMonth,
+        color = Primary_Purple,
+        maxBubbleSize = 10f,
+        minBubbleSize = 6f
+    )
+}
+
+@Composable
+fun ChalendarChart_2() {
+    CalendarChart(
+        modifier = Modifier.width(300.dp).height(200.dp),
+        entries = entries,
+        yearMonth = yearMonth,
+        color = Primary_Purple,
+        bubbleType = BubbleType.RECTANGLE,
+        maxBubbleSize = 10f,
+        minBubbleSize = 6f
     )
 }

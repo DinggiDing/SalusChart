@@ -1,5 +1,7 @@
 package com.hdil.saluschart.core.chart.chartMath
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import java.time.YearMonth
 
 object CalendarChartMath {
@@ -34,5 +36,18 @@ object CalendarChartMath {
         if (maxValue <= 0f) return minSize
         val normalizedValue = value / maxValue
         return minSize + (maxSize - minSize) * normalizedValue
+    }
+
+    fun calculateBubbleColor(color: Color, value: Float, maxValue: Float, minSize: Float, maxSize: Float): Color {
+        if (maxValue <= 0f) return color
+        val normalizedValue = (value / maxValue).coerceIn(0f, 1f)
+        val hsl = FloatArray(3)
+        androidx.core.graphics.ColorUtils.colorToHSL(color.toArgb(), hsl)
+        val originalL = hsl[2]
+        // 최대값일 때 color의 밝기, 값이 작을수록 밝기가 커짐(최대 0.9까지)
+        hsl[2] = originalL + (0.9f - originalL) * (1f - normalizedValue)
+        hsl[2] = hsl[2].coerceIn(0f, 0.9f)
+        val newArgb = androidx.core.graphics.ColorUtils.HSLToColor(hsl)
+        return Color(newArgb)
     }
 }

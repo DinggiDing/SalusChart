@@ -12,7 +12,6 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 object ChartDraw {
 
     var Pie = PieChartDraw
-    var Calendar = CalendarChartDraw
     val RangeBar = RangeBarChartDraw
     val Line = LineChartDraw
     val Bar = BarChartDraw

@@ -388,8 +388,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     xLabel = "요일",
                     minY = 2f,
                     maxY = 108f,
-                    width = selectedWidth,
-                    height = selectedHeight,
+//                    width = selectedWidth,
+//                    height = selectedHeight,
                     interactionType = InteractionType.NEAR_X_AXIS
                 )
             }
@@ -472,8 +472,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 CalendarChart(
                     entries = entries,
                     yearMonth = yearMonth,
-                    width = selectedWidth,
-                    height = selectedHeight
+
                 )
             }
                          "MinBar" -> {
