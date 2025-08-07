@@ -35,8 +35,8 @@ fun BarChart(
     yLabel: String = "Value",
     title: String = "Bar Chart Example",
     barColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
-    width: Dp = 250.dp,
-    height: Dp = 250.dp,
+//    width: Dp = 250.dp,
+//    height: Dp = 250.dp,
     minY: Float? = null,                    // 사용자 지정 최소 Y값
     maxY: Float? = null,                    // 사용자 지정 최대 Y값
     barWidthRatio: Float = 0.8f,       // 바 너비 배수
@@ -61,8 +61,8 @@ fun BarChart(
 
         Box(
             modifier = modifier
-                .width(width)
-                .height(height)
+//                .width(width)
+//                .height(height)
         ) {
             Canvas(
                 modifier = Modifier.fillMaxSize()
