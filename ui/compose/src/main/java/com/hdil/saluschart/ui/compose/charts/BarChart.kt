@@ -53,6 +53,7 @@ fun BarChart(
 
     var canvasSize by remember { mutableStateOf(androidx.compose.ui.geometry.Size.Zero) }
     var chartMetrics by remember { mutableStateOf<ChartMath.ChartMetrics?>(null) }
+    var selectedBarIndex by remember { mutableStateOf<Int?>(null) }
 
     Column(modifier = modifier.padding(16.dp)) {
         Text(title, style = MaterialTheme.typography.titleMedium)
@@ -100,9 +101,9 @@ fun BarChart(
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
-                            useFullHeight = false, // Data-matching height
-                            interactive = false, // Pure visual rendering
-                            chartType = ChartType.BAR
+                            interactive = false,
+                            chartType = ChartType.BAR,
+                            showTooltipForIndex = selectedBarIndex
                         )
                     }
 
@@ -111,12 +112,14 @@ fun BarChart(
                         ChartDraw.Bar.BarMarker(
                             values = yValues,
                             metrics = metrics,
-                            color = Color.Transparent, // Transparent so only tooltips are visible
-                            barWidthRatio = 1.0f, // Full width for easier clicking
-                            useFullHeight = true, // Full height for easier clicking
-                            interactive = true, // Enable interactions
-                            onBarClick = onBarClick,
-                            chartType = chartType
+                            onBarClick = { index, value ->
+                                // Handle bar click - toggle selection
+                                selectedBarIndex = if (selectedBarIndex == index) null else index
+                                onBarClick?.invoke(index, value)
+                            },
+                            chartType = chartType,
+                            showTooltipForIndex = selectedBarIndex,
+                            isTouchArea = true
                         )
                     }
                 }
@@ -128,7 +131,6 @@ fun BarChart(
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
-                            useFullHeight = false,
                             interactive = true,
                             onBarClick = onBarClick,
                             chartType = chartType
@@ -143,9 +145,9 @@ fun BarChart(
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
-                            useFullHeight = false,
                             interactive = false,
-                            chartType = chartType
+                            chartType = chartType,
+                            showTooltipForIndex = selectedBarIndex
                         )
                     }
                 }

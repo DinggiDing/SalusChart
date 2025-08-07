@@ -47,12 +47,12 @@ object ScatterPlotDraw {
     @Composable
     fun PointMarker(
         points: List<Offset>,
-        values: List<String>,
+        values: List<Float>,
         pointRadius: Dp = 8.dp,
         innerRadius: Dp = 4.dp,
         selectedPointIndex: Int? = null,
         onPointClick: ((Int) -> Unit)? = null,
-        interactive: Boolean = true,
+        interactive: Boolean = false,
         chartType: ChartType,
         showTooltipForIndex: Int? = null
     ) {
@@ -142,7 +142,7 @@ object ScatterPlotDraw {
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = values.getOrElse(index) { "N/A" },
+                                text = values.getOrElse(index) { 0f }.toInt().toString(),
                                 color = Color.White,
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.Center,
@@ -214,7 +214,7 @@ object ScatterPlotDraw {
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = values.getOrElse(index) { "N/A" },
+                                text = values.getOrElse(index) { 0f }.toInt().toString(),
                                 color = Color.White,
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.Center,

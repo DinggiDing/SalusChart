@@ -74,8 +74,7 @@ fun MinimalBarChart(
                 metrics = metrics,
                 color = color,
                 barWidthRatio = 0.8f,
-                useFullHeight = false, // Data-matching height
-                interactive = false, // Pure visual rendering
+                interactive = false,
                 chartType = chartType
             )
         }

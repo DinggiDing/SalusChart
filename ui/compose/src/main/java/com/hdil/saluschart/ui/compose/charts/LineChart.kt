@@ -93,21 +93,19 @@ fun LineChart(
                         ChartDraw.Bar.BarMarker(
                             values = yValues,
                             metrics = metrics,
-                            color = Color.Transparent,
-                            barWidthRatio = 1.0f,
-                            useFullHeight = true,
-                            interactive = true,
                             useLineChartPositioning = true,
                             onBarClick = { index, value ->
                                 // Handle bar click - same logic as point click
                                 selectedPointIndex = if (selectedPointIndex == index) null else index
                             },
-                            chartType = chartType
+                            chartType = chartType,
+                            showTooltipForIndex = null,
+                            isTouchArea = true
                         )
                     }
                     ChartDraw.Scatter.PointMarker(
                         points = canvasPoints,
-                        values = yValues.map { it.toInt().toString() },
+                        values = yValues,
                         selectedPointIndex = selectedPointIndex,
                         onPointClick = null,
                         interactive = false,
@@ -119,7 +117,7 @@ fun LineChart(
                     // PointMarker interactions (interactive data points)
                     ChartDraw.Scatter.PointMarker(
                         points = canvasPoints,
-                        values = yValues.map { it.toInt().toString() },
+                        values = yValues,
                         selectedPointIndex = selectedPointIndex,
                         onPointClick = { index ->
                             // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
@@ -134,7 +132,7 @@ fun LineChart(
                     // Non-interactive rendering
                     ChartDraw.Scatter.PointMarker(
                         points = canvasPoints,
-                        values = yValues.map { it.toInt().toString() },
+                        values = yValues,
                         selectedPointIndex = selectedPointIndex,
                         onPointClick = null,
                         interactive = false,

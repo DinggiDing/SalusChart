@@ -360,7 +360,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     width = selectedWidth,
                     height = selectedHeight,
                     strokeWidth = 10f,
-                    interactionType = InteractionType.POINT
+                    interactionType = InteractionType.NEAR_X_AXIS
                 )
             }
             "Scatter" -> {
@@ -384,7 +384,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     maxY = 108f,
                     width = selectedWidth,
                     height = selectedHeight,
-                    interactionType = InteractionType.BAR
+                    interactionType = InteractionType.NEAR_X_AXIS
                 )
             }
             "Stacked" -> {
@@ -412,7 +412,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     xLabel = "날짜",
                     width = selectedWidth,
                     height = selectedHeight,
-                    barColor = Color(0xFFFF9800)
+                    barColor = Color(0xFFFF9800),
+                    interactionType = InteractionType.NEAR_X_AXIS
                 )
             }
             "Pie" -> {
