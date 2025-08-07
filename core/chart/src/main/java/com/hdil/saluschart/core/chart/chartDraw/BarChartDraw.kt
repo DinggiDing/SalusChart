@@ -78,29 +78,36 @@ object BarChartDraw {
      * @param metrics 차트 메트릭 정보
      * @param color 바 색상
      * @param barWidthRatio 바 너비 배수 (기본값: 0.8f)
-     * @param useFullHeight true이면 전체 차트 높이, false이면 데이터에 맞는 높이 (기본값: false)
      * @param interactive true이면 클릭 가능하고 툴팁 표시, false이면 순수 시각적 렌더링 (기본값: true)
      * @param useLineChartPositioning true이면 라인차트 포지셔닝 사용, false이면 바차트 포지셔닝 사용 (기본값: false)
      * @param onBarClick 바 클릭 시 호출되는 콜백 (바 인덱스, 값)
      * @param chartType 차트 타입 (툴팁 위치 결정용)
+     * @param showTooltipForIndex 외부에서 제어되는 툴팁 표시 인덱스 (null이면 표시 안함)
+     * @param isTouchArea true이면 터치 영역용 (투명, 전체 높이, 상호작용 가능), false이면 일반 바 (기본값: false)
      */
     @Composable
     fun BarMarker(
         values: List<Float>,
         metrics: ChartMath.ChartMetrics,
-        color: Color,
+        color: Color = Color.Black,
         barWidthRatio: Float = 0.8f,
-        useFullHeight: Boolean = false,
         interactive: Boolean = true,
         useLineChartPositioning: Boolean = false,
         onBarClick: ((Int, Float) -> Unit)? = null,
-        chartType: ChartType
+        chartType: ChartType,
+        showTooltipForIndex: Int? = null,
+        isTouchArea: Boolean = false
     ) {
         val density = LocalDensity.current
 
+        // 터치 영역용인 경우 자동으로 파라미터 설정
+        val actualColor = if (isTouchArea) Color.Transparent else color
+        val actualBarWidthRatio = if (isTouchArea) 1.0f else barWidthRatio
+        val actualInteractive = if (isTouchArea) true else interactive
+
         values.forEachIndexed { index, value ->
             // 바 높이와 위치 계산
-            val (barHeight, barY) = if (useFullHeight) {
+            val (barHeight, barY) = if (isTouchArea) {
                 // 전체 차트 높이 사용 (터치 영역용)
                 Pair(metrics.chartHeight, 0f)
             } else {
@@ -114,12 +121,12 @@ object BarChartDraw {
                 // 라인차트 포지셔닝: 포인트 중심에 바 배치
                 val pointSpacing = if (values.size > 1) metrics.chartWidth / (values.size - 1) else 0f
                 val pointX = metrics.paddingX + index * pointSpacing
-                val barW = if (values.size > 1) pointSpacing * barWidthRatio else metrics.chartWidth * barWidthRatio
+                val barW = if (values.size > 1) pointSpacing * actualBarWidthRatio else metrics.chartWidth * actualBarWidthRatio
                 val barXPos = pointX - barW / 2f
                 Pair(barW, barXPos)
             } else {
                 // 바차트 포지셔닝: 할당된 공간의 중앙에 배치
-                val barW = metrics.chartWidth / values.size * barWidthRatio
+                val barW = metrics.chartWidth / values.size * actualBarWidthRatio
                 val spacing = metrics.chartWidth / values.size
                 val barXPos = metrics.paddingX + index * spacing + (spacing - barW) / 2f
                 Pair(barW, barXPos)
@@ -131,15 +138,26 @@ object BarChartDraw {
             val barWidthDp = with(density) { barWidth.toDp() }
             val barHeightDp = with(density) { barHeight.toDp() }
 
-            if (interactive) {
+            if (actualInteractive) {
                 // 각 바의 툴팁 표시 상태
                 var showTooltip by remember { mutableStateOf(false) }
+
+                // 툴팁 표시 여부 결정: 
+                // - isTouchArea = true인 경우 툴팁 표시 안함 (터치 영역용이므로)
+                // - 바 차트 타입이 아닌 경우 툴팁 표시 안함 (LINE, SCATTERPLOT 등은 PointMarker 사용)
+                val shouldShowTooltip = when {
+                    isTouchArea -> false // 터치 영역용이므로 툴팁 표시 안함
+                    chartType in listOf(ChartType.BAR, ChartType.RANGE_BAR, ChartType.STACKED_BAR) -> {
+                        if (actualInteractive) showTooltip else (showTooltipForIndex == index)
+                    }
+                    else -> false // LINE, SCATTERPLOT 등에서는 툴팁 표시 안함
+                }
 
                 Box(
                     modifier = Modifier
                         .offset(x = barXDp, y = barYDp)
                         .size(width = barWidthDp, height = barHeightDp)
-                        .background(color = color)
+                        .background(color = actualColor)
                         .clickable {
                             // 툴팁 상태 토글
                             showTooltip = !showTooltip
@@ -148,23 +166,19 @@ object BarChartDraw {
                         }
                 ) {
                     // 툴팁 표시
-                    if (showTooltip) {
+                    if (shouldShowTooltip) {
                         val tooltipOffset = when (chartType) {
                             ChartType.BAR -> {
-                                // 바 차트 툴팁: 바 위에 표시
-                                Modifier.offset(x = 0.dp, y = -(barHeightDp + 40.dp))
+                                Modifier.offset(x = 0.dp, y = (-40).dp)
                             }
-                            ChartType.LINE -> {
-                                // 라인 차트 툴팁: 바 위에 표시
-                                Modifier.offset(x = 0.dp, y = -(barHeightDp + 40.dp))
+                            ChartType.RANGE_BAR -> {
+                                Modifier.offset(x = 0.dp, y = (-40).dp)
                             }
                             ChartType.STACKED_BAR -> {
-                                // 스택 바 차트 툴팁: 바 위에 표시
-                                Modifier.offset(x = 0.dp, y = -(barHeightDp + 40.dp))
+                                Modifier.offset(x = 0.dp, y = (-40).dp)
                             }
                             else -> {
-                                // 기본 툴팁 위치: 바 위에 표시
-                                Modifier.offset(x = 0.dp, y = -(barHeightDp + 40.dp))
+                                Modifier.offset(x = 0.dp, y = (-40).dp)
                             }
                         }
 
@@ -189,13 +203,65 @@ object BarChartDraw {
                     }
                 }
             } else {
-                // 비상호작용 모드: 순수 시각적 렌더링만
+                // 비상호작용 모드: 순수 시각적 렌더링만 (클릭 불가)
+                // 툴팁 표시 여부 결정:
+                // - isTouchArea = true인 경우 툴팁 표시 안함 (터치 영역용이므로)
+                // - 바 차트 타입이 아닌 경우 툴팁 표시 안함 (LINE, SCATTERPLOT 등은 PointMarker 사용)
+                val shouldShowTooltip = when {
+                    isTouchArea -> false // 터치 영역용이므로 툴팁 표시 안함
+                    chartType in listOf(ChartType.BAR, ChartType.RANGE_BAR, ChartType.STACKED_BAR) -> {
+                        showTooltipForIndex == index
+                    }
+                    else -> false // LINE, SCATTERPLOT 등에서는 툴팁 표시 안함
+                }
+                
                 Box(
                     modifier = Modifier
                         .offset(x = barXDp, y = barYDp)
                         .size(width = barWidthDp, height = barHeightDp)
-                        .background(color = color)
-                )
+                        .background(color = actualColor)
+                ) {
+                    // 외부에서 제어되는 툴팁 표시
+                    if (shouldShowTooltip) {
+                        val tooltipOffset = when (chartType) {
+                            ChartType.BAR -> {
+                                // 바 차트 툴팁: 바 위에 표시
+                                Modifier.offset(x = 0.dp, y = (-40).dp)
+                            }
+                            ChartType.LINE -> {
+                                // 라인 차트 툴팁: 바 위에 표시
+                                Modifier.offset(x = 0.dp, y = (-40).dp)
+                            }
+                            ChartType.STACKED_BAR -> {
+                                // 스택 바 차트 툴팁: 바 위에 표시
+                                Modifier.offset(x = 0.dp, y = (-40).dp)
+                            }
+                            else -> {
+                                // 기본 툴팁 위치: 바 위에 표시
+                                Modifier.offset(x = 0.dp, y = (-40).dp)
+                            }
+                        }
+
+                        Box(
+                            modifier = tooltipOffset
+                                .width(IntrinsicSize.Min)
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .background(
+                                    color = Color.Black.copy(alpha = 0.8f),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                        ) {
+                            Text(
+                                text = value.toInt().toString(),
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+                }
             }
         }
     }

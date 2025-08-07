@@ -80,21 +80,18 @@ fun ScatterPlot(
                         ChartDraw.Bar.BarMarker(
                             values = yValues,
                             metrics = metrics,
-                            color = Color.Transparent,
-                            barWidthRatio = 1.0f,
-                            useFullHeight = true,
-                            interactive = true,
                             useLineChartPositioning = true,
                             onBarClick = { index, value ->
                                 // Handle bar click - same logic as point click
                                 selectedPointIndex = if (selectedPointIndex == index) null else index
                             },
-                            chartType = chartType
+                            chartType = chartType,
+                            isTouchArea = true
                         )
                     }
                     ChartDraw.Scatter.PointMarker(
                         points = canvasPoints,
-                        values = yValues.map { it.toInt().toString() },
+                        values = yValues,
                         selectedPointIndex = selectedPointIndex,
                         onPointClick = null, // No point interaction in this mode
                         interactive = false, // Visual only, no interactions
@@ -106,7 +103,7 @@ fun ScatterPlot(
                     // PointMarker interactions (direct point touching)
                     ChartDraw.Scatter.PointMarker(
                         points = canvasPoints,
-                        values = yValues.map { it.toInt().toString() },
+                        values = yValues,
                         selectedPointIndex = selectedPointIndex,
                         onPointClick = { index ->
                             // Handle point click - toggle selection
@@ -120,7 +117,7 @@ fun ScatterPlot(
                     // Default to non-interactive rendering
                     ChartDraw.Scatter.PointMarker(
                         points = canvasPoints,
-                        values = yValues.map { it.toInt().toString() },
+                        values = yValues,
                         selectedPointIndex = null, // No selection in non-interactive mode
                         onPointClick = null,
                         chartType = chartType,
