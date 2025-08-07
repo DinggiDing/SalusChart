@@ -24,6 +24,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import androidx.compose.runtime.rememberCoroutineScope
+import com.hdil.saluschart.core.chart.ChartType
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -51,7 +52,8 @@ fun CalendarChart(
     showGrid: Boolean = true,
     width: Dp = Dp.Unspecified,  // 너비 파라미터 추가
     height: Dp = 350.dp,         // height 파라미터 타입을 Dp로 변경
-    onMonthChanged: ((YearMonth) -> Unit)? = null
+    onMonthChanged: ((YearMonth) -> Unit)? = null,
+    chartType: ChartType = ChartType.CALENDAR // 차트 타입 (툴팁 위치 결정용)
 ) {
     // 2달 이상의 데이터가 있는지 확인
     val distinctMonths = entries.map { YearMonth.of(it.date.year, it.date.month) }.distinct()

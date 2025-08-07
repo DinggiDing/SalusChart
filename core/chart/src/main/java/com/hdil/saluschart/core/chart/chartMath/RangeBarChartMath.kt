@@ -1,6 +1,7 @@
 package com.hdil.saluschart.core.chart.chartMath
 
 import androidx.compose.ui.geometry.Size
+import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.core.chart.chartMath.ChartMath.ChartMetrics
 import com.hdil.saluschart.core.chart.chartMath.ChartMath.computeNiceTicks
@@ -24,7 +25,7 @@ object RangeBarChartMath {
         val dataMax = allYValues.maxOrNull() ?: 1f
         val dataMin = allYValues.minOrNull() ?: 0f
 
-        val yTicks = computeNiceTicks(dataMin, dataMax, tickCount)
+        val yTicks = computeNiceTicks(dataMin, dataMax, tickCount, ChartType.RANGE_BAR)
 
         val actualMinY = yTicks.minOrNull() ?: dataMin
         val actualMaxY = yTicks.maxOrNull() ?: dataMax

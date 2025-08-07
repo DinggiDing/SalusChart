@@ -56,9 +56,10 @@ fun StackedBarChart(
         Color(0xFFFFEB3B), // 노랑
     ),
     width: Dp = 300.dp,
-    height: Dp = 250.dp,
+    height: Dp = 300.dp,
     barWidthRatio: Float = 0.6f,
-    showLegend: Boolean = true
+    showLegend: Boolean = true,
+    chartType: ChartType = ChartType.STACKED_BAR // 차트 타입 (툴팁 위치 결정용)
 ) {
     if (data.isEmpty()) return
 

@@ -16,41 +16,42 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
+import com.hdil.saluschart.core.chart.ChartType
+import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.ui.theme.ChartColor
-import kotlin.text.toInt
 
 @Composable
 fun LineChart(
     modifier: Modifier = Modifier,
-    data: List<ChartPoint>,      // ✅ ChartPoint 기반
+    data: List<ChartPoint>,      // ChartPoint 기반
     xLabel: String = "Time",
     yLabel: String = "Value",
     title: String = "Line Chart Example",
     lineColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
     width: Dp = 250.dp,
-    height: Dp = 250.dp
+    height: Dp = 250.dp,
+    strokeWidth: Float = 4f,
+    labelTextSize: Float = 28f,
+    tooltipTextSize: Float = 32f,
+    interactionType: InteractionType = InteractionType.POINT,
+    chartType : ChartType = ChartType.LINE // 차트 타입 (툴팁 위치 결정용
 ) {
     if (data.isEmpty()) return
 
     val xLabels = data.map { it.x }
     val yValues = data.map { it.y }
 
-    // 포인트 위치를 저장할 상태 변수
-    var canvasPoints by remember { mutableStateOf(listOf<Offset>()) }
+    var canvasPoints by remember { mutableStateOf(listOf<androidx.compose.ui.geometry.Offset>()) }
     var canvasSize by remember { mutableStateOf(Size.Zero) }
+    var chartMetrics by remember { mutableStateOf<ChartMath.ChartMetrics?>(null) }
 
-    // 선택된 포인트의 인덱스를 추적하는 상태 변수 추가
-    // null일 경우 모든 포인트가 기본색상(파란색)
     var selectedPointIndex by remember { mutableStateOf<Int?>(null) }
 
     Column(modifier = modifier.padding(16.dp)) {
@@ -72,25 +73,73 @@ fun LineChart(
                 // 포인트 위치와 캔버스 크기를 상태 변수에 저장
                 canvasPoints = points
                 canvasSize = size
+                chartMetrics = metrics
 
                 ChartDraw.drawGrid(this, size, metrics)
-                ChartDraw.Line.drawLinePath(this, points, lineColor)
-//                ChartDraw.drawPoints(points, yValues)
-                ChartDraw.Line.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
-            }
-            // Canvas 위에 각 포인트마다 PointMarker 배치
-            canvasPoints.forEachIndexed { index, point ->
-
-                // PointMarker 컴포저블 배치
-                ChartDraw.Scatter.PointMarker(
-                    center = point,
-                    value = yValues[index].toInt().toString(),
-                    isSelected = selectedPointIndex == null || selectedPointIndex == index,
-                    onClick = {
-                        // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
-                        selectedPointIndex = if (selectedPointIndex == index) null else index
-                    }
+                ChartDraw.Line.drawLine(this, points, lineColor, strokeWidth)
+                ChartDraw.Line.drawXAxisLabels(
+                    ctx = drawContext,
+                    labels = xLabels.map { it.toString() },
+                    metrics = metrics,
+                    textSize = labelTextSize
                 )
+            }
+
+            // Conditional interaction based on interactionType parameter
+            when (interactionType) {
+                InteractionType.NEAR_X_AXIS -> {
+                    // BarMarker interactions (invisible bars for easier touching)
+                    chartMetrics?.let { metrics ->
+                        ChartDraw.Bar.BarMarker(
+                            values = yValues,
+                            metrics = metrics,
+                            useLineChartPositioning = true,
+                            onBarClick = { index, value ->
+                                // Handle bar click - same logic as point click
+                                selectedPointIndex = if (selectedPointIndex == index) null else index
+                            },
+                            chartType = chartType,
+                            showTooltipForIndex = null,
+                            isTouchArea = true
+                        )
+                    }
+                    ChartDraw.Scatter.PointMarker(
+                        points = canvasPoints,
+                        values = yValues,
+                        selectedPointIndex = selectedPointIndex,
+                        onPointClick = null,
+                        interactive = false,
+                        chartType = chartType,
+                        showTooltipForIndex = selectedPointIndex
+                    )
+                }
+                InteractionType.POINT -> {
+                    // PointMarker interactions (interactive data points)
+                    ChartDraw.Scatter.PointMarker(
+                        points = canvasPoints,
+                        values = yValues,
+                        selectedPointIndex = selectedPointIndex,
+                        onPointClick = { index ->
+                            // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
+                            selectedPointIndex = if (selectedPointIndex == index) null else index
+                        },
+                        interactive = true,
+                        chartType = chartType,
+                        showTooltipForIndex = null
+                    )
+                }
+                else -> {
+                    // Non-interactive rendering
+                    ChartDraw.Scatter.PointMarker(
+                        points = canvasPoints,
+                        values = yValues,
+                        selectedPointIndex = selectedPointIndex,
+                        onPointClick = null,
+                        interactive = false,
+                        chartType = chartType,
+                        showTooltipForIndex = null
+                    )
+                }
             }
         }
 
