@@ -6,8 +6,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.xr.runtime.math.toRadians
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
+import kotlin.math.cos
+import kotlin.math.sin
 
 object PieChartDraw {
 
@@ -22,6 +25,9 @@ object PieChartDraw {
      * @param color 섹션 색상
      * @param isDonut 도넛 형태로 그릴지 여부
      * @param strokeWidth 도넛일 경우 테두리 두께
+     * @param isSelected 선택된 섹션인지 여부
+     * @param animationScale 애니메이션 스케일 (1.0f가 기본)
+     * @param alpha 투명도 (1.0f가 기본)
      */
     fun drawPieSection(
         drawScope: DrawScope,
@@ -31,28 +37,72 @@ object PieChartDraw {
         sweepAngle: Float,
         color: Color,
         isDonut: Boolean,
-        strokeWidth: Float
+        strokeWidth: Float,
+        isSelected: Boolean = false,
+        animationScale: Float = 1.0f,
+        alpha: Float = 1.0f
     ) {
+        // 선택된 섹션인 경우 약간 확대하고 중심에서 바깥쪽으로 이동
+        val scaledRadius = radius * animationScale
+        val offsetDistance = if (isSelected) 10f * animationScale else 0f
+
+        // 섹션의 중심 각도 계산
+        val midAngle = startAngle + sweepAngle / 2
+        val offsetX = cos(Math.toRadians(midAngle.toDouble())).toFloat() * offsetDistance
+        val offsetY = sin(Math.toRadians(midAngle.toDouble())).toFloat() * offsetDistance
+        val adjustedCenter = Offset(center.x + offsetX, center.y + offsetY)
+
+        // 색상에 투명도 적용
+        val adjustedColor = color.copy(alpha = alpha)
+
         if (isDonut) {
             // 도넛 형태로 그리기
             drawScope.drawArc(
-                color = color,
+                color = adjustedColor,
                 startAngle = startAngle,
                 sweepAngle = sweepAngle,
                 useCenter = false,
-                topLeft = Offset(center.x - radius, center.y - radius),
-                size = Size(radius * 2, radius * 2),
+                topLeft = Offset(adjustedCenter.x - scaledRadius, adjustedCenter.y - scaledRadius),
+                size = Size(scaledRadius * 2, scaledRadius * 2),
                 style = Stroke(width = strokeWidth)
             )
+
         } else {
-            // 일반 파이 차트로 그리기
+            // arc 그리기
             drawScope.drawArc(
-                color = color,
+                color = adjustedColor,
                 startAngle = startAngle,
                 sweepAngle = sweepAngle,
                 useCenter = true,
-                topLeft = Offset(center.x - radius, center.y - radius),
-                size = Size(radius * 2, radius * 2)
+                topLeft = Offset(adjustedCenter.x - scaledRadius, adjustedCenter.y - scaledRadius),
+                size = Size(scaledRadius * 2, scaledRadius * 2)
+            )
+            // 각 arc의 왼쪽(시작)과 오른쪽(끝)에 분리선 그리기
+            val gap = 4 * drawScope.drawContext.density.density // 2.dp를 px로 변환
+            // 왼쪽(시작) 분리선
+            val leftRad = Math.toRadians(startAngle.toDouble())
+            val leftEndPoint = Offset(
+                (adjustedCenter.x + cos(leftRad) * scaledRadius).toFloat(),
+                (adjustedCenter.y + sin(leftRad) * scaledRadius).toFloat()
+            )
+            drawScope.drawLine(
+                color = Color.White,
+                start = adjustedCenter,
+                end = leftEndPoint,
+                strokeWidth = gap
+            )
+            // 오른쪽(끝) 분리선
+            val rightAngle = startAngle + sweepAngle
+            val rightRad = Math.toRadians(rightAngle.toDouble())
+            val rightEndPoint = Offset(
+                (adjustedCenter.x + cos(rightRad) * scaledRadius).toFloat(),
+                (adjustedCenter.y + sin(rightRad) * scaledRadius).toFloat()
+            )
+            drawScope.drawLine(
+                color = Color.White,
+                start = adjustedCenter,
+                end = rightEndPoint,
+                strokeWidth = gap
             )
         }
     }
@@ -81,16 +131,17 @@ object PieChartDraw {
                 val midAngle = startAngle + sweepAngle / 2
 
                 // 레이블 위치 계산
-                val labelPos = ChartMath.Pie.calculateLabelPosition(center, radius, 0.7f, midAngle)
+                val labelPos = ChartMath.Pie.calculateCenterPosition(center, radius, midAngle)
 
                 // 레이블 그리기
                 drawScope.drawContext.canvas.nativeCanvas.drawText(
-                    point.label,
+                    point.y.toString(),
                     labelPos.x,
                     labelPos.y,
                     android.graphics.Paint().apply {
-                        color = android.graphics.Color.BLACK
-                        textSize = 30f
+                        color = android.graphics.Color.WHITE
+                        textSize = 12f * drawScope.drawContext.density.density // 12sp를 px로 변환
+                        typeface = android.graphics.Typeface.DEFAULT_BOLD
                         textAlign = android.graphics.Paint.Align.CENTER
                     }
                 )

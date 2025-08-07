@@ -59,6 +59,7 @@ dependencies {
 
     // Material3 for UI components and theming
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.runtime)
 
     // Testing dependencies
     testImplementation(libs.junit)

@@ -427,8 +427,6 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     title = "요일별 활동량",
                     isDonut = true,
                     showLegend = true,
-                    width = selectedWidth,
-                    height = selectedHeight
                 )
             }
             "Progress" -> {

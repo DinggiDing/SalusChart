@@ -57,40 +57,19 @@ fun CalendarChart(
 ) {
     // 2달 이상의 데이터가 있는지 확인
     val distinctMonths = entries.map { YearMonth.of(it.date.year, it.date.month) }.distinct()
-    val hasMultipleMonths = distinctMonths.size > 1
 
-    if (hasMultipleMonths) {
-        // 2달 이상의 데이터가 있으면 MultiMonthCalendarChart 사용
-        val startMonth = distinctMonths.minOrNull() ?: yearMonth
-        val months = distinctMonths.size
-
-        MultiMonthCalendarChart(
-            modifier = modifier,
-            entries = entries,
-            startYearMonth = startMonth,
-            months = months,
-            maxBubbleSize = maxBubbleSize,
-            minBubbleSize = minBubbleSize,
-            defaultColor = defaultColor,
-            showGrid = showGrid,
-            width = width,           // 추가된 width 파라미터 전달
-            height = height,         // 변경된 height 파라미터 타입 적용
-            onMonthChanged = onMonthChanged
-        )
-    } else {
-        // 단일 월 데이터만 있으면 기존 CalendarChart 로직 사용
-        SingleMonthCalendarChart(
-            modifier = modifier,
-            entries = entries,
-            yearMonth = yearMonth,
-            maxBubbleSize = maxBubbleSize,
-            minBubbleSize = minBubbleSize,
-            defaultColor = defaultColor,
-            showGrid = showGrid,
-            width = width,           // 추가된 width 파라미터 전달
-            height = height          // 변경된 height 파라미터 타입 적용
-        )
-    }
+    // 단일 월 데이터만 있으면 기존 CalendarChart 로직 사용
+    SingleMonthCalendarChart(
+        modifier = modifier,
+        entries = entries,
+        yearMonth = yearMonth,
+        maxBubbleSize = maxBubbleSize,
+        minBubbleSize = minBubbleSize,
+        defaultColor = defaultColor,
+        showGrid = showGrid,
+        width = width,           // 추가된 width 파라미터 전달
+        height = height          // 변경된 height 파라미터 타입 적용
+    )
 }
 
 /**
