@@ -363,10 +363,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     title = "요일별 활동량",
                     yLabel = "활동량",
                     xLabel = "요일",
-                    width = selectedWidth,
-                    height = selectedHeight,
                     strokeWidth = 10f,
-                    interactionType = InteractionType.NEAR_X_AXIS
+                    interactionType = InteractionType.TOUCH_AREA
                 )
             }
             "Scatter" -> {
@@ -375,9 +373,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     title = "요일별 활동량",
                     yLabel = "활동량",
                     xLabel = "요일",
-                    width = selectedWidth,
-                    height = selectedHeight,
-                    interactionType = InteractionType.NEAR_X_AXIS
+                    interactionType = InteractionType.TOUCH_AREA
                 )
             }
             "Bar" -> {
@@ -387,9 +383,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     yLabel = "활동량",
                     xLabel = "요일",
                     maxY = 88f,
-                    width = selectedWidth,
-                    height = selectedHeight,
-                    interactionType = InteractionType.NEAR_X_AXIS
+                    interactionType = InteractionType.TOUCH_AREA
                 )
             }
             "Stacked" -> {
@@ -399,14 +393,13 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     title = "요일별 영양소 섭취량",
                     yLabel = "영양소 (g)",
                     xLabel = "요일",
-                    width = selectedWidth,
-                    height = selectedHeight,
                     showLegend = true,
                     colors = listOf(
                         Color(0xFF2196F3), // 파랑 (단백질)
                         Color(0xFFFF9800), // 주황 (지방) 
                         Color(0xFF4CAF50)  // 초록 (탄수화물)
-                    )
+                    ),
+                    interactionType = InteractionType.STACKED_BAR
                 )
             }
             "Range" -> {
@@ -415,10 +408,8 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     title = "일별 심박수 범위",
                     yLabel = "심박수 (bpm)",
                     xLabel = "날짜",
-                    width = selectedWidth,
-                    height = selectedHeight,
                     barColor = Color(0xFFFF9800),
-                    interactionType = InteractionType.NEAR_X_AXIS
+                    interactionType = InteractionType.TOUCH_AREA
                 )
             }
             "Pie" -> {
@@ -479,16 +470,12 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                  MinimalBarChart(
                      data = sampleData,
                      color = Color.Blue,
-                     width = selectedWidth,
-                     height = selectedHeight
                  )
              }
              "MinLine" -> {
                  MinimalLineChart(
                      data = chartPoints,
                      color = Color.Blue,
-                     width = selectedWidth,
-                     height = selectedHeight,
                      showPoints = true
                  )
              }
@@ -506,8 +493,6 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                      containerMax = 120f, // 정상 심박수 범위 끝
                      containerColor = Color.LightGray,
                      rangeColor = Color(0xFFFF9500),
-                     width = selectedWidth,
-                     height = selectedHeight
                  )
              }
 

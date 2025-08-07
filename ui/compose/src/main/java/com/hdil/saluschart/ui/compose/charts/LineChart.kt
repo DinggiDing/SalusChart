@@ -35,8 +35,6 @@ fun LineChart(
     yLabel: String = "Value",
     title: String = "Line Chart Example",
     lineColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
-    width: Dp = 250.dp,
-    height: Dp = 250.dp,
     strokeWidth: Float = 4f,
     labelTextSize: Float = 28f,
     tooltipTextSize: Float = 32f,
@@ -60,8 +58,6 @@ fun LineChart(
 
         Box(
             Modifier
-                .width(width)
-                .height(height)
         ) {
             Canvas(
                 modifier = Modifier.fillMaxSize()
@@ -86,7 +82,7 @@ fun LineChart(
 
             // Conditional interaction based on interactionType parameter
             when (interactionType) {
-                InteractionType.NEAR_X_AXIS -> {
+                InteractionType.TOUCH_AREA -> {
                     // BarMarker interactions (invisible bars for easier touching)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(

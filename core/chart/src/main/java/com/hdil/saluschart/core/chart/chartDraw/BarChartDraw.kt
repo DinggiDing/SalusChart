@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.StackedChartPoint
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw.formatTickLabel
@@ -36,7 +37,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 
 object BarChartDraw {
     /**
-     * 바차트용 X축 레이블을 그립니다 (첫 번째 레이블이 바 너비의 절반만큼 오른쪽에서 시작).
+     * 바 차트의 X축 레이블을 그립니다 (첫 번째 레이블이 바 너비의 절반만큼 오른쪽에서 시작).
      *
      * @param ctx 그리기 컨텍스트
      * @param labels X축에 표시할 레이블 목록
@@ -80,11 +81,13 @@ object BarChartDraw {
      * @param color 바 색상 (단일 바용)
      * @param barWidthRatio 바 너비 배수 (기본값: 0.8f)
      * @param interactive true이면 클릭 가능하고 툴팁 표시, false이면 순수 시각적 렌더링 (기본값: true)
-     * @param useLineChartPositioning true이면 라인차트 포지셔닝 사용, false이면 바차트 포지셔닝 사용 (기본값: false)
+     * @param useLineChartPositioning true이면 라인차트 ���지셔닝 사용, false이면 바차트 포지셔닝 사용 (기본값: false)
      * @param onBarClick 바 클릭 시 호출되는 콜백 (바 인덱스, 툴팁 텍스트)
      * @param chartType 차트 타입 (툴팁 위치 결정용)
      * @param showTooltipForIndex 외부에서 제어되는 툴팁 표시 인덱스 (null이면 표시 안함)
      * @param isTouchArea true이면 터치 영역용 (투명, 전체 높이, 상호작용 가능), false이면 일반 바 (기본값: false)
+     * @param customTooltipText 커스텀 툴팁 ���스트 목록 (null이면 기본 툴팁 사용)
+     * @param segmentIndex 스택 바 차트에서 세그먼트 인덱스 (툴팁 위치 조정용, null이면 기본 위치)
      */
     @Composable
     fun BarMarker(
@@ -98,7 +101,9 @@ object BarChartDraw {
         onBarClick: ((Int, String) -> Unit)? = null,
         chartType: ChartType,
         showTooltipForIndex: Int? = null,
-        isTouchArea: Boolean = false
+        isTouchArea: Boolean = false,
+        customTooltipText: List<String>? = null,
+        segmentIndex: Int? = null
     ) {
         val density = LocalDensity.current
 
@@ -116,7 +121,19 @@ object BarChartDraw {
             // 색상 결정
             val actualColor = if (isTouchArea) Color.Transparent else color
             
-            val tooltipText = if (minValue == metrics.minY) maxValue.toInt().toString() else "${minValue.toInt()}-${maxValue.toInt()}" // TODO: Range Bar Chart, Stacked Bar Chart 에서 minValue가 최솟값과 일치할 때 처리 필요, 현재는 최솟값과 일치해도 최댓값만 표시
+            // 툴팁 텍스트 결정: 커스텀 텍스트가 있으면 사용, 없으면 기본 로직 사용
+            val tooltipText = customTooltipText?.getOrNull(index) ?: run {
+                if (chartType == ChartType.STACKED_BAR) {
+                    // For stacked bars, always show segment value (maxValue - minValue)
+                    (maxValue - minValue).toInt().toString()
+                } else if (minValue == metrics.minY) {
+                    // For regular bars starting from chart minimum, show only max value
+                    maxValue.toInt().toString()
+                } else {
+                    // For range bars, show min-max range
+                    "${minValue.toInt()}-${maxValue.toInt()}"
+                }
+            }
 
             // 바 높이와 위치 계산
             val (barHeight, barY) = if (isTouchArea) {
@@ -135,8 +152,23 @@ object BarChartDraw {
                 // 라인차트 포지셔닝: 포인트 중심에 바 배치
                 val pointSpacing = if (dataSize > 1) metrics.chartWidth / (dataSize - 1) else 0f
                 val pointX = metrics.paddingX + index * pointSpacing
-                val barW = if (dataSize > 1) pointSpacing * actualBarWidthRatio else metrics.chartWidth * actualBarWidthRatio
-                val barXPos = pointX - barW / 2f
+
+                // 첫 번째와 마지막 바는 차트 영역을 벗어나지 않도록 절반 너비로 설정
+                val isFirstOrLast = (index == 0 || index == dataSize - 1) && dataSize > 1
+                val widthMultiplier = if (isFirstOrLast) 0.5f else 1.0f
+                val barW = if (dataSize > 1) {
+                    pointSpacing * actualBarWidthRatio * widthMultiplier
+                } else {
+                    metrics.chartWidth * actualBarWidthRatio
+                }
+
+                // 첫 번째 바는 오른쪽으로만 확장, 마지막 바는 왼쪽으로만 확장
+                val barXPos = when {
+                    index == 0 && dataSize > 1 -> pointX // 첫 번째 바: 포인트에서 시작
+                    index == dataSize - 1 && dataSize > 1 -> pointX - barW // 마지막 바: 포인트에서 끝
+                    else -> pointX - barW / 2f // 중간 바들: 포인트 중심
+                }
+
                 Pair(barW, barXPos)
             } else {
                 // 바차트 포지셔닝: 할당된 공간의 중앙에 배치
@@ -182,13 +214,15 @@ object BarChartDraw {
                     // 툴팁 표시
                     if (shouldShowTooltip) {
                         val tooltipOffset = when (chartType) {
+                            ChartType.STACKED_BAR -> {
+                                // 스택 바 차트 툴팁: 세그먼트별로 다른 위치에 ��시 (겹침 방지)
+                                val segmentOffsetY = (segmentIndex ?: 0) * 30.dp // 세그먼트마다 30dp씩 아래로 오프셋
+                                Modifier.offset(x = 0.dp, y = segmentOffsetY)
+                            }
                             ChartType.BAR -> {
                                 Modifier.offset(x = 0.dp, y = (-40).dp)
                             }
                             ChartType.RANGE_BAR -> {
-                                Modifier.offset(x = 0.dp, y = (-40).dp)
-                            }
-                            ChartType.STACKED_BAR -> {
                                 Modifier.offset(x = 0.dp, y = (-40).dp)
                             }
                             else -> {
@@ -198,20 +232,21 @@ object BarChartDraw {
 
                         Box(
                             modifier = tooltipOffset
-                                .width(IntrinsicSize.Min)
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
                                 .background(
                                     color = Color.Black.copy(alpha = 0.8f),
                                     shape = RoundedCornerShape(4.dp)
                                 )
                                 .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
                                 text = tooltipText,
                                 color = Color.White,
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.align(Alignment.Center)
+                                modifier = Modifier.align(Alignment.Center),
+                                maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
+                                softWrap = false // 텍스트 래핑 비활성화
                             )
                         }
                     }
@@ -247,8 +282,8 @@ object BarChartDraw {
                                 Modifier.offset(x = 0.dp, y = (-40).dp)
                             }
                             ChartType.STACKED_BAR -> {
-                                // 스택 바 차트 툴팁: 바 위에 표시
-                                Modifier.offset(x = 0.dp, y = (-40).dp)
+                                // 스택 바 차트 툴팁: 바 오른쪽에 표시 (겹침 방지)
+                                Modifier.offset(x = barWidthDp + 8.dp, y = 0.dp)
                             }
                             else -> {
                                 // 기본 툴팁 위치: 바 위에 표시
@@ -258,20 +293,21 @@ object BarChartDraw {
 
                         Box(
                             modifier = tooltipOffset
-                                .width(IntrinsicSize.Min)
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
                                 .background(
                                     color = Color.Black.copy(alpha = 0.8f),
                                     shape = RoundedCornerShape(4.dp)
                                 )
                                 .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
                                 text = tooltipText,
                                 color = Color.White,
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.align(Alignment.Center)
+                                modifier = Modifier.align(Alignment.Center),
+                                maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
+                                softWrap = false // 텍스트 래핑 비활성화
                             )
                         }
                     }

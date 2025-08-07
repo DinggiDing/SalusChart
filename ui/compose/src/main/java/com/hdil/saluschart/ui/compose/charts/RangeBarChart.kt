@@ -33,8 +33,6 @@ fun RangeBarChart(
     yLabel: String = "Value", 
     title: String = "Range Bar Chart",
     barColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
-    width: Dp = 250.dp,
-    height: Dp = 250.dp,
     barWidthRatio: Float = 0.6f,
     interactionType: InteractionType = InteractionType.BAR,
     onBarClick: ((Int, RangeChartPoint) -> Unit)? = null,
@@ -52,8 +50,6 @@ fun RangeBarChart(
 
         Box(
             Modifier
-                .width(width)
-                .height(height)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val metrics = ChartMath.RangeBar.computeRangeMetrics(size, data)
@@ -85,7 +81,7 @@ fun RangeBarChart(
                         )
                     }
                 }
-                InteractionType.NEAR_X_AXIS -> {
+                InteractionType.TOUCH_AREA -> {
                     // Non-interactive range bars
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
