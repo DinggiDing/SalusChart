@@ -25,6 +25,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.InteractionType
+import com.hdil.saluschart.core.chart.chartDraw.LegendPosition
 import com.hdil.saluschart.ui.theme.ChartColor
 
 @Composable
@@ -36,10 +37,15 @@ fun LineChart(
     title: String = "Line Chart Example",
     lineColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
     strokeWidth: Float = 4f,
+    minY: Float? = null,                    // 사용자 지정 최소 Y값
+    maxY: Float? = null,                    // 사용자 지정 최대 Y값
     labelTextSize: Float = 28f,
     tooltipTextSize: Float = 32f,
     interactionType: InteractionType = InteractionType.POINT,
-    chartType : ChartType = ChartType.LINE
+    showPoint: Boolean = false, // 포인트 표시 여부
+    showLegend: Boolean = false,
+    legendPosition: LegendPosition = LegendPosition.BOTTOM,
+    chartType : ChartType = ChartType.LINE // 차트 타입 (툴팁 위치 결정용
 ) {
     if (data.isEmpty()) return
 
@@ -54,7 +60,7 @@ fun LineChart(
 
     Column(modifier = modifier.padding(16.dp)) {
         Text(title, style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(16.dp))
 
         Box(
             Modifier
@@ -62,7 +68,15 @@ fun LineChart(
             Canvas(
                 modifier = Modifier.fillMaxSize()
             ) {
-                val metrics = ChartMath.computeMetrics(size, yValues)
+//                val metrics = ChartMath.computeMetrics(size, yValues)
+                val metrics = ChartMath.computeMetrics(
+                    size = size,
+                    values = yValues,
+                    chartType = ChartType.BAR,
+                    minY = minY, // 사용자 지정 최소 Y값
+                    maxY = maxY
+                )
+
                 val points = ChartMath.mapToCanvasPoints(data, size, metrics)
 
                 // 포인트 위치와 캔버스 크기를 상태 변수에 저장
@@ -80,60 +94,71 @@ fun LineChart(
                 )
             }
 
+            if (showPoint) {
             // Conditional interaction based on interactionType parameter
-            when (interactionType) {
-                InteractionType.TOUCH_AREA -> {
-                    // BarMarker interactions (invisible bars for easier touching)
-                    chartMetrics?.let { metrics ->
-                        ChartDraw.Bar.BarMarker(
-                            minValues = List(yValues.size) { metrics.minY },
-                            maxValues = yValues,
-                            metrics = metrics,
-                            useLineChartPositioning = true,
-                            onBarClick = { index, tooltipText ->
-                                selectedPointIndex = if (selectedPointIndex == index) null else index
-                            },
+                when (interactionType) {
+                    InteractionType.NEAR_X_AXIS -> {
+                        // BarMarker interactions (invisible bars for easier touching)
+                        chartMetrics?.let { metrics ->
+                            ChartDraw.Bar.BarMarker(
+                                values = yValues,
+                                metrics = metrics,
+                                useLineChartPositioning = true,
+                                onBarClick = { index, value ->
+                                    // Handle bar click - same logic as point click
+                                    selectedPointIndex = if (selectedPointIndex == index) null else index
+                                },
+                                chartType = chartType,
+                                showTooltipForIndex = null,
+                                isTouchArea = true
+                            )
+                        }
+                        ChartDraw.Scatter.PointMarker(
+                            points = canvasPoints,
+                            values = yValues,
+                            selectedPointIndex = selectedPointIndex,
+                            onPointClick = null,
+                            interactive = false,
                             chartType = chartType,
-                            showTooltipForIndex = null,
-                            isTouchArea = true
+                            showTooltipForIndex = selectedPointIndex
                         )
                     }
-                    ChartDraw.Scatter.PointMarker(
-                        points = canvasPoints,
-                        values = yValues,
-                        selectedPointIndex = selectedPointIndex,
-                        onPointClick = null,
-                        interactive = false,
-                        chartType = chartType,
-                        showTooltipForIndex = selectedPointIndex
-                    )
-                }
-                InteractionType.POINT -> {
-                    // PointMarker interactions (interactive data points)
-                    ChartDraw.Scatter.PointMarker(
-                        points = canvasPoints,
-                        values = yValues,
-                        selectedPointIndex = selectedPointIndex,
-                        onPointClick = { index ->
-                            // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
-                            selectedPointIndex = if (selectedPointIndex == index) null else index
-                        },
-                        interactive = true,
-                        chartType = chartType,
-                        showTooltipForIndex = null
-                    )
-                }
-                else -> {
-                    // Non-interactive rendering
-                    ChartDraw.Scatter.PointMarker(
-                        points = canvasPoints,
-                        values = yValues,
-                        selectedPointIndex = selectedPointIndex,
-                        onPointClick = null,
-                        interactive = false,
-                        chartType = chartType,
-                        showTooltipForIndex = null
-                    )
+                    InteractionType.POINT -> {
+                        // PointMarker interactions (interactive data points)
+                        ChartDraw.Scatter.PointMarker(
+                            points = canvasPoints,
+                            values = yValues,
+                            selectedPointIndex = selectedPointIndex,
+                            onPointClick = { index ->
+                                // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
+                  InteractionType.TOUCH_AREA -> {
+                      // BarMarker interactions (invisible bars for easier touching)
+                      chartMetrics?.let { metrics ->
+                          ChartDraw.Bar.BarMarker(
+                              minValues = List(yValues.size) { metrics.minY },
+                              maxValues = yValues,
+                              metrics = metrics,
+                              useLineChartPositioning = true,
+                              onBarClick = { index, tooltipText ->
+                                  selectedPointIndex = if (selectedPointIndex == index) null else index
+                              },
+                              interactive = true,
+                              chartType = chartType,
+                              showTooltipForIndex = null
+                          )
+                      }
+                    else -> {
+                        // Non-interactive rendering
+                        ChartDraw.Scatter.PointMarker(
+                            points = canvasPoints,
+                            values = yValues,
+                            selectedPointIndex = selectedPointIndex,
+                            onPointClick = null,
+                            interactive = false,
+                            chartType = chartType,
+                            showTooltipForIndex = null
+                        )
+                    }
                 }
             }
         }

@@ -462,8 +462,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 CalendarChart(
                     entries = entries,
                     yearMonth = yearMonth,
-                    width = selectedWidth,
-                    height = selectedHeight
+
                 )
             }
                          "MinBar" -> {
