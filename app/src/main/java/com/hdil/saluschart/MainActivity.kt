@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,11 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,14 +26,6 @@ import androidx.compose.ui.unit.sp
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.ui.compose.charts.LineChart
 import com.hdil.saluschart.ui.compose.charts.ScatterPlot
-import com.hdil.saluschart.ui.theme.SalusChartTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.ui.graphics.Color
-import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.ui.compose.charts.BarChart
 import com.hdil.saluschart.ui.compose.charts.CalendarChart
 import com.hdil.saluschart.ui.compose.charts.CalendarEntry
@@ -48,15 +35,20 @@ import com.hdil.saluschart.ui.compose.charts.StackedBarChart
 import com.hdil.saluschart.core.chart.StackedChartPoint
 import java.time.LocalDate
 import java.time.YearMonth
-
-
-import kotlin.text.toInt
 import com.hdil.saluschart.core.chart.ProgressChartPoint
 import com.hdil.saluschart.ui.compose.charts.ProgressChart
 import com.hdil.saluschart.ui.compose.charts.MinimalBarChart
 import com.hdil.saluschart.ui.compose.charts.MinimalLineChart
 import com.hdil.saluschart.ui.compose.charts.MinimalRangeBarChart
 import com.hdil.saluschart.core.chart.RangeChartPoint
+import com.hdil.saluschart.ui.compose.charts.MinimalGaugeChart
+import com.hdil.saluschart.ui.theme.SalusChartTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
+import androidx.compose.ui.graphics.Color
+import com.hdil.saluschart.core.chart.InteractionType
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,16 +110,6 @@ fun SampleCharts(modifier: Modifier = Modifier) {
     val sampleData = listOf(10f, 25f, 40f, 20f, 35f, 55f, 45f)
     val weekDays = listOf("월", "화", "수", "목", "금", "토", "일")
 
-    // 드롭다운 메뉴를 위한 상태 관리
-    var widthExpanded by remember { mutableStateOf(false) }
-    var heightExpanded by remember { mutableStateOf(false) }
-
-    val widthOptions = listOf(50.dp, 100.dp, 150.dp, 200.dp, 250.dp, 300.dp, 350.dp)
-    val heightOptions = listOf(50.dp, 100.dp, 150.dp, 200.dp, 250.dp, 300.dp, 350.dp)
-
-    var selectedWidth by remember { mutableStateOf(widthOptions.last()) }
-    var selectedHeight by remember { mutableStateOf(heightOptions.last()) }
-
     Column(
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -141,49 +123,49 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 SegmentedButton(
                     selected = selectedChartType == "Line",
                     onClick = { selectedChartType = "Line" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 11),
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 8),
                     label = { Text("Line", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Scatter",
                     onClick = { selectedChartType = "Scatter" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 11),
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 8),
                     label = { Text("Scatter", fontSize = 6.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Bar",
                     onClick = { selectedChartType = "Bar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 11),
+                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 8),
                     label = { Text("Bar", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Stacked",
                     onClick = { selectedChartType = "Stacked" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 3, count = 11),
+                    shape = SegmentedButtonDefaults.itemShape(index = 3, count = 8),
                     label = { Text("Stacked", fontSize = 6.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Range",
                     onClick = { selectedChartType = "Range" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 4, count = 11),
+                    shape = SegmentedButtonDefaults.itemShape(index = 4, count = 8),
                     label = { Text("Range", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Pie",
                     onClick = { selectedChartType = "Pie" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 5, count = 11),
+                    shape = SegmentedButtonDefaults.itemShape(index = 5, count = 8),
                     label = { Text("Pie", fontSize = 8.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Progress",
                     onClick = { selectedChartType = "Progress" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 6, count = 11),
+                    shape = SegmentedButtonDefaults.itemShape(index = 6, count = 8),
                     label = { Text("Progress", fontSize = 5.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "Calendar",
                     onClick = { selectedChartType = "Calendar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 7, count = 11),
+                    shape = SegmentedButtonDefaults.itemShape(index = 7, count = 8),
                     label = { Text("Calendar", fontSize = 6.sp) }
                 )
             }
@@ -197,20 +179,26 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 SegmentedButton(
                     selected = selectedChartType == "MinBar",
                     onClick = { selectedChartType = "MinBar" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 3),
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 4),
                     label = { Text("Minimal Bar", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "MinLine",
                     onClick = { selectedChartType = "MinLine" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 3),
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 4),
                     label = { Text("Minimal Line", fontSize = 7.sp) }
                 )
                 SegmentedButton(
                     selected = selectedChartType == "MinRange",
                     onClick = { selectedChartType = "MinRange" },
-                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 3),
+                    shape = SegmentedButtonDefaults.itemShape(index = 2, count = 4),
                     label = { Text("Minimal Range", fontSize = 7.sp) }
+                )
+                SegmentedButton(
+                    selected = selectedChartType == "MinGauge",
+                    onClick = { selectedChartType = "MinGauge" },
+                    shape = SegmentedButtonDefaults.itemShape(index = 3, count = 4),
+                    label = { Text("Minimal Gauge", fontSize = 6.sp) }
                 )
             }
         }
@@ -230,65 +218,6 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Donut Mode")
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Width 드롭다운
-            Column {
-                Box {
-                    OutlinedButton(
-                        onClick = { widthExpanded = !widthExpanded },
-                    ) {
-                        Text("차트 너비: ${selectedWidth.value.toInt()}dp")
-                    }
-
-                    DropdownMenu(
-                        expanded = widthExpanded,
-                        onDismissRequest = { widthExpanded = false },
-                        modifier = Modifier.fillMaxWidth(0.7f)
-                    ) {
-                        widthOptions.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text("${option.value.toInt()}dp") },
-                                onClick = {
-                                    selectedWidth = option
-                                    widthExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Height 드롭다운
-            Column {
-                Box {
-                    OutlinedButton(
-                        onClick = { heightExpanded = !heightExpanded },
-                    ) {
-                        Text("차트 높이: ${selectedHeight.value.toInt()}dp")
-                    }
-
-                    DropdownMenu(
-                        expanded = heightExpanded,
-                        onDismissRequest = { heightExpanded = false },
-                        modifier = Modifier.fillMaxWidth(0.7f)
-                    ) {
-                        heightOptions.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text("${option.value.toInt()}dp") },
-                                onClick = {
-                                    selectedHeight = option
-                                    heightExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
             }
         }
 
@@ -449,8 +378,6 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                      title = "일일 활동 진행률",
                      isDonut = isProgressDonut,
                      isPercentage = false,
-                     width = selectedWidth,
-                     height = selectedHeight,
                      colors = listOf(
                          Color(0xFF00C7BE), // 청록색 (Move)
                          Color(0xFFFF6B35), // 주황색 (Exercise)
@@ -478,7 +405,13 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                      showPoints = true
                  )
              }
-             "MinRange" -> {
+            "MinRange" -> {
+                 MinimalRangeBarChart(
+                     data = rangeData,
+                     color = Color.Blue,
+                 )
+             }
+             "MinGauge" -> {
                  // 단일 범위 데이터 생성 (심박수 범위 예시: 76-104 bpm)
                  val singleRangeData = RangeChartPoint(
                      x = 0f,
@@ -486,7 +419,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                      yMax = 104f,
                      label = "Heart Rate"
                  )
-                 MinimalRangeBarChart(
+                 MinimalGaugeChart(
                      data = singleRangeData,
                      containerMin = 60f,  // 정상 심박수 범위 시작
                      containerMax = 120f, // 정상 심박수 범위 끝

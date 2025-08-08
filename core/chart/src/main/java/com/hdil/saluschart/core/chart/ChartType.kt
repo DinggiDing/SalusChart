@@ -12,7 +12,8 @@ enum class ChartType {
     CALENDAR,
     MINIMAL_BAR,
     MINIMAL_LINE,
-    MINIMAL_RANGE_BAR;
+    MINIMAL_RANGE_BAR,
+    MINIMAL_GAUGE;
 
     companion object {
         fun fromString(type: String): ChartType? {

@@ -36,7 +36,7 @@ fun MinimalLineChart(
     strokeWidth: Float = 2f,
     padding: Float = 4f,
     showPoints: Boolean = false,
-    chartType: ChartType = ChartType.MINIMAL_LINE // 차트 타입 (툴팁 위치 결정용)
+    chartType: ChartType = ChartType.MINIMAL_LINE
 ) {
     if (data.isEmpty()) return
 

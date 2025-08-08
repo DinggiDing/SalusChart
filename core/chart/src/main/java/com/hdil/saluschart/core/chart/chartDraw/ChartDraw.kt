@@ -17,7 +17,7 @@ object ChartDraw {
     val Bar = BarChartDraw
     val Scatter = ScatterPlotDraw
     val Progress = ProgressChartDraw
-    val Min = MinimalChartDraw
+    val Gauge = GaugeChartDraw
 
     /**
      * 눈금 값을 적절한 형식으로 포맷합니다.
