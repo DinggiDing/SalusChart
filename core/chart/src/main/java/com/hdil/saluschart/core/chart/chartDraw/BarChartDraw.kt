@@ -152,7 +152,7 @@ object BarChartDraw {
                 // 라인차트 포지셔닝: 포인트 중심에 바 배치
                 val pointSpacing = if (dataSize > 1) metrics.chartWidth / (dataSize - 1) else 0f
                 val pointX = metrics.paddingX + index * pointSpacing
-
+                
                 // 첫 번째와 마지막 바는 차트 영역을 벗어나지 않도록 절반 너비로 설정
                 val isFirstOrLast = (index == 0 || index == dataSize - 1) && dataSize > 1
                 val widthMultiplier = if (isFirstOrLast) 0.5f else 1.0f
@@ -161,14 +161,14 @@ object BarChartDraw {
                 } else {
                     metrics.chartWidth * actualBarWidthRatio
                 }
-
+                
                 // 첫 번째 바는 오른쪽으로만 확장, 마지막 바는 왼쪽으로만 확장
                 val barXPos = when {
                     index == 0 && dataSize > 1 -> pointX // 첫 번째 바: 포인트에서 시작
                     index == dataSize - 1 && dataSize > 1 -> pointX - barW // 마지막 바: 포인트에서 끝
                     else -> pointX - barW / 2f // 중간 바들: 포인트 중심
                 }
-
+                
                 Pair(barW, barXPos)
             } else {
                 // 바차트 포지셔닝: 할당된 공간의 중앙에 배치
