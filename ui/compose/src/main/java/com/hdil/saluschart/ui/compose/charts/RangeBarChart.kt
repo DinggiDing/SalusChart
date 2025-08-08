@@ -33,8 +33,6 @@ fun RangeBarChart(
     yLabel: String = "Value", 
     title: String = "Range Bar Chart",
     barColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
-    width: Dp = 250.dp,
-    height: Dp = 250.dp,
     barWidthRatio: Float = 0.6f,
     interactionType: InteractionType = InteractionType.BAR,
     onBarClick: ((Int, RangeChartPoint) -> Unit)? = null,
@@ -52,8 +50,6 @@ fun RangeBarChart(
 
         Box(
             Modifier
-                .width(width)
-                .height(height)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val metrics = ChartMath.RangeBar.computeRangeMetrics(size, data)
@@ -69,26 +65,28 @@ fun RangeBarChart(
                 InteractionType.BAR -> {
                     // Interactive range bars
                     chartMetrics?.let { metrics ->
-                        ChartDraw.RangeBar.RangeBarMarker(
-                            data = data,
+                        ChartDraw.Bar.BarMarker(
+                            minValues = data.map { it.yMin },
+                            maxValues = data.map { it.yMax },
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
                             interactive = true,
-                            onBarClick = { index, rangePoint ->
+                            onBarClick = { index, tooltipText ->
                                 selectedBarIndex = if (selectedBarIndex == index) null else index
-                                onBarClick?.invoke(index, rangePoint)
+                                onBarClick?.invoke(index, data[index])
                             },
                             chartType = chartType,
                             showTooltipForIndex = selectedBarIndex
                         )
                     }
                 }
-                InteractionType.NEAR_X_AXIS -> {
+                InteractionType.TOUCH_AREA -> {
                     // Non-interactive range bars
                     chartMetrics?.let { metrics ->
-                        ChartDraw.RangeBar.RangeBarMarker(
-                            data = data,
+                        ChartDraw.Bar.BarMarker(
+                            minValues = data.map { it.yMin },
+                            maxValues = data.map { it.yMax },
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,
@@ -100,7 +98,8 @@ fun RangeBarChart(
 
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
-                            values = data.map { it.yMin },
+                            minValues = List(data.size) { metrics.minY },
+                            maxValues = data.map { it.yMax },
                             metrics = metrics,
                             onBarClick = { index, _ ->
                                 selectedBarIndex = if (selectedBarIndex == index) null else index
@@ -115,8 +114,9 @@ fun RangeBarChart(
                 else -> {
                     // Default case - no interaction
                     chartMetrics?.let { metrics ->
-                        ChartDraw.RangeBar.RangeBarMarker(
-                            data = data,
+                        ChartDraw.Bar.BarMarker(
+                            minValues = data.map { it.yMin },
+                            maxValues = data.map { it.yMax },
                             metrics = metrics,
                             color = barColor,
                             barWidthRatio = barWidthRatio,

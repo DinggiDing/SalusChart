@@ -68,7 +68,6 @@ fun LineChart(
             Canvas(
                 modifier = Modifier.fillMaxSize()
             ) {
-
 //                val metrics = ChartMath.computeMetrics(size, yValues)
                 val metrics = ChartMath.computeMetrics(
                     size = size,
@@ -77,6 +76,7 @@ fun LineChart(
                     minY = minY, // 사용자 지정 최소 Y값
                     maxY = maxY
                 )
+
                 val points = ChartMath.mapToCanvasPoints(data, size, metrics)
 
                 // 포인트 위치와 캔버스 크기를 상태 변수에 저장
@@ -131,13 +131,22 @@ fun LineChart(
                             selectedPointIndex = selectedPointIndex,
                             onPointClick = { index ->
                                 // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
-                                selectedPointIndex = if (selectedPointIndex == index) null else index
-                            },
-                            interactive = true,
-                            chartType = chartType,
-                            showTooltipForIndex = null
-                        )
-                    }
+                  InteractionType.TOUCH_AREA -> {
+                      // BarMarker interactions (invisible bars for easier touching)
+                      chartMetrics?.let { metrics ->
+                          ChartDraw.Bar.BarMarker(
+                              minValues = List(yValues.size) { metrics.minY },
+                              maxValues = yValues,
+                              metrics = metrics,
+                              useLineChartPositioning = true,
+                              onBarClick = { index, tooltipText ->
+                                  selectedPointIndex = if (selectedPointIndex == index) null else index
+                              },
+                              interactive = true,
+                              chartType = chartType,
+                              showTooltipForIndex = null
+                          )
+                      }
                     else -> {
                         // Non-interactive rendering
                         ChartDraw.Scatter.PointMarker(

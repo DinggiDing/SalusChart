@@ -42,8 +42,6 @@ fun MinimalRangeBarChart(
     containerColor: Color = Color.LightGray,
     rangeColor: Color = Color(0xFFFF9500),
     textColor: Color = Color.Black,
-    width: Dp = 120.dp,
-    height: Dp = 50.dp,
     padding: Float = 8f,
     showRangeText: Boolean = true,
     cornerRadius: Float = 8f,
@@ -51,13 +49,6 @@ fun MinimalRangeBarChart(
 ) {
     Box(
         modifier = modifier
-            .then(
-                if (width != Dp.Unspecified && height != Dp.Unspecified) {
-                    Modifier.size(width, height)
-                } else {
-                    Modifier.fillMaxSize()
-                }
-            )
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             // 범위 바 위치 계산
