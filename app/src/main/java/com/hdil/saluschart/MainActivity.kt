@@ -363,8 +363,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
                     title = "요일별 활동량",
                     yLabel = "활동량",
                     xLabel = "요일",
-                    width = selectedWidth,
-                    height = selectedHeight,
+
                     strokeWidth = 10f,
                     interactionType = InteractionType.NEAR_X_AXIS
                 )
