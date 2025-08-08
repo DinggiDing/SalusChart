@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.StackedChartPoint
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw.formatTickLabel
@@ -36,7 +37,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 
 object BarChartDraw {
     /**
-     * 바차트용 X축 레이블을 그립니다 (첫 번째 레이블이 바 너비의 절반만큼 오른쪽에서 시작).
+     * 바 차트의 X축 레이블을 그립니다 (첫 번째 레이블이 바 너비의 절반만큼 오른쪽에서 시작).
      *
      * @param ctx 그리기 컨텍스트
      * @param labels X축에 표시할 레이블 목록
@@ -74,60 +75,105 @@ object BarChartDraw {
      * 바 차트 막대들을 Composable로 생성합니다.
      * 상호작용 여부를 제어할 수 있습니다.
      *
-     * @param values 원본 데이터 값 목록
+     * @param minValues 바의 최소값 목록 (일반 바 차트는 0, 범위 바 차트는 실제 최소값)
+     * @param maxValues 바의 최대값 목록 (바의 상단 값)
      * @param metrics 차트 메트릭 정보
-     * @param color 바 색상
+     * @param color 바 색상 (단일 바용)
      * @param barWidthRatio 바 너비 배수 (기본값: 0.8f)
      * @param interactive true이면 클릭 가능하고 툴팁 표시, false이면 순수 시각적 렌더링 (기본값: true)
-     * @param useLineChartPositioning true이면 라인차트 포지셔닝 사용, false이면 바차트 포지셔닝 사용 (기본값: false)
-     * @param onBarClick 바 클릭 시 호출되는 콜백 (바 인덱스, 값)
+     * @param useLineChartPositioning true이면 라인차트 ���지셔닝 사용, false이면 바차트 포지셔닝 사용 (기본값: false)
+     * @param onBarClick 바 클릭 시 호출되는 콜백 (바 인덱스, 툴팁 텍스트)
      * @param chartType 차트 타입 (툴팁 위치 결정용)
      * @param showTooltipForIndex 외부에서 제어되는 툴팁 표시 인덱스 (null이면 표시 안함)
      * @param isTouchArea true이면 터치 영역용 (투명, 전체 높이, 상호작용 가능), false이면 일반 바 (기본값: false)
+     * @param customTooltipText 커스텀 툴팁 ���스트 목록 (null이면 기본 툴팁 사용)
+     * @param segmentIndex 스택 바 차트에서 세그먼트 인덱스 (툴팁 위치 조정용, null이면 기본 위치)
      */
     @Composable
     fun BarMarker(
-        values: List<Float>,
+        minValues: List<Float>,
+        maxValues: List<Float>,
         metrics: ChartMath.ChartMetrics,
         color: Color = Color.Black,
         barWidthRatio: Float = 0.8f,
         interactive: Boolean = true,
         useLineChartPositioning: Boolean = false,
-        onBarClick: ((Int, Float) -> Unit)? = null,
+        onBarClick: ((Int, String) -> Unit)? = null,
         chartType: ChartType,
         showTooltipForIndex: Int? = null,
-        isTouchArea: Boolean = false
+        isTouchArea: Boolean = false,
+        customTooltipText: List<String>? = null,
+        segmentIndex: Int? = null
     ) {
         val density = LocalDensity.current
 
         // 터치 영역용인 경우 자동으로 파라미터 설정
-        val actualColor = if (isTouchArea) Color.Transparent else color
         val actualBarWidthRatio = if (isTouchArea) 1.0f else barWidthRatio
         val actualInteractive = if (isTouchArea) true else interactive
+        
+        val dataSize = maxOf(minValues.size, maxValues.size)
 
-        values.forEachIndexed { index, value ->
+        (0 until dataSize).forEach { index ->
+            // 값 추출
+            val minValue = minValues.getOrNull(index) ?: 0f
+            val maxValue = maxValues.getOrNull(index) ?: 0f
+            
+            // 색상 결정
+            val actualColor = if (isTouchArea) Color.Transparent else color
+            
+            // 툴팁 텍스트 결정: 커스텀 텍스트가 있으면 사용, 없으면 기본 로직 사용
+            val tooltipText = customTooltipText?.getOrNull(index) ?: run {
+                if (chartType == ChartType.STACKED_BAR) {
+                    // For stacked bars, always show segment value (maxValue - minValue)
+                    (maxValue - minValue).toInt().toString()
+                } else if (minValue == metrics.minY) {
+                    // For regular bars starting from chart minimum, show only max value
+                    maxValue.toInt().toString()
+                } else {
+                    // For range bars, show min-max range
+                    "${minValue.toInt()}-${maxValue.toInt()}"
+                }
+            }
+
             // 바 높이와 위치 계산
             val (barHeight, barY) = if (isTouchArea) {
                 // 전체 차트 높이 사용 (터치 영역용)
                 Pair(metrics.chartHeight, 0f)
             } else {
-                // 데이터에 맞는 높이 사용 (시각화용)
-                val height = ((value - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
-                Pair(height, metrics.chartHeight - height)
+                // minValue에서 maxValue까지의 바 계산
+                val yMinScreen = metrics.chartHeight - ((minValue - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+                val yMaxScreen = metrics.chartHeight - ((maxValue - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
+                val height = yMinScreen - yMaxScreen
+                Pair(height, yMaxScreen)
             }
 
             // 바 X 위치 계산 - 차트 타입에 따라 다른 포지셔닝 로직 사용
             val (barWidth, barX) = if (useLineChartPositioning) {
                 // 라인차트 포지셔닝: 포인트 중심에 바 배치
-                val pointSpacing = if (values.size > 1) metrics.chartWidth / (values.size - 1) else 0f
+                val pointSpacing = if (dataSize > 1) metrics.chartWidth / (dataSize - 1) else 0f
                 val pointX = metrics.paddingX + index * pointSpacing
-                val barW = if (values.size > 1) pointSpacing * actualBarWidthRatio else metrics.chartWidth * actualBarWidthRatio
-                val barXPos = pointX - barW / 2f
+
+                // 첫 번째와 마지막 바는 차트 영역을 벗어나지 않도록 절반 너비로 설정
+                val isFirstOrLast = (index == 0 || index == dataSize - 1) && dataSize > 1
+                val widthMultiplier = if (isFirstOrLast) 0.5f else 1.0f
+                val barW = if (dataSize > 1) {
+                    pointSpacing * actualBarWidthRatio * widthMultiplier
+                } else {
+                    metrics.chartWidth * actualBarWidthRatio
+                }
+
+                // 첫 번째 바는 오른쪽으로만 확장, 마지막 바는 왼쪽으로만 확장
+                val barXPos = when {
+                    index == 0 && dataSize > 1 -> pointX // 첫 번째 바: 포인트에서 시작
+                    index == dataSize - 1 && dataSize > 1 -> pointX - barW // 마지막 바: 포인트에서 끝
+                    else -> pointX - barW / 2f // 중간 바들: 포인트 중심
+                }
+
                 Pair(barW, barXPos)
             } else {
                 // 바차트 포지셔닝: 할당된 공간의 중앙에 배치
-                val barW = metrics.chartWidth / values.size * actualBarWidthRatio
-                val spacing = metrics.chartWidth / values.size
+                val barW = metrics.chartWidth / dataSize * actualBarWidthRatio
+                val spacing = metrics.chartWidth / dataSize
                 val barXPos = metrics.paddingX + index * spacing + (spacing - barW) / 2f
                 Pair(barW, barXPos)
             }
@@ -162,19 +208,21 @@ object BarChartDraw {
                             // 툴팁 상태 토글
                             showTooltip = !showTooltip
                             // 외부 클릭 이벤트 처리
-                            onBarClick?.invoke(index, value)
+                            onBarClick?.invoke(index, tooltipText)
                         }
                 ) {
                     // 툴팁 표시
                     if (shouldShowTooltip) {
                         val tooltipOffset = when (chartType) {
+                            ChartType.STACKED_BAR -> {
+                                // 스택 바 차트 툴팁: 세그먼트별로 다른 위치에 ��시 (겹침 방지)
+                                val segmentOffsetY = (segmentIndex ?: 0) * 30.dp // 세그먼트마다 30dp씩 아래로 오프셋
+                                Modifier.offset(x = 0.dp, y = segmentOffsetY)
+                            }
                             ChartType.BAR -> {
                                 Modifier.offset(x = 0.dp, y = (-40).dp)
                             }
                             ChartType.RANGE_BAR -> {
-                                Modifier.offset(x = 0.dp, y = (-40).dp)
-                            }
-                            ChartType.STACKED_BAR -> {
                                 Modifier.offset(x = 0.dp, y = (-40).dp)
                             }
                             else -> {
@@ -184,20 +232,21 @@ object BarChartDraw {
 
                         Box(
                             modifier = tooltipOffset
-                                .width(IntrinsicSize.Min)
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
                                 .background(
                                     color = Color.Black.copy(alpha = 0.8f),
                                     shape = RoundedCornerShape(4.dp)
                                 )
                                 .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = value.toInt().toString(),
+                                text = tooltipText,
                                 color = Color.White,
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.align(Alignment.Center)
+                                modifier = Modifier.align(Alignment.Center),
+                                maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
+                                softWrap = false // 텍스트 래핑 비활성화
                             )
                         }
                     }
@@ -233,8 +282,8 @@ object BarChartDraw {
                                 Modifier.offset(x = 0.dp, y = (-40).dp)
                             }
                             ChartType.STACKED_BAR -> {
-                                // 스택 바 차트 툴팁: 바 위에 표시
-                                Modifier.offset(x = 0.dp, y = (-40).dp)
+                                // 스택 바 차트 툴팁: 바 오른쪽에 표시 (겹침 방지)
+                                Modifier.offset(x = barWidthDp + 8.dp, y = 0.dp)
                             }
                             else -> {
                                 // 기본 툴팁 위치: 바 위에 표시
@@ -244,20 +293,21 @@ object BarChartDraw {
 
                         Box(
                             modifier = tooltipOffset
-                                .width(IntrinsicSize.Min)
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
                                 .background(
                                     color = Color.Black.copy(alpha = 0.8f),
                                     shape = RoundedCornerShape(4.dp)
                                 )
                                 .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = value.toInt().toString(),
+                                text = tooltipText,
                                 color = Color.White,
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.align(Alignment.Center)
+                                modifier = Modifier.align(Alignment.Center),
+                                maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
+                                softWrap = false // 텍스트 래핑 비활성화
                             )
                         }
                     }
@@ -266,49 +316,5 @@ object BarChartDraw {
         }
     }
 
-    /**
-     * 스택 바 차트의 막대들을 그립니다.
-     * 각 막대는 여러 세그먼트가 수직으로 쌓인 형태입니다.
-     *
-     * @param drawScope 그리기 영역
-     * @param data 스택 차트 데이터 포인트 목록
-     * @param metrics 차트 메트릭 정보
-     * @param colors 각 세그먼트의 기본 색상 팔레트
-     * @param barWidthRatio 바 너비 비율 (0.0 ~ 1.0, 기본값 0.6)
-     */
-    fun drawStackedBars(
-        drawScope: DrawScope,
-        data: List<StackedChartPoint>,
-        metrics: ChartMath.ChartMetrics,
-        colors: List<Color>,
-        barWidthRatio: Float = 0.6f
-    ) {
-        val barWidth = (metrics.chartWidth / data.size) * barWidthRatio
-        val spacing = metrics.chartWidth / data.size
-        data.forEachIndexed { i, stackedPoint ->
-            val barX = metrics.paddingX + (spacing - barWidth) / 2 + i * spacing
-            var currentY = metrics.chartHeight
-            // 각 세그먼트를 아래에서 위로 쌓아 올림
-            stackedPoint.values.forEachIndexed { segmentIndex, value ->
-                if (value > 0) { // 0보다 큰 값만 그리기
-                    val segmentHeight = (value / (metrics.maxY - metrics.minY)) * metrics.chartHeight
-                    val segmentY = currentY - segmentHeight
 
-                    // 색상 결정: 개별 색상이 있으면 사용, 없으면 기본 팔레트 사용
-                    val segmentColor = stackedPoint.segmentColors?.getOrNull(segmentIndex)?.let {
-                        Color(it)
-                    } ?: colors.getOrElse(segmentIndex % colors.size) { colors.first() }
-
-                    // 세그먼트 그리기
-                    drawScope.drawRect(
-                        color = segmentColor,
-                        topLeft = Offset(barX, segmentY),
-                        size = Size(barWidth, segmentHeight)
-                    )
-
-                    currentY = segmentY // 다음 세그먼트를 위해 Y 위치 업데이트
-                }
-            }
-        }
-    }
 }

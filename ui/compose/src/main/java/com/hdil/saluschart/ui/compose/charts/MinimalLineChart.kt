@@ -33,8 +33,6 @@ fun MinimalLineChart(
     modifier: Modifier = Modifier,
     data: List<ChartPoint>,
     color: Color = Color.Blue,
-    width: Dp = 100.dp,
-    height: Dp = 40.dp,
     strokeWidth: Float = 2f,
     padding: Float = 4f,
     showPoints: Boolean = false,
@@ -44,13 +42,6 @@ fun MinimalLineChart(
 
     Box(
         modifier = modifier
-            .then(
-                if (width != Dp.Unspecified && height != Dp.Unspecified) {
-                    Modifier.size(width, height)
-                } else {
-                    Modifier.fillMaxSize()
-                }
-            )
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             // 미니멀 차트 메트릭 계산

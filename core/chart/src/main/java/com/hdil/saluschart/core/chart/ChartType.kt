@@ -23,6 +23,7 @@ enum class ChartType {
 
 enum class InteractionType {
     POINT,         // Direct point touching using PointMarker()
-    NEAR_X_AXIS,    // Area-based touching using BarMarker()
-    BAR;          // Bar touching using BarMarker()
+    TOUCH_AREA,    // Area-based touching using BarMarker()
+    BAR,           // Bar touching using BarMarker()
+    STACKED_BAR;   // Individual segment touching in stacked bar charts
 }

@@ -34,8 +34,6 @@ fun ScatterPlot(
     yLabel: String = "Y Axis",
     title: String = "Scatter Plot Example",
     pointColor: Color = com.hdil.saluschart.ui.theme.ChartColor.Default,
-    width: androidx.compose.ui.unit.Dp = 250.dp,
-    height: androidx.compose.ui.unit.Dp = 250.dp,
     tooltipTextSize: Float = 32f,        // 툴팁 텍스트 크기
     interactionType: InteractionType = InteractionType.POINT,
     chartType: ChartType = ChartType.SCATTERPLOT // 차트 타입 (툴팁 위치 결정용
@@ -57,8 +55,6 @@ fun ScatterPlot(
 
         Box(
             Modifier
-                .width(width)
-                .height(height)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val metrics = ChartMath.computeMetrics(size, yValues)
@@ -74,15 +70,15 @@ fun ScatterPlot(
 
             // Conditional interaction based on interactionType parameter
             when (interactionType) {
-                InteractionType.NEAR_X_AXIS -> {
+                InteractionType.TOUCH_AREA -> {
                     // BarMarker interactions (invisible bars for easier touching)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
-                            values = yValues,
+                            minValues = List(yValues.size) { metrics.minY },
+                            maxValues = yValues,
                             metrics = metrics,
                             useLineChartPositioning = true,
-                            onBarClick = { index, value ->
-                                // Handle bar click - same logic as point click
+                            onBarClick = { index, tooltipText ->
                                 selectedPointIndex = if (selectedPointIndex == index) null else index
                             },
                             chartType = chartType,

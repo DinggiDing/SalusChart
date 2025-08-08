@@ -34,8 +34,6 @@ fun MinimalBarChart(
     modifier: Modifier = Modifier,
     data: List<Float>,
     color: Color = Color.Blue,
-    width: Dp = 100.dp,
-    height: Dp = 40.dp,
     padding: Float = 4f,
     chartType: ChartType = ChartType.MINIMAL_BAR // 차트 타입 (툴팁 위치 결정용
 ) {
@@ -45,13 +43,6 @@ fun MinimalBarChart(
 
     Box(
         modifier = modifier
-            .then(
-                if (width != Dp.Unspecified && height != Dp.Unspecified) {
-                    Modifier.size(width, height)
-                } else {
-                    Modifier.fillMaxSize()
-                }
-            )
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val metrics = ChartMath.computeMetrics(
@@ -70,7 +61,8 @@ fun MinimalBarChart(
         // Visual bars (non-interactive) using BarMarker
         chartMetrics?.let { metrics ->
             ChartDraw.Bar.BarMarker(
-                values = data,
+                minValues = List(data.size) { 0f },
+                maxValues = data,
                 metrics = metrics,
                 color = color,
                 barWidthRatio = 0.8f,
