@@ -97,56 +97,24 @@ fun LineChart(
             if (showPoint) {
             // Conditional interaction based on interactionType parameter
                 when (interactionType) {
-                    InteractionType.NEAR_X_AXIS -> {
+                    InteractionType.TOUCH_AREA -> {
                         // BarMarker interactions (invisible bars for easier touching)
                         chartMetrics?.let { metrics ->
                             ChartDraw.Bar.BarMarker(
-                                values = yValues,
+                                minValues = List(yValues.size) { metrics.minY },
+                                maxValues = yValues,
                                 metrics = metrics,
                                 useLineChartPositioning = true,
-                                onBarClick = { index, value ->
-                                    // Handle bar click - same logic as point click
-                                    selectedPointIndex = if (selectedPointIndex == index) null else index
+                                onBarClick = { index, tooltipText ->
+                                    selectedPointIndex =
+                                        if (selectedPointIndex == index) null else index
                                 },
+                                interactive = true,
                                 chartType = chartType,
-                                showTooltipForIndex = null,
-                                isTouchArea = true
+                                showTooltipForIndex = null
                             )
                         }
-                        ChartDraw.Scatter.PointMarker(
-                            points = canvasPoints,
-                            values = yValues,
-                            selectedPointIndex = selectedPointIndex,
-                            onPointClick = null,
-                            interactive = false,
-                            chartType = chartType,
-                            showTooltipForIndex = selectedPointIndex
-                        )
                     }
-                    InteractionType.POINT -> {
-                        // PointMarker interactions (interactive data points)
-                        ChartDraw.Scatter.PointMarker(
-                            points = canvasPoints,
-                            values = yValues,
-                            selectedPointIndex = selectedPointIndex,
-                            onPointClick = { index ->
-                                // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
-                  InteractionType.TOUCH_AREA -> {
-                      // BarMarker interactions (invisible bars for easier touching)
-                      chartMetrics?.let { metrics ->
-                          ChartDraw.Bar.BarMarker(
-                              minValues = List(yValues.size) { metrics.minY },
-                              maxValues = yValues,
-                              metrics = metrics,
-                              useLineChartPositioning = true,
-                              onBarClick = { index, tooltipText ->
-                                  selectedPointIndex = if (selectedPointIndex == index) null else index
-                              },
-                              interactive = true,
-                              chartType = chartType,
-                              showTooltipForIndex = null
-                          )
-                      }
                     else -> {
                         // Non-interactive rendering
                         ChartDraw.Scatter.PointMarker(

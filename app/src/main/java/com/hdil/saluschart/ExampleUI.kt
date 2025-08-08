@@ -250,7 +250,7 @@ fun LineChart_2() {
         strokeWidth = 4f,
         minY = 0f,
         maxY = 60f,
-        interactionType = InteractionType.NEAR_X_AXIS,
+        interactionType = InteractionType.TOUCH_AREA,
     )
 }
 
@@ -301,7 +301,7 @@ fun ScatterPlot_1() {
         title = "요일별 활동량",
         yLabel = "활동량",
         xLabel = "요일",
-        interactionType = InteractionType.NEAR_X_AXIS
+        interactionType = InteractionType.POINT
     )
 }
 
@@ -350,8 +350,7 @@ fun Minimal_BarChart() {
                 MinimalBarChart(
                     data = sampleData,
                     color = Primary_Purple,
-                    width = 110.dp,
-                    height = 36.dp,
+
                 )
             }
         }
