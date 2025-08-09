@@ -3,7 +3,6 @@ package com.hdil.saluschart.ui.compose.charts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -37,12 +35,8 @@ import com.hdil.saluschart.core.chart.chartDraw.ChartLegend
 import com.hdil.saluschart.core.chart.chartDraw.LegendPosition
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.chartMath.PieChartMath
-import com.hdil.saluschart.ui.compose.components.ChartTooltip
+import com.hdil.saluschart.core.chart.chartDraw.ChartTooltip
 import com.hdil.saluschart.ui.theme.ColorUtils
-import kotlin.div
-import kotlin.text.toDouble
-import kotlin.text.toInt
-import kotlin.times
 
 /**
  * 파이 차트를 표시하는 컴포저블 함수입니다.

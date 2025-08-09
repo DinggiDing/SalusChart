@@ -42,6 +42,7 @@ fun BarChart(
     tooltipTextSize: Float = 32f,           // 툴팁 텍스트 크기
     interactionType: InteractionType = InteractionType.BAR, // 상호작용 타입
     onBarClick: ((Int, Float) -> Unit)? = null,  // 바 클릭 콜백
+    showLabel: Boolean = false,
     chartType: ChartType = ChartType.BAR // 차트 타입 (툴팁 위치 결정용)
 ) {
     if (data.isEmpty()) return
@@ -133,7 +134,8 @@ fun BarChart(
                             onBarClick = { index, tooltipText ->
                                 onBarClick?.invoke(index, tooltipText.toFloat())
                             },
-                            chartType = chartType
+                            chartType = chartType,
+                            showLabel = showLabel
                         )
                     }
                 }
