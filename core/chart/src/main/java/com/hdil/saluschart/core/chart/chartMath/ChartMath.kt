@@ -21,7 +21,6 @@ object ChartMath {
     val RangeBar = RangeBarChartMath
     val Line = LineChartMath
     val Progress = ProgressChartMath
-    val Min = MinimalChartMath
 
     /**
      * 차트 그리기에 필요한 메트릭 정보를 담는 데이터 클래스

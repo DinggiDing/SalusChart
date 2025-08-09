@@ -2,9 +2,19 @@ package com.hdil.saluschart.ui.compose.charts
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -12,9 +22,11 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hdil.saluschart.core.chart.ChartType
+import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
+import com.hdil.saluschart.ui.theme.ChartColor
 
 /**
  * 미니멀 범위 바 차트 - 위젯이나 스마트워치 등 작은 화면용
@@ -36,70 +48,31 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 @Composable
 fun MinimalRangeBarChart(
     modifier: Modifier = Modifier,
-    data: RangeChartPoint,
-    containerMin: Float,
-    containerMax: Float,
-    containerColor: Color = Color.LightGray,
-    rangeColor: Color = Color(0xFFFF9500),
-    textColor: Color = Color.Black,
-    padding: Float = 8f,
-    showRangeText: Boolean = true,
-    cornerRadius: Float = 8f,
-    chartType: ChartType = ChartType.MINIMAL_RANGE_BAR // 차트 타입 (툴팁 위치 결정용)
+    data: List<RangeChartPoint>,
+    color: Color = Color.Blue,
+    chartType: ChartType = ChartType.MINIMAL_RANGE_BAR
 ) {
+    if (data.isEmpty()) return
+
+    var chartMetrics by remember { mutableStateOf<ChartMath.ChartMetrics?>(null) }
+
     Box(
-        modifier = modifier
+        Modifier
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            // 범위 바 위치 계산
-            val result = ChartMath.Min.computeMinimalRangeBarPosition(
-                size = size,
-                rangePoint = data,
-                containerMin = containerMin,
-                containerMax = containerMax,
-                padding = padding
+            val metrics = ChartMath.RangeBar.computeRangeMetrics(size, data)
+            chartMetrics = metrics
+        }
+        chartMetrics?.let { metrics ->
+            ChartDraw.Bar.BarMarker(
+                minValues = data.map { it.yMin },
+                maxValues = data.map { it.yMax },
+                metrics = metrics,
+                color = color,
+                barWidthRatio = 0.8f,
+                interactive = false,
+                chartType = chartType,
             )
-            val (containerOffset, containerSize) = result.first
-            val (rangeBarOffset, rangeBarSize) = result.second
-            
-            // 범위 바 그리기
-            ChartDraw.Min.drawMinimalRangeBar(
-                drawScope = this,
-                containerOffset = containerOffset,
-                containerSize = containerSize,
-                rangeBarOffset = rangeBarOffset,
-                rangeBarSize = rangeBarSize,
-                containerColor = containerColor,
-                rangeColor = rangeColor,
-                cornerRadius = cornerRadius
-            )
-            
-            // 범위 텍스트 표시
-            if (showRangeText) {
-                val rangeText = "${data.yMin.toInt()}-${data.yMax.toInt()}"
-                val textY = padding + 16f // Position text in the reserved space at the top
-                val textX = rangeBarOffset.x + (rangeBarSize.width / 2f)
-
-                // Use Compose's native text drawing instead of Android Paint
-                drawContext.canvas.nativeCanvas.apply {
-                    val paint = android.graphics.Paint().apply {
-                        color = textColor.value.toInt()
-                        textSize = 16f
-                        textAlign = android.graphics.Paint.Align.CENTER
-                        isAntiAlias = true
-                    }
-
-                    // Calculate text bounds to ensure it's within canvas
-                    val textBounds = android.graphics.Rect()
-                    paint.getTextBounds(rangeText, 0, rangeText.length, textBounds)
-
-                    // Ensure text doesn't go outside canvas bounds
-                    val adjustedY = maxOf(textBounds.height().toFloat() + padding, textY)
-                    val adjustedX = textX.coerceIn(textBounds.width() / 2f, size.width - textBounds.width() / 2f)
-
-                    drawText(rangeText, adjustedX, adjustedY, paint)
-                }
-            }
         }
     }
 }

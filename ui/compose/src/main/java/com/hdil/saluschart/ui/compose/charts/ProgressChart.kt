@@ -29,8 +29,6 @@ import com.hdil.saluschart.ui.theme.ColorUtils
  * @param title 차트 제목
  * @param isDonut 도넛 차트로 표시할지 여부 (true: 도넛, false: 바)
  * @param colors 각 프로그레스 인스턴스에 사용할 색상 목록
- * @param width 차트의 너비
- * @param height 차트의 높이
  * @param strokeWidth 도넛 차트의 링 두께 (도넛 모드일 때만)
  * @param barHeight 바 차트의 각 바 높이 (바 모드일 때만)
  * @param showLabels 라벨을 표시할지 여부
@@ -48,8 +46,6 @@ fun ProgressChart(
     isDonut: Boolean = true,
     isPercentage: Boolean = true,
     colors: List<Color> = ColorUtils.ColorUtils(data.size.coerceAtLeast(1)),
-    width: Dp = 300.dp,
-    height: Dp = 300.dp,
     strokeWidth: Float = 40f,
     barHeight: Float = 30f,
     showLabels: Boolean = true,
@@ -67,9 +63,6 @@ fun ProgressChart(
 
         Box(
             Modifier
-                .width(width)
-                .height(height),
-            contentAlignment = Alignment.Center
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // 프로그레스 마크 그리기 (도넛 또는 바)

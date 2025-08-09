@@ -86,7 +86,7 @@ object BarChartDraw {
      * @param chartType 차트 타입 (툴팁 위치 결정용)
      * @param showTooltipForIndex 외부에서 제어되는 툴팁 표시 인덱스 (null이면 표시 안함)
      * @param isTouchArea true이면 터치 영역용 (투명, 전체 높이, 상호작용 가능), false이면 일반 바 (기본값: false)
-     * @param customTooltipText 커스텀 툴팁 ���스트 목록 (null이면 기본 툴팁 사용)
+     * @param customTooltipText 커스텀 툴팁 텍스트 목록 (null이면 기본 툴팁 사용)
      * @param segmentIndex 스택 바 차트에서 세그먼트 인덱스 (툴팁 위치 조정용, null이면 기본 위치)
      */
     @Composable
