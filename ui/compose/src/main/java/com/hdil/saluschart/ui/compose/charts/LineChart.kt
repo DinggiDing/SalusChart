@@ -1,6 +1,7 @@
 package com.hdil.saluschart.ui.compose.charts
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -109,17 +110,47 @@ fun LineChart(
                                     selectedPointIndex =
                                         if (selectedPointIndex == index) null else index
                                 },
-                                interactive = true,
+                                isTouchArea = true,
                                 chartType = chartType,
-                                showTooltipForIndex = null
+                                showTooltipForIndex = selectedPointIndex
                             )
                         }
+                        ChartDraw.Scatter.PointMarker(
+                            data = data,
+                            points = canvasPoints,
+                            values = yValues,
+                            color = lineColor,
+                            selectedPointIndex = selectedPointIndex,
+                            onPointClick = null,
+                            interactive = false,
+                            chartType = chartType,
+                            showTooltipForIndex = selectedPointIndex
+                        )
+                    }
+                    InteractionType.POINT -> {
+                        // PointMarker interactions (interactive data points)
+                        ChartDraw.Scatter.PointMarker(
+                            data = data,
+                            points = canvasPoints,
+                            values = yValues,
+                            color = lineColor,
+                            selectedPointIndex = selectedPointIndex,
+                            onPointClick = { index ->
+                                // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
+                                selectedPointIndex = if (selectedPointIndex == index) null else index
+                            },
+                            interactive = true,
+                            chartType = chartType,
+                            showTooltipForIndex = selectedPointIndex
+                        )
                     }
                     else -> {
                         // Non-interactive rendering
                         ChartDraw.Scatter.PointMarker(
+                            data = data,
                             points = canvasPoints,
                             values = yValues,
+                            color = lineColor,
                             selectedPointIndex = selectedPointIndex,
                             onPointClick = null,
                             interactive = false,

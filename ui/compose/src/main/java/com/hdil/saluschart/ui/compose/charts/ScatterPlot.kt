@@ -86,6 +86,7 @@ fun ScatterPlot(
                         )
                     }
                     ChartDraw.Scatter.PointMarker(
+                        data = data,
                         points = canvasPoints,
                         values = yValues,
                         selectedPointIndex = selectedPointIndex,
@@ -98,6 +99,7 @@ fun ScatterPlot(
                 InteractionType.POINT -> {
                     // PointMarker interactions (direct point touching)
                     ChartDraw.Scatter.PointMarker(
+                        data = data,
                         points = canvasPoints,
                         values = yValues,
                         selectedPointIndex = selectedPointIndex,
@@ -112,6 +114,7 @@ fun ScatterPlot(
                 else -> {
                     // Default to non-interactive rendering
                     ChartDraw.Scatter.PointMarker(
+                        data = data,
                         points = canvasPoints,
                         values = yValues,
                         selectedPointIndex = null, // No selection in non-interactive mode

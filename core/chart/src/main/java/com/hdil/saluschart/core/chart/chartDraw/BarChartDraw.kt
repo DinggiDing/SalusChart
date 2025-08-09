@@ -1,5 +1,7 @@
 package com.hdil.saluschart.core.chart.chartDraw
 
+import android.graphics.fonts.FontStyle
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,6 +27,7 @@ import androidx.compose.ui.graphics.drawscope.DrawContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,6 +37,7 @@ import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.StackedChartPoint
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw.formatTickLabel
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
+import kotlin.Boolean
 
 object BarChartDraw {
     /**
@@ -103,7 +107,8 @@ object BarChartDraw {
         showTooltipForIndex: Int? = null,
         isTouchArea: Boolean = false,
         customTooltipText: List<String>? = null,
-        segmentIndex: Int? = null
+        segmentIndex: Int? = null,
+        showLabel: Boolean = false,
     ) {
         val density = LocalDensity.current
 
@@ -184,6 +189,7 @@ object BarChartDraw {
             val barWidthDp = with(density) { barWidth.toDp() }
             val barHeightDp = with(density) { barHeight.toDp() }
 
+
             if (actualInteractive) {
                 // 각 바의 툴팁 표시 상태
                 var showTooltip by remember { mutableStateOf(false) }
@@ -209,8 +215,29 @@ object BarChartDraw {
                             showTooltip = !showTooltip
                             // 외부 클릭 이벤트 처리
                             onBarClick?.invoke(index, tooltipText)
-                        }
+                        },
+                    contentAlignment = Alignment.TopCenter
                 ) {
+
+                    // label 표시 여부 결정
+                    if (showLabel) {
+                        Box(
+                            modifier = Modifier
+                                .offset(0.dp, (0).dp) // 바 위에 표시
+                        ) {
+                            Text(
+                                text = maxValue.toInt().toString(),
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .align(Alignment.Center),
+                                maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
+                                softWrap = false // 텍스트 래핑 비활성화
+                            )
+                        }
+                    }
                     // 툴팁 표시
                     if (shouldShowTooltip) {
                         val tooltipOffset = when (chartType) {
@@ -270,6 +297,30 @@ object BarChartDraw {
                         .size(width = barWidthDp, height = barHeightDp)
                         .background(color = actualColor)
                 ) {
+
+                    // label 표시 여부 결정
+                    if (showLabel) {
+                        Box(
+                            modifier = Modifier
+                                .offset(0.dp, (0).dp) // 바 위에 표시
+
+                                .border(2.dp, Color.Red)
+                        ) {
+                            Text(
+                                text = maxValue.toInt().toString(),
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .offset(0.dp, (0).dp) // 바 위에 표시
+                                    .align(Alignment.Center)
+                                    .width(IntrinsicSize.Min), // 최소 너비로 설정하여 수평 확장 유도
+                                maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
+                                softWrap = false // 텍스트 래핑 비활성화
+                            )
+                        }
+                    }
+
                     // 외부에서 제어되는 툴팁 표시
                     if (shouldShowTooltip) {
                         val tooltipOffset = when (chartType) {

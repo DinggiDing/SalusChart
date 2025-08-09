@@ -1,4 +1,4 @@
-package com.hdil.saluschart.ui.compose.components
+package com.hdil.saluschart.core.chart.chartDraw
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

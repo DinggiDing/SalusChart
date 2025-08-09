@@ -64,16 +64,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SalusChartTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    SampleCharts(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-//                Surface {
-//                    ExampleUI(
-//                        modifier = Modifier.fillMaxSize()
+//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                    SampleCharts(
+//                        modifier = Modifier.padding(innerPadding)
 //                    )
 //                }
+                Surface {
+                    ExampleUI(
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }
