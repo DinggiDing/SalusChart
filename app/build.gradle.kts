@@ -61,6 +61,8 @@ android {
 
 dependencies {
     implementation(project(":core:chart"))
+    implementation(project(":core:util"))
+    implementation(project(":core:transform"))
     implementation(project(":ui:compose"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

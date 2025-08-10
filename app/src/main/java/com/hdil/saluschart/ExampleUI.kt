@@ -14,10 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -26,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -35,7 +40,11 @@ import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.core.chart.ProgressChartPoint
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.core.chart.StackedChartPoint
+import com.hdil.saluschart.core.chart.TimeDataPoint
+import com.hdil.saluschart.core.chart.toChartPoints
 import com.hdil.saluschart.core.chart.chartDraw.LegendPosition
+import com.hdil.saluschart.core.util.TimeUnitGroup
+import com.hdil.saluschart.core.transform.transform
 import com.hdil.saluschart.ui.compose.charts.BarChart
 import com.hdil.saluschart.ui.compose.charts.BubbleType
 import com.hdil.saluschart.ui.compose.charts.CalendarChart
@@ -71,6 +80,7 @@ fun ExampleUI(modifier: Modifier = Modifier) {
         "Stacked Bar Chart",
         "Range Bar Chart",
         "Progress Bar Chart",
+        "BarChart Timestep Transformation"
     )
 
     var selectedChartType by remember { mutableStateOf<String?>("LineChart 2") }
@@ -115,6 +125,7 @@ fun ExampleUI(modifier: Modifier = Modifier) {
                 "Stacked Bar Chart" -> StackedBarChart_1()
                 "Range Bar Chart" -> RangeBarChart_1()
                 "Progress Bar Chart" -> ProgressBarChart_1()
+                "BarChart Timestep Transformation" -> TimeStepBarChart()
                 else -> Text("Unknown Chart Type")
             }
         }
@@ -373,7 +384,7 @@ fun Minimal_BarChart() {
                 MinimalLineChart(
                     data = chartPoints,
                     color = Primary_Purple,
-                    )
+                )
             }
         }
     }
@@ -440,7 +451,7 @@ fun ProgressBarChart_1() {
         data = progressData,
         title = "일일 활동 진행률",
         isDonut = true,
-        isPercentage = false,
+        isPercentage = true,
         colors = listOf(
             Color(0xFF00C7BE), // 청록색 (Move)
             Color(0xFFFF6B35), // 주황색 (Exercise)
@@ -449,7 +460,88 @@ fun ProgressBarChart_1() {
     )
 }
 
+@Composable
+fun TimeStepBarChart() {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("시간대별") }
 
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "시간대별 걸음 수",
+                modifier = Modifier.weight(1f),
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+            IconButton(
+                onClick = { expanded = !expanded },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Dropdown",
+                    tint = Color.Black
+                )
+            }
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            DropdownMenuItem(
+                text = { Text("시간대별") },
+                onClick = {
+                    selectedOption = "시간대별"
+                    expanded = false
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            DropdownMenuItem(
+                text = { Text("일별") },
+                onClick = {
+                    selectedOption = "일별"
+                    expanded = false
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            DropdownMenuItem(
+                text = { Text("주별") },
+                onClick = {
+                    selectedOption = "주별"
+                    expanded = false
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        BarChart(
+            modifier = Modifier.fillMaxWidth().height(500.dp),
+            data = timeDataPoint.transform(
+                timeUnit = when (selectedOption) {
+                    "시간대별" -> TimeUnitGroup.HOUR
+                    "일별" -> TimeUnitGroup.DAY
+                    "주별" -> TimeUnitGroup.WEEK
+                    else -> TimeUnitGroup.HOUR
+                },
+            ).toChartPoints(),
+            title = "걸음 수 (${selectedOption})",
+            barColor = Primary_Purple,
+            barWidthRatio = 0.5f,
+            labelTextSize = when (selectedOption) {
+                "시간대별" -> 0f
+                "일별" -> 20f
+                "주별" -> 28f
+                else -> 0f
+            } // X축 레이블 텍스트 비활성화 (겹침 방지)
+        )
+    }
+}
 
 
 // 범위 차트용 샘플 데이터 (심박수 범위 예시)
@@ -509,6 +601,41 @@ private val sampleData = listOf(10f, 25f, 40f, 20f, 35f, 55f, 45f)
 private val sampleData2 = listOf(5f, 15f, 60f, 45f, 35f, 25f, 10f)
 private val sampleData3 = listOf(8f, 22f, 10f, 40f, 18f, 32f, 12f)
 private val weekDays = listOf("월", "화", "수", "목", "금", "토", "일")
+private val isoTime = listOf(
+    "2025-05-05T00:00:00Z", "2025-05-05T06:00:00Z", "2025-05-05T12:00:00Z", "2025-05-05T18:00:00Z",
+    "2025-05-06T00:00:00Z", "2025-05-06T06:00:00Z", "2025-05-06T12:00:00Z", "2025-05-06T18:00:00Z",
+    "2025-05-07T00:00:00Z", "2025-05-07T06:00:00Z", "2025-05-07T12:00:00Z", "2025-05-07T18:00:00Z",
+    "2025-05-08T00:00:00Z", "2025-05-08T06:00:00Z", "2025-05-08T12:00:00Z", "2025-05-08T18:00:00Z",
+    "2025-05-09T00:00:00Z", "2025-05-09T06:00:00Z", "2025-05-09T12:00:00Z", "2025-05-09T18:00:00Z",
+    "2025-05-10T00:00:00Z", "2025-05-10T06:00:00Z", "2025-05-10T12:00:00Z", "2025-05-10T18:00:00Z",
+    "2025-05-11T00:00:00Z", "2025-05-11T06:00:00Z", "2025-05-11T12:00:00Z", "2025-05-11T18:00:00Z",
+    "2025-05-12T00:00:00Z", "2025-05-12T06:00:00Z", "2025-05-12T12:00:00Z", "2025-05-12T18:00:00Z",
+    "2025-05-13T00:00:00Z", "2025-05-13T06:00:00Z", "2025-05-13T12:00:00Z", "2025-05-13T18:00:00Z",
+    "2025-05-14T00:00:00Z", "2025-05-14T06:00:00Z", "2025-05-14T12:00:00Z", "2025-05-14T18:00:00Z",
+    "2025-05-15T00:00:00Z", "2025-05-15T06:00:00Z", "2025-05-15T12:00:00Z", "2025-05-15T18:00:00Z",
+    "2025-05-16T00:00:00Z", "2025-05-16T06:00:00Z", "2025-05-16T12:00:00Z", "2025-05-16T18:00:00Z",
+    "2025-05-17T00:00:00Z", "2025-05-17T06:00:00Z", "2025-05-17T12:00:00Z", "2025-05-17T18:00:00Z",
+    "2025-05-18T00:00:00Z", "2025-05-18T06:00:00Z", "2025-05-18T12:00:00Z", "2025-05-18T18:00:00Z"
+)
+
+
+private val stepCounts = listOf(
+    8123f, 523f, 9672f, 7540f,
+    6453f, 984f, 8732f, 6891f,
+    7215f, 642f, 9321f, 8990f,
+    8320f, 885f, 7124f, 9983f,
+    6152f, 751f, 8023f, 7654f,
+    9472f, 934f, 8820f, 5932f,
+    6723f, 653f, 9021f, 7114f,
+    5987f, 752f, 8653f, 9411f,
+    7840f, 801f, 9192f, 6833f,
+    8794f, 912f, 7364f, 9950f,
+    9332f, 891f, 9045f, 6021f,
+    7981f, 912f, 6740f, 8942f,
+    8024f, 992f, 9684f, 7782f,
+    6875f, 864f, 8550f, 9333f,
+    7121f, 941f, 9821f, 8732f
+)
 
 private val yearMonth = YearMonth.now()
 private val startDate = LocalDate.of(yearMonth.year, 8, 1)
@@ -549,3 +676,8 @@ private val chartPoint3 = sampleData3.mapIndexed { index, value ->
     )
 }
 
+private val timeDataPoint = TimeDataPoint(
+    x = isoTime,
+    y = stepCounts,
+    timeUnit = TimeUnitGroup.HOUR,
+)

@@ -36,7 +36,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:chart")) // ChartPoint 사용
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     // Core Android dependencies
     implementation(libs.androidx.core.ktx)
