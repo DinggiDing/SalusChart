@@ -1,4 +1,4 @@
-package com.hdil.saluschart.core.transform
+package com.hdil.saluschart.core.util
 
 enum class TimeUnitGroup {
     HOUR,

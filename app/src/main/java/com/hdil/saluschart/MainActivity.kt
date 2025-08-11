@@ -46,6 +46,7 @@ import com.hdil.saluschart.ui.theme.SalusChartTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.ui.graphics.Color
 import com.hdil.saluschart.core.chart.InteractionType
@@ -107,8 +108,19 @@ fun SampleCharts(modifier: Modifier = Modifier) {
     }.toList()
 
     // 기본적인 raw 데이터로 차트 그리기
-    val sampleData = listOf(10f, 25f, 40f, 20f, 35f, 55f, 45f)
-    val weekDays = listOf("월", "화", "수", "목", "금", "토", "일")
+    val sampleData = listOf(
+        12453f, 8932f, 15742f, 6420f, 10238f,
+        19837f, 13429f, 17845f, 5620f, 14672f,
+        9821f, 19382f, 11840f, 13752f, 8954f,
+        16420f, 15237f, 18754f, 10023f, 7654f,
+        13548f, 19845f, 14562f, 17420f, 9237f,
+        19234f, 11029f, 15345f, 18329f, 6021f
+    )
+    val days = listOf(
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+        "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
+        "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"
+    )
 
     Column(
         modifier = modifier.padding(16.dp),
@@ -226,7 +238,7 @@ fun SampleCharts(modifier: Modifier = Modifier) {
             ChartPoint(
                 x = index.toFloat(),
                 y = value,
-                label = weekDays.getOrElse(index) { "" }
+                label = days.getOrElse(index) { "" }
             )
         }
 
