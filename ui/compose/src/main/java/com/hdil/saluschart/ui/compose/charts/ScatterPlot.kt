@@ -51,7 +51,7 @@ fun ScatterPlot(
 
     Column(modifier = modifier.padding(16.dp)) {
         Text(text = title, style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Box(
             Modifier
@@ -102,13 +102,17 @@ fun ScatterPlot(
                         data = data,
                         points = canvasPoints,
                         values = yValues,
+                        color = pointColor,
                         selectedPointIndex = selectedPointIndex,
                         onPointClick = { index ->
                             // Handle point click - toggle selection
                             selectedPointIndex = if (selectedPointIndex == index) null else index
                         },
                         chartType = chartType,
-                        showTooltipForIndex = null
+                        showTooltipForIndex = selectedPointIndex,
+                        pointRadius = 8.dp,
+                        innerRadius = 0.dp,
+                        interactive = true
                     )
                 }
                 else -> {

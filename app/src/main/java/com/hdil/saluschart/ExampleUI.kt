@@ -73,7 +73,7 @@ fun ExampleUI(modifier: Modifier = Modifier) {
         "Progress Bar Chart",
     )
 
-    var selectedChartType by remember { mutableStateOf<String?>("LineChart 2") }
+    var selectedChartType by remember { mutableStateOf<String?>("ScatterPlot 1") }
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         if (selectedChartType == null) {
@@ -258,7 +258,7 @@ fun ChalendarChart_1() {
 @Composable
 fun ChalendarChart_2() {
     CalendarChart(
-        modifier = Modifier.width(300.dp).height(200.dp),
+        modifier = Modifier.width(300.dp).height(500.dp),
         entries = entries,
         yearMonth = yearMonth,
         color = Primary_Purple,
@@ -273,6 +273,7 @@ fun ScatterPlot_1() {
     ScatterPlot(
         modifier = Modifier.fillMaxWidth().height(500.dp),
         data = chartPoints,
+        pointColor = Primary_Purple,
         title = "요일별 활동량",
         yLabel = "활동량",
         xLabel = "요일",
