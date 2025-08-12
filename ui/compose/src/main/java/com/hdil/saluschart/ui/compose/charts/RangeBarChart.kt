@@ -66,6 +66,7 @@ fun RangeBarChart(
                     // Interactive range bars
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
+                            data = data,
                             minValues = data.map { it.yMin },
                             maxValues = data.map { it.yMax },
                             metrics = metrics,
@@ -85,6 +86,7 @@ fun RangeBarChart(
                     // Non-interactive range bars
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
+                            data = data,
                             minValues = data.map { it.yMin },
                             maxValues = data.map { it.yMax },
                             metrics = metrics,
@@ -98,6 +100,7 @@ fun RangeBarChart(
 
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
+                            data = data,
                             minValues = List(data.size) { metrics.minY },
                             maxValues = data.map { it.yMax },
                             metrics = metrics,
@@ -115,6 +118,7 @@ fun RangeBarChart(
                     // Default case - no interaction
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
+                            data = data,
                             minValues = data.map { it.yMin },
                             maxValues = data.map { it.yMax },
                             metrics = metrics,

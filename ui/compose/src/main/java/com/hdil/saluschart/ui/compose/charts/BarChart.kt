@@ -94,6 +94,7 @@ fun BarChart(
                     // Visual bars (non-interactive)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
+                            data = data,
                             minValues = List(yValues.size) { metrics.minY },
                             maxValues = yValues,
                             metrics = metrics,
@@ -108,6 +109,7 @@ fun BarChart(
                     // Interactive bars overlay (transparent bars for easier touching)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
+                            data = data,
                             minValues = List(yValues.size) { metrics.minY },
                             maxValues = yValues,
                             metrics = metrics,
@@ -125,6 +127,7 @@ fun BarChart(
                     // Interactive visual bars (direct bar touching)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
+                            data = data,
                             minValues = List(yValues.size) { metrics.minY },
                             maxValues = yValues,
                             metrics = metrics,
@@ -143,6 +146,7 @@ fun BarChart(
                     // Visual bars (non-interactive)
                     chartMetrics?.let { metrics ->
                         ChartDraw.Bar.BarMarker(
+                            data = data,
                             minValues = List(yValues.size) { metrics.minY },
                             maxValues = yValues,
                             metrics = metrics,

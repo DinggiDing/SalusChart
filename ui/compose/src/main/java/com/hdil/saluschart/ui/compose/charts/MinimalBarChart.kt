@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.chartDraw.BarChartDraw
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
@@ -32,12 +33,14 @@ import com.hdil.saluschart.core.chart.ChartType
 @Composable
 fun MinimalBarChart(
     modifier: Modifier = Modifier,
-    data: List<Float>,
+    data: List<ChartPoint>,
     color: Color = Color.Blue,
     padding: Float = 4f,
     chartType: ChartType = ChartType.MINIMAL_BAR // 차트 타입 (툴팁 위치 결정용
 ) {
     if (data.isEmpty()) return
+
+    val yValues = data.map { it.y }
 
     var chartMetrics by remember { mutableStateOf<ChartMath.ChartMetrics?>(null) }
 
@@ -47,7 +50,7 @@ fun MinimalBarChart(
         Canvas(modifier = Modifier.fillMaxSize()) {
             val metrics = ChartMath.computeMetrics(
                 size = size,
-                values = data,
+                values = yValues,
                 isMinimal = true,
                 paddingX = padding,
                 paddingY = padding,
@@ -61,8 +64,9 @@ fun MinimalBarChart(
         // Visual bars (non-interactive) using BarMarker
         chartMetrics?.let { metrics ->
             ChartDraw.Bar.BarMarker(
-                minValues = List(data.size) { 0f },
-                maxValues = data,
+                data = data,
+                minValues = List(yValues.size) { 0f },
+                maxValues = yValues,
                 metrics = metrics,
                 color = color,
                 barWidthRatio = 0.8f,

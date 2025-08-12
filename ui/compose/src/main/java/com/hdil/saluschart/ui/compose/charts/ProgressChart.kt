@@ -46,7 +46,7 @@ fun ProgressChart(
     isDonut: Boolean = true,
     isPercentage: Boolean = true,
     colors: List<Color> = ColorUtils.ColorUtils(data.size.coerceAtLeast(1)),
-    strokeWidth: Float = 40f,
+    strokeWidth: Float = 80f,
     barHeight: Float = 30f,
     showLabels: Boolean = true,
     showValues: Boolean = true,

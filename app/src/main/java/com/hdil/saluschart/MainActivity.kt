@@ -404,9 +404,9 @@ fun SampleCharts(modifier: Modifier = Modifier) {
 
                 )
             }
-                         "MinBar" -> {
+            "MinBar" -> {
                  MinimalBarChart(
-                     data = sampleData,
+                     data = chartPoints,
                      color = Color.Blue,
                  )
              }

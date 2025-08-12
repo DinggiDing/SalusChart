@@ -118,8 +118,8 @@ fun ExampleUI(modifier: Modifier = Modifier) {
                 "LineChart 1" -> LineChart_1()
                 "LineChart 2" -> LineChart_2()
                 "PieChart 1" -> PieChart_1()
-                "CalendarChart 1" -> ChalendarChart_1()
-                "CalendarChart 2" -> ChalendarChart_2()
+                "CalendarChart 1" -> CalendarChart_1()
+                "CalendarChart 2" -> CalendarChart_2()
                 "ScatterPlot 1" -> ScatterPlot_1()
                 "Minimal Chart" -> Minimal_BarChart() // Placeholder for minimal bar chart
                 "Stacked Bar Chart" -> StackedBarChart_1()
@@ -255,7 +255,7 @@ fun PieChart_1() {
 }
 
 @Composable
-fun ChalendarChart_1() {
+fun CalendarChart_1() {
     CalendarChart(
         modifier = Modifier.fillMaxWidth().height(600.dp),
         entries = entries,
@@ -267,7 +267,7 @@ fun ChalendarChart_1() {
 }
 
 @Composable
-fun ChalendarChart_2() {
+fun CalendarChart_2() {
     CalendarChart(
         modifier = Modifier.width(300.dp).height(500.dp),
         entries = entries,
@@ -335,7 +335,7 @@ fun Minimal_BarChart() {
                     .align(androidx.compose.ui.Alignment.CenterVertically)
             ) {
                 MinimalBarChart(
-                    data = sampleData,
+                    data = chartPoints,
                     color = Primary_Purple,
 
                 )
@@ -406,7 +406,7 @@ fun StackedBarChart_1() {
             Color(0xFFFF9800), // 주황 (지방)
             Color(0xFF4CAF50)  // 초록 (탄수화물)
         ),
-        interactionType = InteractionType.STACKED_BAR
+        interactionType = InteractionType.TOUCH_AREA
     )
 }
 
