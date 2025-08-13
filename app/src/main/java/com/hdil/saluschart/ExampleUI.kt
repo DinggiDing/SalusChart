@@ -51,7 +51,9 @@ import com.hdil.saluschart.ui.compose.charts.CalendarChart
 import com.hdil.saluschart.ui.compose.charts.CalendarEntry
 import com.hdil.saluschart.ui.compose.charts.LineChart
 import com.hdil.saluschart.ui.compose.charts.MinimalBarChart
+import com.hdil.saluschart.ui.compose.charts.MinimalGaugeChart
 import com.hdil.saluschart.ui.compose.charts.MinimalLineChart
+import com.hdil.saluschart.ui.compose.charts.MinimalRangeBarChart
 import com.hdil.saluschart.ui.compose.charts.PieChart
 import com.hdil.saluschart.ui.compose.charts.ProgressChart
 import com.hdil.saluschart.ui.compose.charts.RangeBarChart
@@ -83,7 +85,7 @@ fun ExampleUI(modifier: Modifier = Modifier) {
         "BarChart Timestep Transformation"
     )
 
-    var selectedChartType by remember { mutableStateOf<String?>("ScatterPlot 1") }
+    var selectedChartType by remember { mutableStateOf<String?>("LineChart 1") }
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         if (selectedChartType == null) {
@@ -192,33 +194,10 @@ fun LineChart_1() {
             xLabel = "요일",
             lineColor = Primary_Purple,
             strokeWidth = 4f,
+            showPoint = false,
             minY = 0f,
             maxY = 60f,
-            interactionType = InteractionType.POINT,
-        )
-        LineChart(
-            modifier = Modifier.fillMaxWidth().height(250.dp),
-            data = chartPoint2,
-            title = "요일별 활동량",
-            yLabel = "활동량",
-            xLabel = "요일",
-            lineColor = Teel,
-            strokeWidth = 4f,
-            minY = 0f,
-            maxY = 60f,
-            interactionType = InteractionType.POINT,
-        )
-        LineChart(
-            modifier = Modifier.fillMaxWidth().height(250.dp),
-            data = chartPoint3,
-            title = "요일별 활동량",
-            yLabel = "활동량",
-            xLabel = "요일",
-            lineColor = Orange,
-            strokeWidth = 4f,
-            minY = 0f,
-            maxY = 60f,
-            interactionType = InteractionType.POINT,
+            interactionType = InteractionType.TOUCH_AREA,
         )
     }
 }
@@ -389,6 +368,109 @@ fun Minimal_BarChart() {
             }
         }
     }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        shape = androidx.compose.material3.MaterialTheme.shapes.medium,
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.White
+                )
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+            ,
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "일일 심박수",
+                    color = Color.Black,
+                    letterSpacing = 0.2.sp
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "76 ~ 104 bpm",
+                    color = Orange,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
+                    .height(52.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                MinimalRangeBarChart(
+                    data = rangeData,
+                    color = Orange,
+                )
+            }
+        }
+    }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        shape = androidx.compose.material3.MaterialTheme.shapes.medium,
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.White
+                )
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+            ,
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "심박수",
+                    color = Color.Black,
+                    letterSpacing = 0.2.sp
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = "76 ~ 104 bpm",
+                    color = Orange,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 16.dp)
+                    .height(52.dp)
+                    .align(androidx.compose.ui.Alignment.CenterVertically)
+            ) {
+                val singleRangeData = RangeChartPoint(
+                    x = 0f,
+                    yMin = 78f,
+                    yMax = 104f,
+                    label = "Heart Rate"
+                )
+                MinimalGaugeChart(
+                    data = singleRangeData,
+                    containerMin = 60f,  // 정상 심박수 범위 시작
+                    containerMax = 180f, // 정상 심박수 범위 끝
+                    containerColor = Color.LightGray,
+                    rangeColor = Orange,
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -457,7 +539,8 @@ fun ProgressBarChart_1() {
             Color(0xFF00C7BE), // 청록색 (Move)
             Color(0xFFFF6B35), // 주황색 (Exercise)
             Color(0xFF3A86FF)  // 파란색 (Stand)
-        )
+        ),
+        strokeWidth = 80f
     )
 }
 
