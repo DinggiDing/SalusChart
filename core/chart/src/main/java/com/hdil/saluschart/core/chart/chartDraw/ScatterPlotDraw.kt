@@ -57,6 +57,7 @@ object ScatterPlotDraw {
         selectedPointIndex: Int? = null,
         onPointClick: ((Int) -> Unit)? = null,
         interactive: Boolean = false,
+        showPoint: Boolean = true,
         chartType: ChartType,
         showTooltipForIndex: Int? = null
     ) {
@@ -70,7 +71,8 @@ object ScatterPlotDraw {
 
             // 선택 상태 결정: selectedPointIndex가 null이면 모든 포인트 선택됨
             val isSelected = selectedPointIndex == null || selectedPointIndex == index
-            val outerColor = if (isSelected) color else Color.Gray
+            val outerColor = if (showPoint) if (isSelected) color else Color.Gray else if (selectedPointIndex == index) color else Color.Transparent
+            val innerColor = if (showPoint || selectedPointIndex == index) Color.White else Color.Transparent
 
             // 툴팁 표시 여부 결정: showTooltipForIndex 값만 사용
             shouldShowTooltip = (showTooltipForIndex == index)
@@ -97,7 +99,7 @@ object ScatterPlotDraw {
                     Box(
                         modifier = Modifier
                             .size(innerRadius * 2)
-                            .background(color = Color.White, shape = CircleShape)
+                            .background(color = innerColor, shape = CircleShape)
                     )
                 }
                 // 툴팁 표시
@@ -154,7 +156,7 @@ object ScatterPlotDraw {
                     Box(
                         modifier = Modifier
                             .size(innerRadius * 2)
-                            .background(color = Color.White, shape = CircleShape)
+                            .background(color = innerColor, shape = CircleShape)
                     )
 
                     // 외부에서 제어되는 툴팁 표시

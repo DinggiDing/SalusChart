@@ -95,7 +95,7 @@ fun LineChart(
                 )
             }
 
-            if (showPoint) {
+//            if (showPoint) {
             // Conditional interaction based on interactionType parameter
                 when (interactionType) {
                     InteractionType.TOUCH_AREA -> {
@@ -121,6 +121,7 @@ fun LineChart(
                             points = canvasPoints,
                             values = yValues,
                             color = lineColor,
+                            showPoint = showPoint,
                             selectedPointIndex = selectedPointIndex,
                             onPointClick = null,
                             interactive = false,
@@ -135,6 +136,7 @@ fun LineChart(
                             points = canvasPoints,
                             values = yValues,
                             color = lineColor,
+                            showPoint = showPoint,
                             selectedPointIndex = selectedPointIndex,
                             onPointClick = { index ->
                                 // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
@@ -159,7 +161,7 @@ fun LineChart(
                             showTooltipForIndex = null
                         )
                     }
-                }
+//                }
             }
         }
 
