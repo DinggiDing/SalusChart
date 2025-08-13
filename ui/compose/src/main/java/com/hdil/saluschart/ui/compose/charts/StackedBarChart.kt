@@ -142,6 +142,7 @@ fun StackedBarChart(
                                 val segmentColor = colors.getOrNull(segmentIndex) ?: Color.Gray
 
                                 ChartDraw.Bar.BarMarker(
+                                    data = data,
                                     minValues = segmentMinValues,
                                     maxValues = segmentMaxValues,
                                     metrics = metrics,
@@ -160,80 +161,67 @@ fun StackedBarChart(
                         }
                     }
                 }
-//                InteractionType.TOUCH_AREA -> {
-//                    // Area-based interaction - show all segment values in tooltip
-//                    chartMetrics?.let { metrics ->
-//                        val segmentCounts = data.map { it.values.size }
-//                        val maxSegments = segmentCounts.maxOrNull() ?: 0
-//
-//                        if (segmentCounts.any { it != maxSegments }) {
-//                            throw IllegalArgumentException("All StackedChartPoints must have the same number of segments. Found: $segmentCounts")
-//                        }
-//
-//                        // First, render non-interactive visual segments
-//                        for (segmentIndex in 0 until maxSegments) {
-//                            val segmentMinValues = mutableListOf<Float>()
-//                            val segmentMaxValues = mutableListOf<Float>()
-//
-//                            data.forEach { stackedPoint ->
-//                                var cumulativeValue = 0f
-//                                for (i in 0 until segmentIndex) {
-//                                    cumulativeValue += stackedPoint.values.getOrNull(i) ?: 0f
-//                                }
-//                                val segmentValue = stackedPoint.values.getOrNull(segmentIndex) ?: 0f
-//
-//                                segmentMinValues.add(cumulativeValue)
-//                                segmentMaxValues.add(cumulativeValue + segmentValue)
-//                            }
-//
-//                            val hasNonZeroValues = segmentMaxValues.zip(segmentMinValues).any { (max, min) -> max > min }
-//                            if (hasNonZeroValues) {
-//                                val segmentColor = colors.getOrNull(segmentIndex) ?: Color.Gray
-//
-//                                ChartDraw.Bar.BarMarker(
-//                                    minValues = segmentMinValues,
-//                                    maxValues = segmentMaxValues,
-//                                    metrics = metrics,
-//                                    color = segmentColor,
-//                                    barWidthRatio = barWidthRatio,
-//                                    interactive = false,
-//                                    chartType = chartType
-//                                )
-//                            }
-//                        }
-//
-//                        // Create transparent overlay bars for interaction with combined tooltip
-//                        val totalMinValues = List(data.size) { metrics.minY }
-//                        val totalMaxValues = data.map { it.total }
-//                        val combinedTooltipTexts = data.map { stackedPoint ->
-//                            val tooltipParts = mutableListOf<String>()
-//                            stackedPoint.values.forEachIndexed { segmentIndex, value ->
-//                                val label = segmentLabels.getOrNull(segmentIndex) ?: "Segment $segmentIndex"
-//                                if (value > 0f) {
-//                                    tooltipParts.add("$label: ${value.toInt()}")
-//                                }
-//                            }
-//                            tooltipParts.joinToString(", ")
-//                        }
-//
-//                        ChartDraw.Bar.BarMarker(
-//                            minValues = totalMinValues,
-//                            maxValues = totalMaxValues,
-//                            metrics = metrics,
-//                            onBarClick = { index, _ ->
-//                                selectedBarIndex = if (selectedBarIndex == index) null else index
-//                                val stackedPoint = data.getOrNull(index)
-//                                if (stackedPoint != null) {
-//                                    onBarClick?.invoke(index, null, stackedPoint.total)
-//                                }
-//                            },
-//                            chartType = chartType,
-//                            showTooltipForIndex = selectedBarIndex,
-//                            isTouchArea = true,
-//                            customTooltipText = combinedTooltipTexts
-//                        )
-//                    }
-//                }
+                InteractionType.TOUCH_AREA -> {
+                    // Area-based interaction - show all segment values in tooltip
+                    chartMetrics?.let { metrics ->
+                        val segmentCounts = data.map { it.values.size }
+                        val maxSegments = segmentCounts.maxOrNull() ?: 0
+
+                        if (segmentCounts.any { it != maxSegments }) {
+                            throw IllegalArgumentException("All StackedChartPoints must have the same number of segments. Found: $segmentCounts")
+                        }
+                        for (segmentIndex in 0 until maxSegments) {
+                            val segmentMinValues = mutableListOf<Float>()
+                            val segmentMaxValues = mutableListOf<Float>()
+
+                            data.forEach { stackedPoint ->
+                                var cumulativeValue = 0f
+                                for (i in 0 until segmentIndex) {
+                                    cumulativeValue += stackedPoint.values.getOrNull(i) ?: 0f
+                                }
+                                val segmentValue = stackedPoint.values.getOrNull(segmentIndex) ?: 0f
+
+                                segmentMinValues.add(cumulativeValue)
+                                segmentMaxValues.add(cumulativeValue + segmentValue)
+                            }
+
+                            val hasNonZeroValues = segmentMaxValues.zip(segmentMinValues).any { (max, min) -> max > min }
+                            if (hasNonZeroValues) {
+                                val segmentColor = colors.getOrNull(segmentIndex) ?: Color.Gray
+
+                                ChartDraw.Bar.BarMarker(
+                                    data = data,
+                                    minValues = segmentMinValues,
+                                    maxValues = segmentMaxValues,
+                                    metrics = metrics,
+                                    color = segmentColor,
+                                    barWidthRatio = barWidthRatio,
+                                    interactive = false,
+                                    chartType = chartType,
+                                    showTooltipForIndex = selectedBarIndex
+                                )
+                            }
+                        }
+
+                        // Then create transparent touch areas for interaction
+                        ChartDraw.Bar.BarMarker(
+                            data = data,
+                            minValues = List(data.size) { metrics.minY },
+                            maxValues = data.map { it.total },
+                            metrics = metrics,
+                            onBarClick = { index, _ ->
+                                selectedBarIndex = if (selectedBarIndex == index) null else index
+                                val stackedPoint = data.getOrNull(index)
+                                if (stackedPoint != null) {
+                                    onBarClick?.invoke(index, null, stackedPoint.total)
+                                }
+                            },
+                            chartType = chartType,
+                            showTooltipForIndex = selectedBarIndex,
+                            isTouchArea = true
+                        )
+                    }
+                }
                 else -> {
                     // Default: non-interactive rendering
                     chartMetrics?.let { metrics ->
@@ -264,6 +252,7 @@ fun StackedBarChart(
                                 val segmentColor = colors.getOrNull(segmentIndex) ?: Color.Gray
 
                                 ChartDraw.Bar.BarMarker(
+                                    data = data,
                                     minValues = segmentMinValues,
                                     maxValues = segmentMaxValues,
                                     metrics = metrics,

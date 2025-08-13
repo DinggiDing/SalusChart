@@ -135,7 +135,7 @@ object ScatterPlotDraw {
 
                     ChartTooltip(
                         chartPoint = data[index],
-                        modifier = Modifier.offset(x = xDp - pointRadius, y = yDp + pointRadius)
+                        modifier = Modifier.offset(x = xDp - pointRadius, y = yDp + pointRadius),
                     )
                 }
             } else {

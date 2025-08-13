@@ -33,8 +33,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import com.hdil.saluschart.core.chart.BaseChartPoint
+import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.StackedChartPoint
+import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw.formatTickLabel
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import kotlin.Boolean
@@ -95,6 +98,7 @@ object BarChartDraw {
      */
     @Composable
     fun BarMarker(
+        data: List<BaseChartPoint>,
         minValues: List<Float>,
         maxValues: List<Float>,
         metrics: ChartMath.ChartMetrics,
@@ -238,45 +242,14 @@ object BarChartDraw {
                             )
                         }
                     }
-                    // 툴팁 표시
-                    if (shouldShowTooltip) {
-                        val tooltipOffset = when (chartType) {
-                            ChartType.STACKED_BAR -> {
-                                // 스택 바 차트 툴팁: 세그먼트별로 다른 위치에 ��시 (겹침 방지)
-                                val segmentOffsetY = (segmentIndex ?: 0) * 30.dp // 세그먼트마다 30dp씩 아래로 오프셋
-                                Modifier.offset(x = 0.dp, y = segmentOffsetY)
-                            }
-                            ChartType.BAR -> {
-                                Modifier.offset(x = 0.dp, y = (-40).dp)
-                            }
-                            ChartType.RANGE_BAR -> {
-                                Modifier.offset(x = 0.dp, y = (-40).dp)
-                            }
-                            else -> {
-                                Modifier.offset(x = 0.dp, y = (-40).dp)
-                            }
-                        }
+                }
 
-                        Box(
-                            modifier = tooltipOffset
-                                .background(
-                                    color = Color.Black.copy(alpha = 0.8f),
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = tooltipText,
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.align(Alignment.Center),
-                                maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
-                                softWrap = false // 텍스트 래핑 비활성화
-                            )
-                        }
-                    }
+                // 툴팁 표시 (바 박스 외부에 독립적으로 배치)
+                if (shouldShowTooltip) {
+                    ChartTooltip(
+                        chartPoint = data[index],
+                        modifier = Modifier.offset(x = barXDp, y = barYDp - 80.dp)
+                    )
                 }
             } else {
                 // 비상호작용 모드: 순수 시각적 렌더링만 (클릭 불가)
@@ -320,52 +293,16 @@ object BarChartDraw {
                             )
                         }
                     }
+                }
 
-                    // 외부에서 제어되는 툴팁 표시
-                    if (shouldShowTooltip) {
-                        val tooltipOffset = when (chartType) {
-                            ChartType.BAR -> {
-                                // 바 차트 툴팁: 바 위에 표시
-                                Modifier.offset(x = 0.dp, y = (-40).dp)
-                            }
-                            ChartType.LINE -> {
-                                // 라인 차트 툴팁: 바 위에 표시
-                                Modifier.offset(x = 0.dp, y = (-40).dp)
-                            }
-                            ChartType.STACKED_BAR -> {
-                                // 스택 바 차트 툴팁: 바 오른쪽에 표시 (겹침 방지)
-                                Modifier.offset(x = barWidthDp + 8.dp, y = 0.dp)
-                            }
-                            else -> {
-                                // 기본 툴팁 위치: 바 위에 표시
-                                Modifier.offset(x = 0.dp, y = (-40).dp)
-                            }
-                        }
-
-                        Box(
-                            modifier = tooltipOffset
-                                .background(
-                                    color = Color.Black.copy(alpha = 0.8f),
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                                .border(1.dp, Color.Gray, RoundedCornerShape(4.dp))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = tooltipText,
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.align(Alignment.Center),
-                                maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
-                                softWrap = false // 텍스트 래핑 비활성화
-                            )
-                        }
-                    }
+                // 외부에서 제어되는 툴팁 표시 (바 박스 외부에 독립적으로 배치)
+                if (shouldShowTooltip) {
+                    ChartTooltip(
+                        chartPoint = data[index],
+                        modifier = Modifier.offset(x = barXDp, y = barYDp - 80.dp)
+                    )
                 }
             }
         }
     }
-
-
 }
