@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hdil.saluschart.core.chart.ChartPoint
+import com.hdil.saluschart.core.chart.BaseChartPoint
 
 /**
  * 차트 툴팁을 표시하는 컴포저블
@@ -26,7 +26,7 @@ import com.hdil.saluschart.core.chart.ChartPoint
  */
 @Composable
 fun ChartTooltip(
-    chartPoint: ChartPoint,
+    chartPoint: BaseChartPoint,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     modifier: Modifier = Modifier

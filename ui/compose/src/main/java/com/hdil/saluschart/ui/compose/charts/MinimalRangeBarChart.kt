@@ -65,6 +65,7 @@ fun MinimalRangeBarChart(
         }
         chartMetrics?.let { metrics ->
             ChartDraw.Bar.BarMarker(
+                data = data,
                 minValues = data.map { it.yMin },
                 maxValues = data.map { it.yMax },
                 metrics = metrics,

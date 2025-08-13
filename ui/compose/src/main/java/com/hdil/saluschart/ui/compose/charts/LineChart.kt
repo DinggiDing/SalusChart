@@ -102,6 +102,7 @@ fun LineChart(
                         // BarMarker interactions (invisible bars for easier touching)
                         chartMetrics?.let { metrics ->
                             ChartDraw.Bar.BarMarker(
+                                data = data,
                                 minValues = List(yValues.size) { metrics.minY },
                                 maxValues = yValues,
                                 metrics = metrics,
