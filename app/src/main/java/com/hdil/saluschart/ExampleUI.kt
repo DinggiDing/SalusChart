@@ -147,7 +147,8 @@ fun BarChart_1() {
         barWidthRatio = 0.5f,
         labelTextSize = 28f,
         tooltipTextSize = 32f,
-        interactionType = InteractionType.TOUCH_AREA
+        interactionType = InteractionType.TOUCH_AREA,
+        yPosition = "left",
     )
 }
 
@@ -165,7 +166,8 @@ fun BarChart_2() {
         labelTextSize = 28f,
         tooltipTextSize = 32f,
         interactionType = InteractionType.BAR,
-        showLabel = true
+        showLabel = true,
+        yPosition = "right",
     )
 }
 
@@ -198,6 +200,7 @@ fun LineChart_1() {
             minY = 0f,
             maxY = 60f,
             interactionType = InteractionType.TOUCH_AREA,
+            yPosition = "left",
         )
     }
 }
@@ -216,6 +219,7 @@ fun LineChart_2() {
         minY = 0f,
         maxY = 60f,
         interactionType = InteractionType.POINT,
+        yPosition = "right",
     )
 }
 
@@ -267,7 +271,8 @@ fun ScatterPlot_1() {
         title = "요일별 활동량",
         yLabel = "활동량",
         xLabel = "요일",
-        interactionType = InteractionType.POINT
+        interactionType = InteractionType.POINT,
+        yPosition = "right",
     )
 }
 
@@ -483,12 +488,12 @@ fun StackedBarChart_1() {
         yLabel = "영양소 (g)",
         xLabel = "요일",
         showLegend = true,
+        yPosition = "right",
         colors = listOf(
             Color(0xFF2196F3), // 파랑 (단백질)
             Color(0xFFFF9800), // 주황 (지방)
             Color(0xFF4CAF50)  // 초록 (탄수화물)
-        ),
-        interactionType = InteractionType.TOUCH_AREA
+        )
     )
 }
 

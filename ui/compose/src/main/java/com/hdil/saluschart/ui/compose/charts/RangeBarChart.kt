@@ -34,6 +34,7 @@ fun RangeBarChart(
     title: String = "Range Bar Chart",
     barColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
     barWidthRatio: Float = 0.6f,
+    yPosition: String = "left", // Y축 위치 ("left" 또는 "right")
     interactionType: InteractionType = InteractionType.BAR,
     onBarClick: ((Int, RangeChartPoint) -> Unit)? = null,
     chartType: ChartType = ChartType.RANGE_BAR
@@ -55,8 +56,8 @@ fun RangeBarChart(
                 val metrics = ChartMath.RangeBar.computeRangeMetrics(size, data)
                 chartMetrics = metrics
 
-                ChartDraw.drawGrid(this, size, metrics)
-                ChartDraw.drawYAxis(this, metrics)
+                ChartDraw.drawGrid(this, size, metrics, yPosition)
+                ChartDraw.drawYAxis(this, metrics, yPosition)
                 ChartDraw.Bar.drawBarXAxisLabels(drawContext, labels, metrics)
             }
 

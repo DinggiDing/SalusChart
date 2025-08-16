@@ -42,6 +42,7 @@ fun LineChart(
     maxY: Float? = null,                    // 사용자 지정 최대 Y값
     labelTextSize: Float = 28f,
     tooltipTextSize: Float = 32f,
+    yPosition: String = "left",             // Y축 위치 ("left" 또는 "right")
     interactionType: InteractionType = InteractionType.POINT,
     showPoint: Boolean = false, // 포인트 표시 여부
     showLegend: Boolean = false,
@@ -85,7 +86,7 @@ fun LineChart(
                 canvasSize = size
                 chartMetrics = metrics
 
-                ChartDraw.drawGrid(this, size, metrics)
+                ChartDraw.drawGrid(this, size, metrics, yPosition)
                 ChartDraw.Line.drawLine(this, points, lineColor, strokeWidth)
                 ChartDraw.Line.drawXAxisLabels(
                     ctx = drawContext,

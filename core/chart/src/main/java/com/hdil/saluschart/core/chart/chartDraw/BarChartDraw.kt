@@ -62,7 +62,8 @@ object BarChartDraw {
         val barWidth = metrics.chartWidth / labels.size / 2
         val spacing = metrics.chartWidth / labels.size
         labels.forEachIndexed { i, label ->
-            val x = metrics.paddingX + barWidth + i * spacing  // 바 너비의 절반만큼 오른쪽으로 시프트
+            // 차트 영역의 시작점(paddingX)에서 바의 중심까지 계산
+            val x = metrics.paddingX + barWidth + i * spacing
             ctx.canvas.nativeCanvas.drawText(
                 label,
                 x,
