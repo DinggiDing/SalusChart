@@ -44,7 +44,8 @@ fun BarChart(
     interactionType: InteractionType = InteractionType.BAR, // 상호작용 타입
     onBarClick: ((Int, Float) -> Unit)? = null,  // 바 클릭 콜백
     showLabel: Boolean = false,
-    chartType: ChartType = ChartType.BAR // 차트 타입 (툴팁 위치 결정용)
+    chartType: ChartType = ChartType.BAR, // 차트 타입 (툴팁 위치 결정용)
+    maxXTicksLimit: Int? = null             // X축에 표시할 최대 라벨 개수 (null이면 모든 라벨 표시)
 ) {
     if (data.isEmpty()) return
 
@@ -85,7 +86,8 @@ fun BarChart(
                     ctx = drawContext,
                     labels = xLabels,
                     metrics = metrics,
-                    textSize = labelTextSize
+                    textSize = labelTextSize,
+                    maxXTicksLimit = maxXTicksLimit
                 )
             }
 

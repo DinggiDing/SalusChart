@@ -6,14 +6,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -49,20 +58,29 @@ object GaugeChartDraw {
         containerColor: Color,
         rangeColor: Color
     ) {
+        val density = LocalDensity.current
+        var containerWidth by remember { mutableStateOf(0.dp) }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(24.dp)
+                .onGloballyPositioned { coordinates ->
+                    containerWidth = with(density) { coordinates.size.width.toDp() }
+                }
         ) {
             val containerRange = containerMax - containerMin
 
-            // 정규화된 위치와 크기 계산 (0.0 ~ 1.0 비율)
+            // 안전한 비율 계산
             val startRatio = if (containerRange > 0) {
-                (dataMin - containerMin) / containerRange
+                ((dataMin - containerMin) / containerRange).coerceIn(0f, 1f)
             } else 0f
-            val widthRatio = if (containerRange > 0) {
-                (dataMax - dataMin) / containerRange
+
+            val endRatio = if (containerRange > 0) {
+                ((dataMax - containerMin) / containerRange).coerceIn(0f, 1f)
             } else 0f
+
+            val widthRatio = (endRatio - startRatio).coerceAtLeast(0f)
 
             // 컨테이너 바 (배경)
             ContainerBar(
@@ -72,13 +90,15 @@ object GaugeChartDraw {
                     .height(24.dp)
             )
 
-            // 범위 바 (실제 데이터 범위)
-            RangeBar(
-                rangeColor = rangeColor,
-                startRatio = startRatio,
-                widthRatio = widthRatio,
-                modifier = Modifier.height(24.dp)
-            )
+            // 범위 바 (실제 데이터 범위) - 컨테이너 내부에 정확히 배치
+            if (widthRatio > 0f && containerWidth > 0.dp) {
+                RangeBar(
+                    rangeColor = rangeColor,
+                    startOffset = containerWidth * startRatio,
+                    barWidth = containerWidth * widthRatio,
+                    modifier = Modifier.height(24.dp)
+                )
+            }
         }
     }
 
@@ -103,14 +123,14 @@ object GaugeChartDraw {
     @Composable
     private fun RangeBar(
         rangeColor: Color,
-        startRatio: Float,
-        widthRatio: Float,
+        startOffset: Dp,
+        barWidth: Dp,
         modifier: Modifier = Modifier
     ) {
         Box(
             modifier = modifier
-                .fillMaxWidth(widthRatio)
-                .offset(x = (300.dp * startRatio)) // 기본 너비 기준으로 오프셋 계산
+                .width(barWidth)
+                .offset(x = startOffset)
                 .clip(RoundedCornerShape(8.dp))
                 .background(rangeColor)
         )

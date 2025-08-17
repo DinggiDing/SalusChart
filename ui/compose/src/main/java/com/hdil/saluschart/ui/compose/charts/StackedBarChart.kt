@@ -75,7 +75,8 @@ fun StackedBarChart(
     yPosition: String = "left", // Y축 위치 ("left" 또는 "right")
     interactionType: InteractionType = InteractionType.STACKED_BAR,
     onBarClick: ((barIndex: Int, segmentIndex: Int?, value: Float) -> Unit)? = null,
-    chartType: ChartType = ChartType.STACKED_BAR // 차트 타입 (툴팁 위치 결정용)
+    chartType: ChartType = ChartType.STACKED_BAR, // 차트 타입 (툴팁 위치 결정용)
+    maxXTicksLimit: Int? = null             // X축에 표시할 최대 라벨 개수 (null이면 모든 라벨 표시)
 ) {
     if (data.isEmpty()) return
 
@@ -116,7 +117,7 @@ fun StackedBarChart(
                         ChartDraw.drawGrid(this, size, metrics, yPosition)
                         ChartDraw.drawXAxis(this, metrics)
                         ChartDraw.drawYAxis(this, metrics, yPosition)
-                        ChartDraw.Bar.drawBarXAxisLabels(drawContext, xLabels, metrics)
+                        ChartDraw.Bar.drawBarXAxisLabels(drawContext, xLabels, metrics, maxXTicksLimit = maxXTicksLimit)
                     }
 
                     // 상호작용 처리
@@ -316,7 +317,7 @@ fun StackedBarChart(
                         ChartDraw.drawGrid(this, size, metrics, yPosition)
                         ChartDraw.drawXAxis(this, metrics)
                         ChartDraw.drawYAxis(this, metrics, yPosition)
-                        ChartDraw.Bar.drawBarXAxisLabels(drawContext, xLabels, metrics)
+                        ChartDraw.Bar.drawBarXAxisLabels(drawContext, xLabels, metrics, maxXTicksLimit = maxXTicksLimit)
                     }
 
                     // 상호작용 처리

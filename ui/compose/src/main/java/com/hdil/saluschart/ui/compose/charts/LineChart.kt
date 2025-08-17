@@ -47,7 +47,8 @@ fun LineChart(
     showPoint: Boolean = false, // 포인트 표시 여부
     showLegend: Boolean = false,
     legendPosition: LegendPosition = LegendPosition.BOTTOM,
-    chartType : ChartType = ChartType.LINE // 차트 타입 (툴팁 위치 결정용
+    chartType : ChartType = ChartType.LINE, // 차트 타입 (툴팁 위치 결정용
+    maxXTicksLimit: Int? = null             // X축에 표시할 최대 라벨 개수 (null이면 모든 라벨 표시)
 ) {
     if (data.isEmpty()) return
 
@@ -92,7 +93,8 @@ fun LineChart(
                     ctx = drawContext,
                     labels = xLabels.map { it.toString() },
                     metrics = metrics,
-                    textSize = labelTextSize
+                    textSize = labelTextSize,
+                    maxXTicksLimit = maxXTicksLimit
                 )
             }
 

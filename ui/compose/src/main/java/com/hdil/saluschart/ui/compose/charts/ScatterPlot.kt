@@ -37,7 +37,8 @@ fun ScatterPlot(
     tooltipTextSize: Float = 32f,        // 툴팁 텍스트 크기
     yPosition: String = "left",          // Y축 위치 ("left" 또는 "right")
     interactionType: InteractionType = InteractionType.POINT,
-    chartType: ChartType = ChartType.SCATTERPLOT // 차트 타입 (툴팁 위치 결정용
+    chartType: ChartType = ChartType.SCATTERPLOT, // 차트 타입 (툴팁 위치 결정용
+    maxXTicksLimit: Int? = null             // X축에 표시할 최대 라벨 개수 (null이면 모든 라벨 표시)
 ) {
     if (data.isEmpty()) return
 
@@ -66,7 +67,7 @@ fun ScatterPlot(
                 chartMetrics = metrics
 
                 ChartDraw.drawGrid(this, size, metrics, yPosition)
-                ChartDraw.Line.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics)
+                ChartDraw.Line.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics, maxXTicksLimit = maxXTicksLimit)
             }
 
             // Conditional interaction based on interactionType parameter
