@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.InteractionType
+import com.hdil.saluschart.core.chart.PointType
 import com.hdil.saluschart.core.chart.ProgressChartPoint
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.core.chart.StackedChartPoint
@@ -195,6 +196,7 @@ fun LineChart_1() {
             lineColor = Primary_Purple,
             strokeWidth = 4f,
             showPoint = false,
+            showValue = true,
             minY = 0f,
             maxY = 60f,
             interactionType = InteractionType.TOUCH_AREA,
@@ -267,7 +269,8 @@ fun ScatterPlot_1() {
         title = "요일별 활동량",
         yLabel = "활동량",
         xLabel = "요일",
-        interactionType = InteractionType.POINT
+        interactionType = InteractionType.POINT,
+        pointType = PointType.Triangle
     )
 }
 

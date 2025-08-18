@@ -44,6 +44,8 @@ fun LineChart(
     tooltipTextSize: Float = 32f,
     interactionType: InteractionType = InteractionType.POINT,
     showPoint: Boolean = false, // 포인트 표시 여부
+    pointRadius: Pair<Dp, Dp> = Pair(4.dp, 2.dp), // 포인트 외부 반지름, 내부 반지름
+    showValue: Boolean = false, // 값 표시 여부
     showLegend: Boolean = false,
     legendPosition: LegendPosition = LegendPosition.BOTTOM,
     chartType : ChartType = ChartType.LINE // 차트 타입 (툴팁 위치 결정용
@@ -95,73 +97,80 @@ fun LineChart(
                 )
             }
 
-//            if (showPoint) {
             // Conditional interaction based on interactionType parameter
-                when (interactionType) {
-                    InteractionType.TOUCH_AREA -> {
-                        // BarMarker interactions (invisible bars for easier touching)
-                        chartMetrics?.let { metrics ->
-                            ChartDraw.Bar.BarMarker(
-                                data = data,
-                                minValues = List(yValues.size) { metrics.minY },
-                                maxValues = yValues,
-                                metrics = metrics,
-                                useLineChartPositioning = true,
-                                onBarClick = { index, tooltipText ->
-                                    selectedPointIndex =
-                                        if (selectedPointIndex == index) null else index
-                                },
-                                isTouchArea = true,
-                                chartType = chartType,
-                                showTooltipForIndex = selectedPointIndex
-                            )
-                        }
-                        ChartDraw.Scatter.PointMarker(
+            when (interactionType) {
+                InteractionType.TOUCH_AREA -> {
+                    // BarMarker interactions (invisible bars for easier touching)
+                    chartMetrics?.let { metrics ->
+                        ChartDraw.Bar.BarMarker(
                             data = data,
-                            points = canvasPoints,
-                            values = yValues,
-                            color = lineColor,
-                            showPoint = showPoint,
-                            selectedPointIndex = selectedPointIndex,
-                            onPointClick = null,
-                            interactive = false,
-                            chartType = chartType,
-                            showTooltipForIndex = selectedPointIndex
-                        )
-                    }
-                    InteractionType.POINT -> {
-                        // PointMarker interactions (interactive data points)
-                        ChartDraw.Scatter.PointMarker(
-                            data = data,
-                            points = canvasPoints,
-                            values = yValues,
-                            color = lineColor,
-                            showPoint = showPoint,
-                            selectedPointIndex = selectedPointIndex,
-                            onPointClick = { index ->
-                                // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
-                                selectedPointIndex = if (selectedPointIndex == index) null else index
+                            minValues = List(yValues.size) { metrics.minY },
+                            maxValues = yValues,
+                            metrics = metrics,
+                            useLineChartPositioning = true,
+                            onBarClick = { index, tooltipText ->
+                                selectedPointIndex =
+                                    if (selectedPointIndex == index) null else index
                             },
-                            interactive = true,
+                            isTouchArea = true,
                             chartType = chartType,
                             showTooltipForIndex = selectedPointIndex
                         )
                     }
-                    else -> {
-                        // Non-interactive rendering
-                        ChartDraw.Scatter.PointMarker(
-                            data = data,
-                            points = canvasPoints,
-                            values = yValues,
-                            color = lineColor,
-                            selectedPointIndex = selectedPointIndex,
-                            onPointClick = null,
-                            interactive = false,
-                            chartType = chartType,
-                            showTooltipForIndex = null
-                        )
-                    }
-//                }
+                    ChartDraw.Scatter.PointMarker(
+                        data = data,
+                        points = canvasPoints,
+                        values = yValues,
+                        color = lineColor,
+                        showPoint = showPoint,
+                        selectedPointIndex = selectedPointIndex,
+                        onPointClick = null,
+                        pointRadius = pointRadius.first,
+                        innerRadius = pointRadius.second,
+                        interactive = false,
+                        chartType = chartType,
+                        showValue = showValue,
+                        showTooltipForIndex = selectedPointIndex
+                    )
+                }
+                InteractionType.POINT -> {
+                    // PointMarker interactions (interactive data points)
+                    ChartDraw.Scatter.PointMarker(
+                        data = data,
+                        points = canvasPoints,
+                        values = yValues,
+                        color = lineColor,
+                        showPoint = showPoint,
+                        selectedPointIndex = selectedPointIndex,
+                        onPointClick = { index ->
+                            // 이미 선택된 포인트를 다시 클릭하면 선택 해제(null로 설정)
+                            selectedPointIndex = if (selectedPointIndex == index) null else index
+                        },
+                        pointRadius = pointRadius.first,
+                        innerRadius = pointRadius.second,
+                        interactive = true,
+                        chartType = chartType,
+                        showValue = showValue,
+                        showTooltipForIndex = selectedPointIndex
+                    )
+                }
+                else -> {
+                    // Non-interactive rendering
+                    ChartDraw.Scatter.PointMarker(
+                        data = data,
+                        points = canvasPoints,
+                        values = yValues,
+                        color = lineColor,
+                        selectedPointIndex = selectedPointIndex,
+                        onPointClick = null,
+                        pointRadius = pointRadius.first,
+                        innerRadius = pointRadius.second,
+                        interactive = false,
+                        showValue = showValue,
+                        chartType = chartType,
+                        showTooltipForIndex = null
+                    )
+                }
             }
         }
 

@@ -25,6 +25,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.InteractionType
+import com.hdil.saluschart.core.chart.PointType
 
 @Composable
 fun ScatterPlot(
@@ -34,6 +35,7 @@ fun ScatterPlot(
     yLabel: String = "Y Axis",
     title: String = "Scatter Plot Example",
     pointColor: Color = com.hdil.saluschart.ui.theme.ChartColor.Default,
+    pointType: PointType = PointType.Circle, // 포인트 타입 (Circle, Square, Triangle 등)
     tooltipTextSize: Float = 32f,        // 툴팁 텍스트 크기
     interactionType: InteractionType = InteractionType.POINT,
     chartType: ChartType = ChartType.SCATTERPLOT // 차트 타입 (툴팁 위치 결정용
@@ -92,6 +94,7 @@ fun ScatterPlot(
                         values = yValues,
                         selectedPointIndex = selectedPointIndex,
                         onPointClick = null, // No point interaction in this mode
+                        pointType = pointType,
                         interactive = false, // Visual only, no interactions
                         chartType = chartType,
                         showTooltipForIndex = selectedPointIndex
@@ -109,6 +112,7 @@ fun ScatterPlot(
                             // Handle point click - toggle selection
                             selectedPointIndex = if (selectedPointIndex == index) null else index
                         },
+                        pointType = pointType,
                         chartType = chartType,
                         showTooltipForIndex = selectedPointIndex,
                         pointRadius = 8.dp,
@@ -124,6 +128,7 @@ fun ScatterPlot(
                         values = yValues,
                         selectedPointIndex = null, // No selection in non-interactive mode
                         onPointClick = null,
+                        pointType = pointType,
                         chartType = chartType,
                         showTooltipForIndex = null
                     )
