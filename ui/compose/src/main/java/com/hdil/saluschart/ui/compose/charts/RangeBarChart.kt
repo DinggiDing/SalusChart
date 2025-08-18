@@ -34,9 +34,11 @@ fun RangeBarChart(
     title: String = "Range Bar Chart",
     barColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
     barWidthRatio: Float = 0.6f,
+    yPosition: String = "left", // Y축 위치 ("left" 또는 "right")
     interactionType: InteractionType = InteractionType.BAR,
     onBarClick: ((Int, RangeChartPoint) -> Unit)? = null,
-    chartType: ChartType = ChartType.RANGE_BAR
+    chartType: ChartType = ChartType.RANGE_BAR,
+    maxXTicksLimit: Int? = null             // X축에 표시할 최대 라벨 개수 (null이면 모든 라벨 표시)
 ) {
     if (data.isEmpty()) return
     
@@ -55,9 +57,9 @@ fun RangeBarChart(
                 val metrics = ChartMath.RangeBar.computeRangeMetrics(size, data)
                 chartMetrics = metrics
 
-                ChartDraw.drawGrid(this, size, metrics)
-                ChartDraw.drawYAxis(this, metrics)
-                ChartDraw.Bar.drawBarXAxisLabels(drawContext, labels, metrics)
+                ChartDraw.drawGrid(this, size, metrics, yPosition)
+                ChartDraw.drawYAxis(this, metrics, yPosition)
+                ChartDraw.Bar.drawBarXAxisLabels(drawContext, labels, metrics, maxXTicksLimit = maxXTicksLimit)
             }
 
             // Conditional interaction based on interactionType parameter

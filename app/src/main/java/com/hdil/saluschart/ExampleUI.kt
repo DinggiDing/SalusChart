@@ -83,7 +83,8 @@ fun ExampleUI(modifier: Modifier = Modifier) {
         "Stacked Bar Chart",
         "Range Bar Chart",
         "Progress Bar Chart",
-        "BarChart Timestep Transformation"
+        "BarChart Timestep Transformation",
+        "X-Axis Tick Reduction Demo"
     )
 
     var selectedChartType by remember { mutableStateOf<String?>("LineChart 1") }
@@ -129,6 +130,7 @@ fun ExampleUI(modifier: Modifier = Modifier) {
                 "Range Bar Chart" -> RangeBarChart_1()
                 "Progress Bar Chart" -> ProgressBarChart_1()
                 "BarChart Timestep Transformation" -> TimeStepBarChart()
+                "X-Axis Tick Reduction Demo" -> XAxisTickReductionDemo()
                 else -> Text("Unknown Chart Type")
             }
         }
@@ -148,7 +150,8 @@ fun BarChart_1() {
         barWidthRatio = 0.5f,
         labelTextSize = 28f,
         tooltipTextSize = 32f,
-        interactionType = InteractionType.TOUCH_AREA
+        interactionType = InteractionType.TOUCH_AREA,
+        yPosition = "left",
     )
 }
 
@@ -166,7 +169,8 @@ fun BarChart_2() {
         labelTextSize = 28f,
         tooltipTextSize = 32f,
         interactionType = InteractionType.BAR,
-        showLabel = true
+        showLabel = true,
+        yPosition = "right",
     )
 }
 
@@ -200,6 +204,7 @@ fun LineChart_1() {
             minY = 0f,
             maxY = 60f,
             interactionType = InteractionType.TOUCH_AREA,
+            yPosition = "left",
         )
     }
 }
@@ -218,6 +223,7 @@ fun LineChart_2() {
         minY = 0f,
         maxY = 60f,
         interactionType = InteractionType.POINT,
+        yPosition = "right",
     )
 }
 
@@ -271,6 +277,7 @@ fun ScatterPlot_1() {
         xLabel = "요일",
         interactionType = InteractionType.POINT,
         pointType = PointType.Triangle
+        yPosition = "right",
     )
 }
 
@@ -398,7 +405,7 @@ fun Minimal_BarChart() {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "76 ~ 104 bpm",
+                    text = "78 ~ 104 bpm",
                     color = Orange,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 4.dp)
@@ -445,7 +452,7 @@ fun Minimal_BarChart() {
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "76 ~ 104 bpm",
+                    text = "78 ~ 104 bpm",
                     color = Orange,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                     modifier = Modifier.padding(bottom = 4.dp)
@@ -467,7 +474,7 @@ fun Minimal_BarChart() {
                 MinimalGaugeChart(
                     data = singleRangeData,
                     containerMin = 60f,  // 정상 심박수 범위 시작
-                    containerMax = 180f, // 정상 심박수 범위 끝
+                    containerMax = 120f, // 정상 심박수 범위 끝
                     containerColor = Color.LightGray,
                     rangeColor = Orange,
                 )
@@ -486,12 +493,12 @@ fun StackedBarChart_1() {
         yLabel = "영양소 (g)",
         xLabel = "요일",
         showLegend = true,
+        yPosition = "right",
         colors = listOf(
             Color(0xFF2196F3), // 파랑 (단백질)
             Color(0xFFFF9800), // 주황 (지방)
             Color(0xFF4CAF50)  // 초록 (탄수화물)
-        ),
-        interactionType = InteractionType.TOUCH_AREA
+        )
     )
 }
 
@@ -545,6 +552,78 @@ fun ProgressBarChart_1() {
         ),
         strokeWidth = 80f
     )
+}
+
+@Composable
+fun XAxisTickReductionDemo() {
+    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+        Text(
+            text = "X-Axis Tick Reduction Algorithm Demo",
+            fontSize = 20.sp,
+            color = Color.Black,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        
+        // Create dense data with many labels (50 points)
+        val denseDataLabels = (1..50).map { "Day $it" }
+        val denseDataValues = (1..50).map { (20..80).random().toFloat() }
+        val denseChartPoints = denseDataLabels.mapIndexed { index, label ->
+            ChartPoint(
+                x = index.toFloat(),
+                y = denseDataValues[index],
+                label = label
+            )
+        }
+        
+        Text(
+            text = "Without Tick Reduction (50 labels)",
+            fontSize = 16.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        BarChart(
+            modifier = Modifier.fillMaxWidth().height(250.dp),
+            data = denseChartPoints,
+            title = "Dense Data - All Labels (Overlapping)",
+            barColor = Color.Red,
+            barWidthRatio = 0.8f,
+            labelTextSize = 20f, // Normal size to show overlap
+            maxXTicksLimit = null // Show all labels
+        )
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(
+            text = "With Tick Reduction (Max 10 labels)",
+            fontSize = 16.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        BarChart(
+            modifier = Modifier.fillMaxWidth().height(250.dp),
+            data = denseChartPoints,
+            title = "Dense Data - Reduced Labels (Clean)",
+            barColor = Primary_Purple,
+            barWidthRatio = 0.8f,
+            labelTextSize = 20f,
+            maxXTicksLimit = 10 // Limit to 10 labels
+        )
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(
+            text = "Line Chart with Tick Reduction (Max 8 labels)",
+            fontSize = 16.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        LineChart(
+            modifier = Modifier.fillMaxWidth().height(250.dp),
+            data = denseChartPoints,
+            title = "Dense Line Chart - Reduced Labels",
+            lineColor = Orange,
+            strokeWidth = 3f,
+            labelTextSize = 20f,
+            maxXTicksLimit = 8 // Limit to 8 labels
+        )
+    }
 }
 
 @Composable
@@ -617,15 +696,16 @@ fun TimeStepBarChart() {
                     else -> TimeUnitGroup.HOUR
                 },
             ).toChartPoints(),
-            title = "걸음 수 (${selectedOption})",
+            title = "걸음 수 (${selectedOption}) - Smart Label Reduction",
             barColor = Primary_Purple,
             barWidthRatio = 0.5f,
-            labelTextSize = when (selectedOption) {
-                "시간대별" -> 0f
-                "일별" -> 20f
-                "주별" -> 28f
-                else -> 0f
-            } // X축 레이블 텍스트 비활성화 (겹침 방지)
+            labelTextSize = 20f, // Now we can use normal text size
+            maxXTicksLimit = when (selectedOption) {
+                "시간대별" -> 8  // Reduce dense hourly data to 8 labels
+                "일별" -> null // Show all for daily data (not too dense)
+                "주별" -> null // Show all for weekly data
+                else -> 8
+            }
         )
     }
 }
