@@ -276,7 +276,7 @@ fun ScatterPlot_1() {
         yLabel = "활동량",
         xLabel = "요일",
         interactionType = InteractionType.POINT,
-        pointType = PointType.Triangle
+        pointType = PointType.Triangle,
         yPosition = "right",
     )
 }
