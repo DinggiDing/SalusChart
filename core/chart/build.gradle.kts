@@ -65,4 +65,7 @@ dependencies {
 
     // Testing dependencies
     testImplementation(libs.junit)
+
+    // compose shape
+    implementation("androidx.graphics:graphics-shapes:1.0.1")
 }

@@ -28,3 +28,10 @@ enum class InteractionType {
     BAR,           // Bar touching using BarMarker()
     STACKED_BAR;   // Individual segment touching in stacked bar charts
 }
+
+
+enum class PointType {
+    Circle,      // 원형 포인트
+    Square,      // 사각형 포인트
+    Triangle,    // 삼각형 포인트
+}
