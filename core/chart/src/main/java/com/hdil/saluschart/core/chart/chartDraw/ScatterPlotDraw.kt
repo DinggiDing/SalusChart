@@ -137,7 +137,9 @@ object ScatterPlotDraw {
             ) {
                 when (pointType) {
                     PointType.Circle -> // 바깥쪽 원
-                        Box {
+                        Box(
+                            contentAlignment = Alignment.Center
+                        ) {
                             Box(
                                 modifier = Modifier
                                     .size(pointRadius * 2)
