@@ -74,8 +74,14 @@ object ChartDraw {
 
             // Y축 레이블 위치를 yPosition에 따라 결정
             val labelX = when (yPosition) {
-                "right" -> yAxisX + 10f // 오른쪽 Y축 라인의 오른쪽에 위치
-                else -> 10f // 기본값: 왼쪽 위치
+                "right" -> yAxisX + 20f // 오른쪽 Y축 라인의 오른쪽에 위치
+                else -> 20f // 기본값: 왼쪽 위치
+            }
+
+            // Y축 레이블 정렬을 yPosition에 따라 결정
+            var textAlignDirection = when (yPosition) {
+                "right" -> android.graphics.Paint.Align.LEFT // 오른쪽 Y축일 때는 왼쪽 정렬
+                else -> android.graphics.Paint.Align.RIGHT // 왼쪽 Y축일 때는 오른쪽 정렬
             }
 
             drawScope.drawContext.canvas.nativeCanvas.drawText(
@@ -85,7 +91,7 @@ object ChartDraw {
                 android.graphics.Paint().apply {
                     color = android.graphics.Color.DKGRAY
                     textSize = 28f
-                    textAlign = android.graphics.Paint.Align.LEFT
+                    textAlign = textAlignDirection
                 }
             )
         }
