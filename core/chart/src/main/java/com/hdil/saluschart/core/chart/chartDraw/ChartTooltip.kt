@@ -1,5 +1,6 @@
 package com.hdil.saluschart.core.chart.chartDraw
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ fun ChartTooltip(
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     modifier: Modifier = Modifier
 ) {
+
     Box(
         modifier = modifier
             .shadow(
@@ -52,11 +54,23 @@ fun ChartTooltip(
                     color = textColor
                 )
             }
-            Text(
-                text = "값: ${chartPoint.y}",
-                fontSize = 12.sp,
-                color = textColor
-            )
+            when(chartPoint) {
+                is com.hdil.saluschart.core.chart.StackedChartPoint -> {
+                    chartPoint.values.forEachIndexed { index, value ->
+                        Text(
+                            text = "값 $index: $value",
+                            fontSize = 12.sp,
+                            color = textColor
+                        )
+                    }
+                } else -> {
+                    Text(
+                        text = "값: ${chartPoint.y}",
+                        fontSize = 12.sp,
+                        color = textColor
+                    )
+                }
+            }
         }
     }
 }
