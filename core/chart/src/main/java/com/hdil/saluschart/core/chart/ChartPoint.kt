@@ -58,7 +58,7 @@ data class StackedChartPoint(
 ) : BaseChartPoint {
     val total: Float = values.sum()
 
-    override val y: Float get() = total
+    override val y: Float get() = total // TODO : y값을 어떻게 정의할지 논의 필요 (현재는 그냥 총합으로 설정)
     
     override fun toString(): String {
         return "StackedChartPoint(x=$x, values=$values, total=$total, label=$label, isSelected=$isSelected)"
