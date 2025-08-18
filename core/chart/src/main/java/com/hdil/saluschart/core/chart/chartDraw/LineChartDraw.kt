@@ -42,17 +42,30 @@ object LineChartDraw {
      * @param metrics 차트 메트릭 정보
      * @param centered 텍스트를 중앙 정렬할지 여부 (기본값: true)
      * @param textSize 레이블 텍스트 크기 (기본값: 28f)
+     * @param maxXTicksLimit X축에 표시할 최대 라벨 개수 (null이면 모든 라벨 표시)
      */
     fun drawXAxisLabels(
         ctx: DrawContext,
         labels: List<String>,
         metrics: ChartMath.ChartMetrics,
         centered: Boolean = true,
-        textSize: Float = 28f
+        textSize: Float = 28f,
+        maxXTicksLimit: Int? = null
     ) {
-        val spacing = metrics.chartWidth / (labels.size - 1)
-        labels.forEachIndexed { i, label ->
-            val x = metrics.paddingX + i * spacing
+        // 틱 개수 제한이 설정된 경우 라벨을 줄임
+        val (displayLabels, displayIndices) = if (maxXTicksLimit != null) {
+            ChartMath.reduceXAxisTicks(labels, maxXTicksLimit)
+        } else {
+            Pair(labels, labels.indices.toList())
+        }
+        
+        val totalLabels = labels.size
+        val spacing = if (totalLabels > 1) metrics.chartWidth / (totalLabels - 1) else 0f
+        
+        displayLabels.forEachIndexed { displayIndex, label ->
+            // 원본 라벨 목록에서의 실제 인덱스를 사용
+            val originalIndex = displayIndices[displayIndex]
+            val x = metrics.paddingX + originalIndex * spacing
             ctx.canvas.nativeCanvas.drawText(
                 label,
                 x,

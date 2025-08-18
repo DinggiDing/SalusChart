@@ -51,18 +51,32 @@ object BarChartDraw {
      * @param metrics 차트 메트릭 정보
      * @param centered 텍스트를 중앙 정렬할지 여부 (기본값: true)
      * @param textSize 레이블 텍스트 크기 (기본값: 28f)
+     * @param maxXTicksLimit X축에 표시할 최대 라벨 개수 (null이면 모든 라벨 표시)
      */
     fun drawBarXAxisLabels(
         ctx: DrawContext,
         labels: List<String>,
         metrics: ChartMath.ChartMetrics,
         centered: Boolean = true,
-        textSize: Float = 28f
+        textSize: Float = 28f,
+        maxXTicksLimit: Int? = null
     ) {
-        val barWidth = metrics.chartWidth / labels.size / 2
-        val spacing = metrics.chartWidth / labels.size
-        labels.forEachIndexed { i, label ->
-            val x = metrics.paddingX + barWidth + i * spacing  // 바 너비의 절반만큼 오른쪽으로 시프트
+        // 틱 개수 제한이 설정된 경우 라벨을 줄임
+        val (displayLabels, displayIndices) = if (maxXTicksLimit != null) {
+            ChartMath.reduceXAxisTicks(labels, maxXTicksLimit)
+        } else {
+            Pair(labels, labels.indices.toList())
+        }
+        
+        val totalLabels = labels.size
+        val barWidth = metrics.chartWidth / totalLabels / 2
+        val spacing = metrics.chartWidth / totalLabels
+        
+        displayLabels.forEachIndexed { displayIndex, label ->
+            // 원본 라벨 목록에서의 실제 인덱스를 사용
+            val originalIndex = displayIndices[displayIndex]
+            // 차트 영역의 시작점(paddingX)에서 바의 중심까지 계산
+            val x = metrics.paddingX + barWidth + originalIndex * spacing
             ctx.canvas.nativeCanvas.drawText(
                 label,
                 x,

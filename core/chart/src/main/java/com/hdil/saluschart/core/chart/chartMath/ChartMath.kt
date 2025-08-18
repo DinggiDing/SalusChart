@@ -166,6 +166,49 @@ object ChartMath {
     }
 
     /**
+     * X축 라벨을 제한된 수로 줄입니다.
+     * 너무 많은 라벨이 있으면 겹치거나 텍스트가 너무 작아질 수 있으므로
+     * 최대 개수를 제한하여 적절한 간격으로 표시합니다.
+     *
+     * @param labels 원본 X축 라벨 목록
+     * @param maxXTicksLimit X축에 표시할 최대 라벨 개수 (기본값: 10)
+     * @return 감소된 라벨 목록과 해당 인덱스 목록의 Pair
+     */
+    fun reduceXAxisTicks(labels: List<String>, maxXTicksLimit: Int = 10): Pair<List<String>, List<Int>> {
+        // 1. 초기 틱 - 모든 후보 틱으로 시작
+        if (labels.size <= maxXTicksLimit) {
+            // 라벨이 충분히 적으면 모든 라벨을 표시
+            return Pair(labels, labels.indices.toList())
+        }
+        
+        // 2. maxTicksLimit 체크 - 라벨이 너무 많으면 솎아내기 시작
+        // 3. 솎아내기 팩터 계산
+        val skipRatio = ceil(labels.size.toDouble() / maxXTicksLimit).toInt()
+        
+        val reducedLabels = mutableListOf<String>()
+        val reducedIndices = mutableListOf<Int>()
+        
+        // 4. 첫 번째와 마지막 라벨은 항상 유지하여 축의 경계를 명확히 함
+        // 첫 번째 라벨 추가
+        reducedLabels.add(labels[0])
+        reducedIndices.add(0)
+        
+        // skipRatio 간격으로 중간 라벨들 추가
+        for (i in skipRatio until labels.size - 1 step skipRatio) {
+            reducedLabels.add(labels[i])
+            reducedIndices.add(i)
+        }
+        
+        // 마지막 라벨 추가 (첫 번째 라벨과 다른 경우에만)
+        if (labels.size > 1 && reducedIndices.last() != labels.size - 1) {
+            reducedLabels.add(labels.last())
+            reducedIndices.add(labels.size - 1)
+        }
+        
+        return Pair(reducedLabels, reducedIndices)
+    }
+
+    /**
      * 데이터 포인트를 화면 좌표로 변환합니다.
      *
      * @param data 차트 데이터 포인트 목록
