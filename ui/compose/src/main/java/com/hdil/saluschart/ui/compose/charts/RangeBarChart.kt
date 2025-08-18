@@ -23,6 +23,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.core.chart.InteractionType
+import com.hdil.saluschart.core.chart.chartDraw.YAxisPosition
 import com.hdil.saluschart.ui.theme.ChartColor
 
 @Composable
@@ -34,7 +35,7 @@ fun RangeBarChart(
     title: String = "Range Bar Chart",
     barColor: androidx.compose.ui.graphics.Color = ChartColor.Default,
     barWidthRatio: Float = 0.6f,
-    yPosition: String = "left", // Y축 위치 ("left" 또는 "right")
+    yAxisPosition: YAxisPosition = YAxisPosition.LEFT, // Y축 위치
     interactionType: InteractionType = InteractionType.BAR,
     onBarClick: ((Int, RangeChartPoint) -> Unit)? = null,
     chartType: ChartType = ChartType.RANGE_BAR,
@@ -57,8 +58,8 @@ fun RangeBarChart(
                 val metrics = ChartMath.RangeBar.computeRangeMetrics(size, data)
                 chartMetrics = metrics
 
-                ChartDraw.drawGrid(this, size, metrics, yPosition)
-                ChartDraw.drawYAxis(this, metrics, yPosition)
+                ChartDraw.drawGrid(this, size, metrics, yAxisPosition)
+                ChartDraw.drawYAxis(this, metrics, yAxisPosition)
                 ChartDraw.Bar.drawBarXAxisLabels(drawContext, labels, metrics, maxXTicksLimit = maxXTicksLimit)
             }
 
