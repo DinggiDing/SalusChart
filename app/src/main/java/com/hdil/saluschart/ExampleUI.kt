@@ -44,6 +44,7 @@ import com.hdil.saluschart.core.chart.StackedChartPoint
 import com.hdil.saluschart.core.chart.TimeDataPoint
 import com.hdil.saluschart.core.chart.toChartPoints
 import com.hdil.saluschart.core.chart.chartDraw.LegendPosition
+import com.hdil.saluschart.core.chart.chartDraw.YAxisPosition
 import com.hdil.saluschart.core.util.TimeUnitGroup
 import com.hdil.saluschart.core.transform.transform
 import com.hdil.saluschart.ui.compose.charts.BarChart
@@ -151,7 +152,7 @@ fun BarChart_1() {
         labelTextSize = 28f,
         tooltipTextSize = 32f,
         interactionType = InteractionType.TOUCH_AREA,
-        yPosition = "left",
+        yAxisPosition = YAxisPosition.LEFT
     )
 }
 
@@ -170,7 +171,7 @@ fun BarChart_2() {
         tooltipTextSize = 32f,
         interactionType = InteractionType.BAR,
         showLabel = true,
-        yPosition = "right",
+        yAxisPosition = YAxisPosition.RIGHT,
     )
 }
 
@@ -204,7 +205,7 @@ fun LineChart_1() {
             minY = 0f,
             maxY = 60f,
             interactionType = InteractionType.TOUCH_AREA,
-            yPosition = "left",
+            yAxisPosition = YAxisPosition.RIGHT
         )
     }
 }
@@ -223,7 +224,7 @@ fun LineChart_2() {
         minY = 0f,
         maxY = 60f,
         interactionType = InteractionType.POINT,
-        yPosition = "right",
+        yAxisPosition = YAxisPosition.LEFT
     )
 }
 
@@ -277,7 +278,7 @@ fun ScatterPlot_1() {
         xLabel = "요일",
         interactionType = InteractionType.POINT,
         pointType = PointType.Triangle,
-        yPosition = "right",
+        yAxisPosition = YAxisPosition.LEFT
     )
 }
 
@@ -493,7 +494,7 @@ fun StackedBarChart_1() {
         yLabel = "영양소 (g)",
         xLabel = "요일",
         showLegend = true,
-        yPosition = "right",
+        yAxisPosition = YAxisPosition.RIGHT,
         colors = listOf(
             Color(0xFF2196F3), // 파랑 (단백질)
             Color(0xFFFF9800), // 주황 (지방)
