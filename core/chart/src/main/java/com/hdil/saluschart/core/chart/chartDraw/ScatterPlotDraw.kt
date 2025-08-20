@@ -215,30 +215,3 @@ object ScatterPlotDraw {
         }
     }
 }
-
-fun createPolygonPath(
-    sides: Int,
-    radius: Float,
-    center: Offset,
-    offsetAngle: Double = 0.0 // 회전 각도
-): Path {
-    val path = Path()
-    val angle = 2 * PI / sides
-
-    path.moveTo(
-        center.x + radius * cos(offsetAngle).toFloat(),
-        center.y + radius * sin(offsetAngle).toFloat()
-    )
-
-    for (i in 1 until sides) {
-        val theta = angle * i + offsetAngle
-        path.lineTo(
-            center.x + radius * cos(theta).toFloat(),
-            center.y + radius * sin(theta).toFloat()
-        )
-    }
-
-    path.close()
-
-    return path
-}

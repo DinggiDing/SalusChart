@@ -87,7 +87,7 @@ fun ExampleUI(modifier: Modifier = Modifier) {
         "X-Axis Tick Reduction Demo"
     )
 
-    var selectedChartType by remember { mutableStateOf<String?>("LineChart 1") }
+    var selectedChartType by remember { mutableStateOf<String?>("Stacked Bar Chart") }
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         if (selectedChartType == null) {

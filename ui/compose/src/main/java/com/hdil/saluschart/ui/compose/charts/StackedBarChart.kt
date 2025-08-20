@@ -1,5 +1,6 @@
 package com.hdil.saluschart.ui.compose.charts
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -158,7 +159,7 @@ fun StackedBarChart(
                                             metrics = metrics,
                                             color = segmentColor,
                                             barWidthRatio = barWidthRatio,
-                                            interactive = true,
+                                            interactive = false,
                                             chartType = chartType,
                                             segmentIndex = segmentIndex,
                                             onBarClick = { barIndex, _ ->
@@ -168,6 +169,25 @@ fun StackedBarChart(
                                         )
                                     }
                                 }
+                                // 모든 bar 합친 barmarker
+                                ChartDraw.Bar.BarMarker(
+                                    data = data,
+                                    minValues = List(data.size) { metrics.minY },
+                                    maxValues = data.map { it.total },
+                                    metrics = metrics,
+                                    onBarClick = { index, _ ->
+                                        selectedBarIndex = if (selectedBarIndex == index) null else index
+                                        val stackedPoint = data.getOrNull(index)
+                                        if (stackedPoint != null) {
+                                            onBarClick?.invoke(index, null, stackedPoint.total)
+                                        }
+                                    },
+                                    barWidthRatio = barWidthRatio,
+                                    chartType = chartType,
+                                    showTooltipForIndex = selectedBarIndex,
+                                    interactive = true,
+                                    color = Color.Transparent
+                                )
                             }
                         }
                         InteractionType.TOUCH_AREA -> {
@@ -225,6 +245,7 @@ fun StackedBarChart(
                                             onBarClick?.invoke(index, null, stackedPoint.total)
                                         }
                                     },
+                                    barWidthRatio = barWidthRatio,
                                     chartType = chartType,
                                     showTooltipForIndex = selectedBarIndex,
                                     isTouchArea = true
@@ -358,7 +379,7 @@ fun StackedBarChart(
                                             metrics = metrics,
                                             color = segmentColor,
                                             barWidthRatio = barWidthRatio,
-                                            interactive = true,
+                                            interactive = false,
                                             chartType = chartType,
                                             segmentIndex = segmentIndex,
                                             onBarClick = { barIndex, _ ->
@@ -368,7 +389,28 @@ fun StackedBarChart(
                                         )
                                     }
                                 }
+
+                                // 모든 bar 합친 barmarker
+                                ChartDraw.Bar.BarMarker(
+                                    data = data,
+                                    minValues = List(data.size) { metrics.minY },
+                                    maxValues = data.map { it.total },
+                                    metrics = metrics,
+                                    onBarClick = { index, _ ->
+                                        selectedBarIndex = if (selectedBarIndex == index) null else index
+                                        val stackedPoint = data.getOrNull(index)
+                                        if (stackedPoint != null) {
+                                            onBarClick?.invoke(index, null, stackedPoint.total)
+                                        }
+                                    },
+                                    barWidthRatio = barWidthRatio,
+                                    chartType = chartType,
+                                    showTooltipForIndex = selectedBarIndex,
+                                    interactive = true,
+                                    color = Color.Transparent
+                                )
                             }
+
                         }
                         InteractionType.TOUCH_AREA -> {
                             // Area-based interaction - show all segment values in tooltip
