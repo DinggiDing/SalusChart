@@ -3,6 +3,7 @@ package com.hdil.saluschart.core.util
 enum class TimeUnitGroup {
     HOUR,
     DAY,
+    WEEKDAY,
     WEEK,
     MONTH,
     YEAR;
@@ -15,3 +16,4 @@ enum class TimeUnitGroup {
         return this.ordinal > other.ordinal
     }
 }
+
