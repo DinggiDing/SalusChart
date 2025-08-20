@@ -25,7 +25,8 @@ object ChartMath {
     /**
      * 차트 그리기에 필요한 메트릭 정보를 담는 데이터 클래스
      *
-     * @param paddingX X축 패딩 값
+     * @param paddingLeftX 왼쪽 X축 패딩 값
+     * @param paddingRightX 오른쪽 X축 패딩 값
      * @param paddingY Y축 패딩 값
      * @param chartWidth 차트의 실제 너비
      * @param chartHeight 차트의 실제 높이
@@ -133,7 +134,8 @@ object ChartMath {
      * @param tickCount 원하는 Y축 눈금 개수 (기본값: 5)
      * @param chartType 차트 타입 (BAR/STACKED_BAR 타입일 경우 기본적으로 minY를 0으로 설정)
      * @param isMinimal 미니멀 차트 모드인지 여부 (기본값: false)
-     * @param paddingX X축 패딩 값 (기본값: normal=60f, minimal=8f)
+     * @param paddingLeftX 왼쪽 X축 패딩 값 (기본값: normal=30f, minimal=4f)
+     * @param paddingRightX 오른쪽 X축 패딩 값 (기본값: normal=30f, minimal=4f)
      * @param paddingY Y축 패딩 값 (기본값: normal=40f, minimal=8f)
      * @param minY 사용자 지정 최소 Y값 (지정시 바 차트의 기본 동작을 오버라이드)
      * @param maxY 사용자 지정 최대 Y값 (지정시 nice ticks보다 우선적용)
@@ -145,12 +147,12 @@ object ChartMath {
         tickCount: Int = 5, 
         chartType: ChartType? = null,
         isMinimal: Boolean = false,
-        paddingX: Float = if (isMinimal) 8f else 60f,
+        paddingX: Float = if (isMinimal) 4f else 30f,
         paddingY: Float = if (isMinimal) 8f else 40f,
         minY: Float? = null,
         maxY: Float? = null
     ): ChartMetrics {
-        val chartWidth = size.width - paddingX
+        val chartWidth = size.width - paddingX * 2
         val chartHeight = size.height - paddingY
 
         val dataMax = values.maxOrNull() ?: 1f

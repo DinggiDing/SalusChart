@@ -75,7 +75,7 @@ object BarChartDraw {
         displayLabels.forEachIndexed { displayIndex, label ->
             // 원본 라벨 목록에서의 실제 인덱스를 사용
             val originalIndex = displayIndices[displayIndex]
-            // 차트 영역의 시작점(paddingX)에서 바의 중심까지 계산
+            // 차트 영역의 시작점(paddingLeftX)에서 바의 중심까지 계산
             val x = metrics.paddingX + barWidth + originalIndex * spacing
             ctx.canvas.nativeCanvas.drawText(
                 label,
@@ -175,7 +175,7 @@ object BarChartDraw {
                 // 라인차트 포지셔닝: 포인트 중심에 바 배치
                 val pointSpacing = if (dataSize > 1) metrics.chartWidth / (dataSize - 1) else 0f
                 val pointX = metrics.paddingX + index * pointSpacing
-                
+
                 // 첫 번째와 마지막 바는 차트 영역을 벗어나지 않도록 절반 너비로 설정
                 val isFirstOrLast = (index == 0 || index == dataSize - 1) && dataSize > 1
                 val widthMultiplier = if (isFirstOrLast) 0.5f else 1.0f

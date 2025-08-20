@@ -744,14 +744,6 @@ fun TimeStepBarChart() {
                 modifier = Modifier.fillMaxWidth()
             )
             DropdownMenuItem(
-                text = { Text("요일별") },
-                onClick = {
-                    selectedOption = "요일별"
-                    expanded = false
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-            DropdownMenuItem(
                 text = { Text("주별") },
                 onClick = {
                     selectedOption = "주별"
@@ -769,7 +761,6 @@ fun TimeStepBarChart() {
                 timeUnit = when (selectedOption) {
                     "시간대별" -> TimeUnitGroup.HOUR
                     "일별" -> TimeUnitGroup.DAY
-                    "요일별" -> TimeUnitGroup.WEEKDAY
                     "주별" -> TimeUnitGroup.WEEK
                     else -> TimeUnitGroup.HOUR
                 },
@@ -781,7 +772,6 @@ fun TimeStepBarChart() {
             maxXTicksLimit = when (selectedOption) {
                 "시간대별" -> 8  // Reduce dense hourly data to 8 labels
                 "일별" -> null // Show all for daily data (not too dense)
-                "요일별" -> null // Show all for weekday data
                 "주별" -> null // Show all for weekly data
                 else -> 8
             }
