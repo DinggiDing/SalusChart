@@ -1,6 +1,8 @@
 package com.hdil.saluschart.core.chart
 
 import com.hdil.saluschart.core.util.TimeUnitGroup
+import com.hdil.saluschart.core.util.AggregationType
+import com.hdil.saluschart.core.transform.DataTransformer
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -25,14 +27,27 @@ data class TimeDataPoint(
 )
 
 /**
+ * TimeDataPoint를 변환하는 확장 함수 (새로운 AggregationType 사용)
+ *
+ * @param transformTimeUnit 변환할 시간 단위
+ * @param aggregationType 집계 방법 (SUM: 합계, AVERAGE: 평균)
+ * @return 변환된 TimeDataPoint
+ */
+fun TimeDataPoint.transform(
+    transformTimeUnit: TimeUnitGroup,
+    aggregationType: AggregationType = AggregationType.SUM
+): TimeDataPoint {
+    return DataTransformer().transform(this, transformTimeUnit, aggregationType)
+}
+
+/**
  * TimeDataPoint를 ChartPoint 리스트로 변환하는 확장 함수
  *
  * @return ChartPoint 리스트
  *
  * 각 시간 단위에 따라 레이블이 생성됩니다:
  * HOUR: "14시" (for 2 PM)
- * DAY: "5/4" (for May 4th)
- * WEEKDAY: "월" (for Monday)
+ * DAY: "5/8 월" (for May 8th Monday, includes day of week)
  * WEEK: "5월 1주차" (for first week of May)
  * MONTH: "2025년 5월" (for May 2025)
  * YEAR: "2025년" (for year 2025)
@@ -48,17 +63,10 @@ fun TimeDataPoint.toChartPoints(): List<ChartPoint> {
             }
         }
         TimeUnitGroup.DAY -> {
-            // Instant에서 날짜 추출하여 "월/일" 형태로 변환
+            // Instant에서 날짜와 요일 추출하여 "월/일 요일" 형태로 변환 (요일 기능 포함)
             x.map { instant ->
                 val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-                "${dateTime.monthValue}/${dateTime.dayOfMonth}"
-            }
-        }
-        TimeUnitGroup.WEEKDAY -> {
-            // Instant에서 요일 추출하여 한국어 요일명으로 변환 (일요일부터 토요일까지)
-            x.map { instant ->
-                val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-                when (dateTime.dayOfWeek.value) {
+                val dayOfWeekKorean = when (dateTime.dayOfWeek.value) {
                     1 -> "월"
                     2 -> "화"
                     3 -> "수"
@@ -66,8 +74,9 @@ fun TimeDataPoint.toChartPoints(): List<ChartPoint> {
                     5 -> "금"
                     6 -> "토"
                     7 -> "일"
-                    else -> "알 수 없음"
+                    else -> "?"
                 }
+                "${dateTime.monthValue}/${dateTime.dayOfMonth} $dayOfWeekKorean"
             }
         }
         TimeUnitGroup.WEEK -> {

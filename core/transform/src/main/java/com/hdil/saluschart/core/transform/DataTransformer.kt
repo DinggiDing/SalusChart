@@ -1,6 +1,7 @@
 package com.hdil.saluschart.core.transform
 
 import com.hdil.saluschart.core.util.TimeUnitGroup
+import com.hdil.saluschart.core.util.AggregationType
 import com.hdil.saluschart.core.chart.TimeDataPoint
 import java.time.DayOfWeek
 import java.time.Instant
@@ -19,33 +20,28 @@ class DataTransformer {
      * 시간 기반 데이터를 차트 포인트로 변환
      * @param data 원시 시간 데이터 리스트
      * @param transformTimeUnit 그룹핑할 시간 단위
-     * @param averageDivisorUnit 평균 계산을 위한 나누는 시간 단위 (null일 경우 합계 계산)
+     * @param aggregationType 집계 방법 (합계 또는 평균)
      */
     fun transform(
         data: TimeDataPoint,
         transformTimeUnit: TimeUnitGroup,
-        averageDivisorUnit: TimeUnitGroup? = null
+        aggregationType: AggregationType = AggregationType.SUM
     ): TimeDataPoint {
 
         // 평균 계산 시 유효성 검증
-        if (averageDivisorUnit != null) {
-            // WEEKDAY는 평균 계산을 지원하지 않음
-            require(transformTimeUnit != TimeUnitGroup.WEEKDAY) {
-                "WEEKDAY는 평균 계산을 지원하지 않습니다."
-            }
-
-            // 나누는 시간 단위가 그룹핑 시간 단위보다 작아야 함
-            require(averageDivisorUnit.isSmallerThan(transformTimeUnit)) {
-                "평균 계산을 위한 나누는 시간 단위($averageDivisorUnit)는 그룹핑 시간 단위($transformTimeUnit)보다 작아야 합니다."
+        if (aggregationType == AggregationType.AVERAGE) {
+            // 원본 시간 단위가 변환 시간 단위보다 작아야 함
+            require(data.timeUnit.isSmallerThan(transformTimeUnit)) {
+                "평균 계산을 위해서는 원본 시간 단위(${data.timeUnit})가 변환 시간 단위($transformTimeUnit)보다 작아야 합니다."
             }
         }
 
-        // 같은 시간 단위인 경우 그대로 반환
-        if (data.timeUnit == transformTimeUnit && averageDivisorUnit == null) {
+        // 같은 시간 단위이고 합계 계산인 경우 그대로 반환
+        if (data.timeUnit == transformTimeUnit && aggregationType == AggregationType.SUM) {
             return data
         }
 
-        val transformedData = groupByTimeUnit(data, transformTimeUnit, averageDivisorUnit)
+        val transformedData = groupByTimeUnit(data, transformTimeUnit, aggregationType)
         return transformedData
     }
 
@@ -55,7 +51,7 @@ class DataTransformer {
     private fun groupByTimeUnit(
         data: TimeDataPoint,
         targetTimeUnit: TimeUnitGroup,
-        averageDivisorUnit: TimeUnitGroup? = null
+        aggregationType: AggregationType
     ): TimeDataPoint {
 
         // Instant를 LocalDateTime으로 변환
@@ -70,29 +66,32 @@ class DataTransformer {
         val groupedData = when (targetTimeUnit) {
             TimeUnitGroup.HOUR -> timeValuePairs.map { it.first to listOf(it.second) }.toMap()
             TimeUnitGroup.DAY -> groupByDay(timeValuePairs)
-            TimeUnitGroup.WEEKDAY -> groupByWeekday(timeValuePairs)
             TimeUnitGroup.WEEK -> groupByWeek(timeValuePairs)
             TimeUnitGroup.MONTH -> groupByMonth(timeValuePairs)
             TimeUnitGroup.YEAR -> groupByYear(timeValuePairs)
         }
 
-        val aggregatedData = if (averageDivisorUnit == null) {
-            // 합계 계산
-            groupedData.map { (time, values) ->
-                time to values.sum().toFloat()
-            }.sortedBy { it.first }
-        } else {
-            // 평균 계산
-            groupedData.map { (time, values) ->
-                val sum = values.sum().toFloat()
-                val actualDivisor = countActualTimeUnits(
-                    groupedTimeValuePairs = timeValuePairs,
-                    targetTime = time,
-                    targetTimeUnit = targetTimeUnit,
-                    divisorUnit = averageDivisorUnit
-                )
-                time to (sum / actualDivisor)
-            }.sortedBy { it.first }
+        val aggregatedData = when (aggregationType) {
+            AggregationType.SUM -> {
+                // 합계 계산
+                groupedData.map { (time, values) ->
+                    time to values.sum().toFloat()
+                }.sortedBy { it.first }
+            }
+            AggregationType.AVERAGE -> {
+                // 평균 계산 (원본 시간 단위를 기준으로)
+                groupedData.map { (time, values) ->
+                    val sum = values.sum().toFloat()
+                    val divisor = calculateTimeDivisor(time, targetTimeUnit, data.timeUnit)
+                    val actualDivisor = countActualTimeUnits(
+                        groupedTimeValuePairs = timeValuePairs,
+                        targetTime = time,
+                        targetTimeUnit = targetTimeUnit,
+                        divisorUnit = data.timeUnit
+                    )
+                    time to (sum / actualDivisor)
+                }.sortedBy { it.first }
+            }
         }
 
         // 결과를 Instant와 값 리스트로 변환
@@ -107,6 +106,44 @@ class DataTransformer {
             timeUnit = targetTimeUnit,
             label = null // 단순화: 레이블은 toChartPoints()에서 처리
         )
+    }
+
+    /**
+     * 일별 그룹핑
+     */
+    private fun groupByDay(timeValuePairs: List<Pair<LocalDateTime, Float>>): Map<LocalDateTime, List<Float>> {
+        return timeValuePairs.groupBy { (time, _) ->
+            time.truncatedTo(ChronoUnit.DAYS)
+        }.mapValues { (_, pairs) -> pairs.map { it.second } }
+    }
+
+    /**
+     * 주별 그룹핑 (일요일 기준)
+     */
+    private fun groupByWeek(timeValuePairs: List<Pair<LocalDateTime, Float>>): Map<LocalDateTime, List<Float>> {
+        return timeValuePairs.groupBy { (time, _) ->
+            // 일요일을 기준으로 해당 주의 시작 날짜 계산
+            val sunday = time.toLocalDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
+            sunday.atStartOfDay()
+        }.mapValues { (_, pairs) -> pairs.map { it.second } }
+    }
+
+    /**
+     * 월별 그룹핑
+     */
+    private fun groupByMonth(timeValuePairs: List<Pair<LocalDateTime, Float>>): Map<LocalDateTime, List<Float>> {
+        return timeValuePairs.groupBy { (time, _) ->
+            LocalDateTime.of(time.year, time.month, 1, 0, 0)
+        }.mapValues { (_, pairs) -> pairs.map { it.second } }
+    }
+
+    /**
+     * 연별 그룹핑
+     */
+    private fun groupByYear(timeValuePairs: List<Pair<LocalDateTime, Float>>): Map<LocalDateTime, List<Float>> {
+        return timeValuePairs.groupBy { (time, _) ->
+            LocalDateTime.of(time.year, 1, 1, 0, 0)
+        }.mapValues { (_, pairs) -> pairs.map { it.second } }
     }
 
     /**
@@ -177,57 +214,6 @@ class DataTransformer {
     }
 
     /**
-     * 일별 그룹핑
-     */
-    private fun groupByDay(timeValuePairs: List<Pair<LocalDateTime, Float>>): Map<LocalDateTime, List<Float>> {
-        return timeValuePairs.groupBy { (time, _) ->
-            time.truncatedTo(ChronoUnit.DAYS)
-        }.mapValues { (_, pairs) -> pairs.map { it.second } }
-    }
-
-    /**
-     * 주별 그룹핑 (일요일 기준)
-     */
-    private fun groupByWeek(timeValuePairs: List<Pair<LocalDateTime, Float>>): Map<LocalDateTime, List<Float>> {
-        return timeValuePairs.groupBy { (time, _) ->
-            // 일요일을 기준으로 해당 주의 시작 날짜 계산
-            val sunday = time.toLocalDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
-            sunday.atStartOfDay()
-        }.mapValues { (_, pairs) -> pairs.map { it.second } }
-    }
-
-    /**
-     * 요일별 그룹핑 (일요일부터 토요일까지)
-     */
-    private fun groupByWeekday(timeValuePairs: List<Pair<LocalDateTime, Float>>): Map<LocalDateTime, List<Float>> {
-        return timeValuePairs.groupBy { (time, _) ->
-            // 일요일을 기준으로 한 주의 시작점 계산
-            val sunday = time.toLocalDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
-            // 해당 요일의 날짜 계산 (일요일=0, 월요일=1, ..., 토요일=6)
-            val dayOfWeekFromSunday = (time.dayOfWeek.value % 7)
-            sunday.plusDays(dayOfWeekFromSunday.toLong()).atStartOfDay()
-        }.mapValues { (_, pairs) -> pairs.map { it.second } }
-    }
-
-    /**
-     * 월별 그룹핑
-     */
-    private fun groupByMonth(timeValuePairs: List<Pair<LocalDateTime, Float>>): Map<LocalDateTime, List<Float>> {
-        return timeValuePairs.groupBy { (time, _) ->
-            LocalDateTime.of(time.year, time.month, 1, 0, 0)
-        }.mapValues { (_, pairs) -> pairs.map { it.second } }
-    }
-
-    /**
-     * 연별 그룹핑
-     */
-    private fun groupByYear(timeValuePairs: List<Pair<LocalDateTime, Float>>): Map<LocalDateTime, List<Float>> {
-        return timeValuePairs.groupBy { (time, _) ->
-            LocalDateTime.of(time.year, 1, 1, 0, 0)
-        }.mapValues { (_, pairs) -> pairs.map { it.second } }
-    }
-
-    /**
      * 실제 데이터에서 특정 그룹에 속하는 고유 시간 단위의 개수 계산
      * @param groupedTimeValuePairs 전체 시간-값 페어 리스트
      * @param targetTime 대상 그룹의 대표 시간 (예: 2025년 8월 1일 00:00)
@@ -279,7 +265,7 @@ class DataTransformer {
                     "${time.year}"
                 }.distinct().size
             }
-            else -> 1 // WEEKDAY는 지원하지 않음
+            else -> 1
         }
 
         return maxOf(uniqueTimeUnits.toFloat(), 1f) // 최소 1로 설정하여 0으로 나누기 방지
@@ -312,10 +298,6 @@ class DataTransformer {
             }
             TimeUnitGroup.YEAR -> {
                 time1.year == time2.year
-            }
-            TimeUnitGroup.WEEKDAY -> {
-                // WEEKDAY는 평균 계산 지원하지 않으므로 false 반환
-                false
             }
         }
     }

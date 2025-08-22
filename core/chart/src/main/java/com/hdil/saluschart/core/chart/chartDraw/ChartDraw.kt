@@ -62,10 +62,7 @@ object ChartDraw {
             val y = metrics.chartHeight - ((yVal - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
 
             // 그리드 라인은 차트 영역 전체에 걸쳐 그리기
-            val gridStart = when (yAxisPosition) {
-                YAxisPosition.RIGHT -> metrics.paddingX // 오른쪽 Y축일 때는 왼쪽부터 시작
-                YAxisPosition.LEFT -> metrics.paddingX // 왼쪽 Y축일 때도 왼쪽부터 시작
-            }
+            val gridStart = metrics.paddingX // 왼쪽 Y축까지
             val gridEnd = when (yAxisPosition) {
                 YAxisPosition.RIGHT -> metrics.paddingX + metrics.chartWidth // 오른쪽 Y축까지
                 YAxisPosition.LEFT -> metrics.paddingX + metrics.chartWidth // 오른쪽 끝까지
