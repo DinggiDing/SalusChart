@@ -100,8 +100,8 @@ fun RangeBarChart(
                     val metrics = ChartMath.RangeBar.computeRangeMetrics(size, data)
                     chartMetrics = metrics
 
-                    ChartDraw.drawGrid(this, size, metrics, yPosition)
-                    ChartDraw.drawYAxis(this, metrics, yPosition)
+                    ChartDraw.drawGrid(this, size, metrics, yAxisPosition)
+                    ChartDraw.drawYAxis(this, metrics, yAxisPosition)
                     ChartDraw.Bar.drawBarXAxisLabels(drawContext, labels, metrics, maxXTicksLimit = maxXTicksLimit)
                 }
 

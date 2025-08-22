@@ -161,9 +161,9 @@ fun StackedBarChart(
                             )
                             chartMetrics = metrics
 
-                            ChartDraw.drawGrid(this, size, metrics, yPosition)
+                            ChartDraw.drawGrid(this, size, metrics, yAxisPosition)
                             ChartDraw.drawXAxis(this, metrics)
-                            ChartDraw.drawYAxis(this, metrics, yPosition)
+                            ChartDraw.drawYAxis(this, metrics, yAxisPosition)
                             ChartDraw.Bar.drawBarXAxisLabels(
                                 drawContext,
                                 xLabels,
@@ -449,9 +449,9 @@ fun StackedBarChart(
                             val metrics = ChartMath.computeMetrics(size, totalValues, chartType = ChartType.STACKED_BAR)
                             chartMetrics = metrics
 
-                            ChartDraw.drawGrid(this, size, metrics, yPosition)
+                            ChartDraw.drawGrid(this, size, metrics, yAxisPosition)
                             ChartDraw.drawXAxis(this, metrics)
-                            ChartDraw.drawYAxis(this, metrics, yPosition)
+                            ChartDraw.drawYAxis(this, metrics, yAxisPosition)
                             ChartDraw.Bar.drawBarXAxisLabels(drawContext, xLabels, metrics, maxXTicksLimit = maxXTicksLimit)
                         }
 
