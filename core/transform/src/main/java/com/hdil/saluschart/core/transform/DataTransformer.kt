@@ -2,10 +2,7 @@ package com.hdil.saluschart.core.transform
 
 import com.hdil.saluschart.core.util.TimeUnitGroup
 import com.hdil.saluschart.core.util.AggregationType
-import com.hdil.saluschart.core.chart.TimeDataPoint
 import java.time.DayOfWeek
-import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
