@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -133,17 +134,21 @@ object BarChartDraw {
         // 터치 영역용인 경우 자동으로 파라미터 설정
         val actualBarWidthRatio = if (isTouchArea) 1.0f else barWidthRatio
         val actualInteractive = if (isTouchArea) true else interactive
-        
+
         val dataSize = maxOf(minValues.size, maxValues.size)
+
+        // 클릭된 바의 인덱스를 관리하는 상태 변수
+        var clickedBarIndex by remember { mutableStateOf<Int?>(null) }
+
+        // 툴팁 정보 저장 변수
+        var tooltipOffset: Offset? = null
+        var tooltipData: BaseChartPoint? = null
 
         (0 until dataSize).forEach { index ->
             // 값 추출
             val minValue = minValues.getOrNull(index) ?: 0f
             val maxValue = maxValues.getOrNull(index) ?: 0f
-            
-            // 색상 결정
-            val actualColor = if (isTouchArea) Color.Transparent else color
-            
+
             // 툴팁 텍스트 결정: 커스텀 텍스트가 있으면 사용, 없으면 기본 로직 사용
             val tooltipText = customTooltipText?.getOrNull(index) ?: run {
                 if (chartType == ChartType.STACKED_BAR) {
@@ -184,14 +189,14 @@ object BarChartDraw {
                 } else {
                     metrics.chartWidth * actualBarWidthRatio
                 }
-                
+
                 // 첫 번째 바는 오른쪽으로만 확장, 마지막 바는 왼쪽으로만 확장
                 val barXPos = when {
                     index == 0 && dataSize > 1 -> pointX // 첫 번째 바: 포인트에서 시작
                     index == dataSize - 1 && dataSize > 1 -> pointX - barW // 마지막 바: 포인트에서 끝
                     else -> pointX - barW / 2f // 중간 바들: 포인트 중심
                 }
-                
+
                 Pair(barW, barXPos)
             } else {
                 // 바차트 포지셔닝: 할당된 공간의 중앙에 배치
@@ -207,116 +212,90 @@ object BarChartDraw {
             val barWidthDp = with(density) { barWidth.toDp() }
             val barHeightDp = with(density) { barHeight.toDp() }
 
-
-            if (actualInteractive) {
-                // 각 바의 툴팁 표시 상태
-                var showTooltip by remember { mutableStateOf(false) }
-
-                // 툴팁 표시 여부 결정: 
-                // - isTouchArea = true인 경우 툴팁 표시 안함 (터치 영역용이므로)
-                // - 바 차트 타입이 아닌 경우 툴팁 표시 안함 (LINE, SCATTERPLOT 등은 PointMarker 사용)
-                val shouldShowTooltip = when {
-                    isTouchArea -> false // 터치 영역용이므로 툴팁 표시 안함
-                    chartType in listOf(ChartType.BAR, ChartType.RANGE_BAR, ChartType.STACKED_BAR) -> {
-                        if (actualInteractive) showTooltip else (showTooltipForIndex == index)
-                    }
-                    else -> false // LINE, SCATTERPLOT 등에서는 툴팁 표시 안함
-                }
-
-                Box(
-                    modifier = Modifier
-                        .offset(x = barXDp, y = barYDp)
-                        .size(width = barWidthDp, height = barHeightDp)
-                        .background(color = actualColor)
-                        .clickable {
-                            // 툴팁 상태 토글
-                            showTooltip = !showTooltip
-                            // 외부 클릭 이벤트 처리
-                            onBarClick?.invoke(index, tooltipText)
-                        },
-                    contentAlignment = Alignment.TopCenter
-                ) {
-
-                    // label 표시 여부 결정
-                    if (showLabel) {
-                        Box(
-                            modifier = Modifier
-                                .offset(0.dp, (0).dp) // 바 위에 표시
-                        ) {
-                            Text(
-                                text = maxValue.toInt().toString(),
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .align(Alignment.Center),
-                                maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
-                                softWrap = false // 텍스트 래핑 비활성화
-                            )
-                        }
-                    }
-                }
-
-                // 툴팁 표시 (바 박스 외부에 독립적으로 배치)
-                if (shouldShowTooltip) {
-                    ChartTooltip(
-                        chartPoint = data[index],
-                        modifier = Modifier.offset(x = barXDp, y = barYDp - 80.dp)
-                    )
-                }
-            } else {
-                // 비상호작용 모드: 순수 시각적 렌더링만 (클릭 불가)
-                // 툴팁 표시 여부 결정:
-                // - isTouchArea = true인 경우 툴팁 표시 안함 (터치 영역용이므로)
-                // - 바 차트 타입이 아닌 경우 툴팁 표시 안함 (LINE, SCATTERPLOT 등은 PointMarker 사용)
-                val shouldShowTooltip = when {
-                    isTouchArea -> false // 터치 영역용이므로 툴팁 표시 안함
-                    chartType in listOf(ChartType.BAR, ChartType.RANGE_BAR, ChartType.STACKED_BAR) -> {
+            // 툴팁 표시 여부 결정:
+            // - isTouchArea = true인 경우 툴팁 표시 안함 (터치 영역용이므로)
+            // - 바 차트 타입이 아닌 경우 툴팁 표시 안함 (LINE, SCATTERPLOT 등은 PointMarker 사용)
+            val shouldShowTooltip = when {
+                isTouchArea -> false // 터치 영역용이므로 툴팁 표시 안함
+                chartType in listOf(ChartType.BAR, ChartType.RANGE_BAR, ChartType.STACKED_BAR) -> {
+                    if (actualInteractive) {
+                        clickedBarIndex == index
+                    } else {
                         showTooltipForIndex == index
                     }
-                    else -> false // LINE, SCATTERPLOT 등에서는 툴팁 표시 안함
                 }
-                
-                Box(
-                    modifier = Modifier
-                        .offset(x = barXDp, y = barYDp)
-                        .size(width = barWidthDp, height = barHeightDp)
-                        .background(color = actualColor)
-                ) {
+                else -> false // LINE, SCATTERPLOT 등에서는 툴팁 표시 안함
+            }
 
-                    // label 표시 여부 결정
-                    if (showLabel) {
-                        Box(
-                            modifier = Modifier
-                                .offset(0.dp, (0).dp) // 바 위에 표시
 
-                                .border(2.dp, Color.Red)
-                        ) {
-                            Text(
-                                text = maxValue.toInt().toString(),
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .offset(0.dp, (0).dp) // 바 위에 표시
-                                    .align(Alignment.Center)
-                                    .width(IntrinsicSize.Min), // 최소 너비로 설정하여 수평 확장 유도
-                                maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
-                                softWrap = false // 텍스트 래핑 비활성화
-                            )
-                        }
+            if (shouldShowTooltip) {
+                tooltipData = data[index]
+                tooltipOffset = Offset(barX, barY)
+            }
+
+            val actualColor = if (isTouchArea) {
+                Color.Transparent // 터치 영역용은 투명
+            } else {
+                if (actualInteractive) {
+                    if (clickedBarIndex == index || clickedBarIndex == null) {
+                        color
+                    } else {
+                        color.copy(alpha = 0.3f) // 클릭되지 않은 바는 반투명 처리
+                    }
+                } else {
+                    if (showTooltipForIndex == index || showTooltipForIndex == null) {
+                        color
+                    } else {
+                        color.copy(alpha = 0.3f) // 클릭되지 않은 바는 반투명 처리
                     }
                 }
+            }
 
-                // 외부에서 제어되는 툴팁 표시 (바 박스 외부에 독립적으로 배치)
-                if (shouldShowTooltip) {
-                    ChartTooltip(
-                        chartPoint = data[index],
-                        modifier = Modifier.offset(x = barXDp, y = barYDp - 80.dp)
-                    )
+            Box(
+                modifier = Modifier
+                    .offset(x = barXDp, y = barYDp)
+                    .size(width = barWidthDp, height = barHeightDp)
+                    .background(color = actualColor)
+                    .clickable {
+                        if (actualInteractive) {
+                            // 클릭된 바 인덱스 토글
+                            clickedBarIndex = if (clickedBarIndex == index) null else index
+                            // 외부 클릭 이벤트 처리
+                            onBarClick?.invoke(index, tooltipText)
+                        }
+                    },
+                contentAlignment = Alignment.TopCenter
+            ) {
+
+                // label 표시 여부 결정
+                if (showLabel) {
+                    Box(
+                        modifier = Modifier
+                            .offset(0.dp, (0).dp) // 바 위에 표시
+                    ) {
+                        Text(
+                            text = maxValue.toInt().toString(),
+                            color = Color.White,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .align(Alignment.Center),
+                            maxLines = 1, // 한 줄로 제한하여 수평 확장 유도
+                            softWrap = false // 텍스트 래핑 비활성화
+                        )
+                    }
                 }
             }
+        }
+        // 툴팁 표시 (바 박스 외부에 독립적으로 배치)
+        if (tooltipData != null && tooltipOffset != null) {
+            val xDp = with(density) { tooltipOffset.x.toDp() }
+            val yDp = with(density) { tooltipOffset.y.toDp() }
+            ChartTooltip(
+                chartPoint = tooltipData,
+                modifier = Modifier.offset(x = xDp, y = yDp - 80.dp)
+            )
         }
     }
 }

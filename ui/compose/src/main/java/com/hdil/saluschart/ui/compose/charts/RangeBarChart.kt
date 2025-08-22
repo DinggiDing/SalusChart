@@ -1,13 +1,17 @@
 package com.hdil.saluschart.ui.compose.charts
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,98 +43,137 @@ fun RangeBarChart(
     interactionType: InteractionType = InteractionType.BAR,
     onBarClick: ((Int, RangeChartPoint) -> Unit)? = null,
     chartType: ChartType = ChartType.RANGE_BAR,
+    windowSize: Int? = null, // 윈도우 크기 (null이면 전체 화면)
     maxXTicksLimit: Int? = null             // X축에 표시할 최대 라벨 개수 (null이면 모든 라벨 표시)
 ) {
     if (data.isEmpty()) return
-    
-    val labels = data.map { it.label ?: it.x.toString() }
-    var selectedBarIndex by remember { mutableStateOf<Int?>(null) }
-    var chartMetrics by remember { mutableStateOf<ChartMath.ChartMetrics?>(null) }
+
+    val useScrolling = windowSize != null && windowSize < data.size
+    val scrollState = rememberScrollState()
 
     Column(modifier = modifier.padding(16.dp)) {
         Text(title, style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
 
-        Box(
-            Modifier
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val metrics = ChartMath.RangeBar.computeRangeMetrics(size, data)
-                chartMetrics = metrics
+        BoxWithConstraints {
+            val availableWidth = maxWidth
+            val marginHorizontal = 16.dp
 
-                ChartDraw.drawGrid(this, size, metrics, yAxisPosition)
-                ChartDraw.drawYAxis(this, metrics, yAxisPosition)
-                ChartDraw.Bar.drawBarXAxisLabels(drawContext, labels, metrics, maxXTicksLimit = maxXTicksLimit)
+            val canvasWidth = if(useScrolling) {
+                // 스크롤 모드: 좌우 마진을 고려한 실제 차트 너비 계산
+                val chartWidth = availableWidth - (marginHorizontal * 2) // 좌우 마진 제외
+                val sectionsCount = (data.size.toFloat() / windowSize!!.toFloat()).toInt()
+                val totalWidth = chartWidth * sectionsCount
+                totalWidth
+            } else {
+                // 일반 모드: 전체 데이터를 화면에 맞춤
+                null
+
             }
 
-            // Conditional interaction based on interactionType parameter
-            when (interactionType) {
-                InteractionType.BAR -> {
-                    // Interactive range bars
-                    chartMetrics?.let { metrics ->
-                        ChartDraw.Bar.BarMarker(
-                            data = data,
-                            minValues = data.map { it.yMin },
-                            maxValues = data.map { it.yMax },
-                            metrics = metrics,
-                            color = barColor,
-                            barWidthRatio = barWidthRatio,
-                            interactive = true,
-                            onBarClick = { index, tooltipText ->
-                                selectedBarIndex = if (selectedBarIndex == index) null else index
-                                onBarClick?.invoke(index, data[index])
-                            },
-                            chartType = chartType,
-                            showTooltipForIndex = selectedBarIndex
-                        )
-                    }
-                }
-                InteractionType.TOUCH_AREA -> {
-                    // Non-interactive range bars
-                    chartMetrics?.let { metrics ->
-                        ChartDraw.Bar.BarMarker(
-                            data = data,
-                            minValues = data.map { it.yMin },
-                            maxValues = data.map { it.yMax },
-                            metrics = metrics,
-                            color = barColor,
-                            barWidthRatio = barWidthRatio,
-                            interactive = false,
-                            chartType = chartType,
-                            showTooltipForIndex = selectedBarIndex
-                        )
-                    }
+            val labels = data.map { it.label ?: it.x.toString() }
+            var selectedBarIndex by remember { mutableStateOf<Int?>(null) }
+            var chartMetrics by remember { mutableStateOf<ChartMath.ChartMetrics?>(null) }
 
-                    chartMetrics?.let { metrics ->
-                        ChartDraw.Bar.BarMarker(
-                            data = data,
-                            minValues = List(data.size) { metrics.minY },
-                            maxValues = data.map { it.yMax },
-                            metrics = metrics,
-                            onBarClick = { index, _ ->
-                                selectedBarIndex = if (selectedBarIndex == index) null else index
-                                onBarClick?.invoke(index, data[index])
-                            },
-                            chartType = chartType,
-                            showTooltipForIndex = selectedBarIndex,
-                            isTouchArea = true
+
+            Box(
+                modifier = if (useScrolling) {
+                    Modifier
+                        .horizontalScroll(
+                            scrollState,
+                            overscrollEffect = null
                         )
-                    }
+                        .padding(horizontal = marginHorizontal)
+                } else {
+                    modifier
                 }
-                else -> {
-                    // Default case - no interaction
-                    chartMetrics?.let { metrics ->
-                        ChartDraw.Bar.BarMarker(
-                            data = data,
-                            minValues = data.map { it.yMin },
-                            maxValues = data.map { it.yMax },
-                            metrics = metrics,
-                            color = barColor,
-                            barWidthRatio = barWidthRatio,
-                            interactive = false,
-                            chartType = chartType,
-                            showTooltipForIndex = null
-                        )
+            ) {
+                Canvas(
+                    modifier = if (useScrolling) {
+                        Modifier
+                            .width(canvasWidth!!) // 계산된 캔버스 너비 사용
+                            .fillMaxHeight()
+                    } else {
+                        Modifier.fillMaxSize()
+                    }
+                ) {
+                    val metrics = ChartMath.RangeBar.computeRangeMetrics(size, data)
+                    chartMetrics = metrics
+
+                    ChartDraw.drawGrid(this, size, metrics, yPosition)
+                    ChartDraw.drawYAxis(this, metrics, yPosition)
+                    ChartDraw.Bar.drawBarXAxisLabels(drawContext, labels, metrics, maxXTicksLimit = maxXTicksLimit)
+                }
+
+                // Conditional interaction based on interactionType parameter
+                when (interactionType) {
+                    InteractionType.BAR -> {
+                        // Interactive range bars
+                        chartMetrics?.let { metrics ->
+                            ChartDraw.Bar.BarMarker(
+                                data = data,
+                                minValues = data.map { it.yMin },
+                                maxValues = data.map { it.yMax },
+                                metrics = metrics,
+                                color = barColor,
+                                barWidthRatio = barWidthRatio,
+                                interactive = true,
+                                onBarClick = { index, tooltipText ->
+                                    selectedBarIndex = if (selectedBarIndex == index) null else index
+                                    onBarClick?.invoke(index, data[index])
+                                },
+                                chartType = chartType,
+                                showTooltipForIndex = selectedBarIndex
+                            )
+                        }
+                    }
+                    InteractionType.TOUCH_AREA -> {
+                        // Non-interactive range bars
+                        chartMetrics?.let { metrics ->
+                            ChartDraw.Bar.BarMarker(
+                                data = data,
+                                minValues = data.map { it.yMin },
+                                maxValues = data.map { it.yMax },
+                                metrics = metrics,
+                                color = barColor,
+                                barWidthRatio = barWidthRatio,
+                                interactive = false,
+                                chartType = chartType,
+                                showTooltipForIndex = selectedBarIndex
+                            )
+                        }
+
+                        chartMetrics?.let { metrics ->
+                            ChartDraw.Bar.BarMarker(
+                                data = data,
+                                minValues = List(data.size) { metrics.minY },
+                                maxValues = data.map { it.yMax },
+                                metrics = metrics,
+                                onBarClick = { index, _ ->
+                                    selectedBarIndex = if (selectedBarIndex == index) null else index
+                                    onBarClick?.invoke(index, data[index])
+                                },
+                                chartType = chartType,
+                                showTooltipForIndex = selectedBarIndex,
+                                isTouchArea = true
+                            )
+                        }
+                    }
+                    else -> {
+                        // Default case - no interaction
+                        chartMetrics?.let { metrics ->
+                            ChartDraw.Bar.BarMarker(
+                                data = data,
+                                minValues = data.map { it.yMin },
+                                maxValues = data.map { it.yMax },
+                                metrics = metrics,
+                                color = barColor,
+                                barWidthRatio = barWidthRatio,
+                                interactive = false,
+                                chartType = chartType,
+                                showTooltipForIndex = null
+                            )
+                        }
                     }
                 }
             }
