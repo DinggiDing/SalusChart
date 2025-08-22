@@ -37,8 +37,8 @@ import com.hdil.saluschart.core.chart.PointType
 import com.hdil.saluschart.core.chart.ProgressChartPoint
 import com.hdil.saluschart.core.chart.RangeChartPoint
 import com.hdil.saluschart.core.chart.StackedChartPoint
-import com.hdil.saluschart.core.chart.TimeDataPoint
-import com.hdil.saluschart.core.chart.toChartPoints
+import com.hdil.saluschart.core.transform.TimeDataPoint
+import com.hdil.saluschart.core.transform.toChartPoints
 import com.hdil.saluschart.core.chart.chartDraw.LegendPosition
 import com.hdil.saluschart.core.chart.chartDraw.YAxisPosition
 import com.hdil.saluschart.core.util.TimeUnitGroup
@@ -566,7 +566,6 @@ fun StackedBarChart_1() {
         showLegend = true,
         legendPosition = LegendPosition.BOTTOM,
         windowSize = 3,
-        yPosition = "right",
         yAxisPosition = YAxisPosition.RIGHT,
         colors = listOf(
             Color(0xFF2196F3), // 파랑 (단백질)

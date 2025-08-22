@@ -123,9 +123,9 @@ fun BarChart(
                     canvasSize = size
                     chartMetrics = metrics
 
-                    ChartDraw.drawGrid(this, size, metrics, yPosition)
+                    ChartDraw.drawGrid(this, size, metrics, yAxisPosition)
                     ChartDraw.drawXAxis(this, metrics)
-                    ChartDraw.drawYAxis(this, metrics, yPosition)
+                    ChartDraw.drawYAxis(this, metrics, yAxisPosition)
 
                     ChartDraw.Bar.drawBarXAxisLabels(
                         ctx = drawContext,

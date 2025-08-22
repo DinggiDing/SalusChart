@@ -1,8 +1,8 @@
-package com.hdil.saluschart.core.chart
+package com.hdil.saluschart.core.transform
 
+import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.util.TimeUnitGroup
 import com.hdil.saluschart.core.util.AggregationType
-import com.hdil.saluschart.core.transform.DataTransformer
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

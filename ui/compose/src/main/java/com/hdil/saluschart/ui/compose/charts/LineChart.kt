@@ -124,7 +124,7 @@ fun LineChart(
                     canvasPoints = points
                     chartMetrics = metrics
 
-                    ChartDraw.drawGrid(this, size, metrics, yPosition)
+                    ChartDraw.drawGrid(this, size, metrics, yAxisPosition)
                     ChartDraw.Line.drawLine(this, points, lineColor, strokeWidth)
                     ChartDraw.Line.drawXAxisLabels(
                         ctx = drawContext,
