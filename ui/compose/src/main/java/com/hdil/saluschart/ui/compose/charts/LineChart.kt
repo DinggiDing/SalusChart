@@ -29,6 +29,7 @@ import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.core.chart.chartDraw.LegendPosition
+import com.hdil.saluschart.core.chart.chartDraw.YAxisPosition
 import com.hdil.saluschart.ui.theme.ChartColor
 
 @Composable
@@ -44,7 +45,7 @@ fun LineChart(
     maxY: Float? = null,                    // 사용자 지정 최대 Y값
     labelTextSize: Float = 28f,
     tooltipTextSize: Float = 32f,
-    yPosition: String = "left",             // Y축 위치 ("left" 또는 "right")
+    yAxisPosition: YAxisPosition = YAxisPosition.LEFT,  // Y축 위치
     interactionType: InteractionType = InteractionType.POINT,
     showPoint: Boolean = false, // 포인트 표시 여부
     pointRadius: Pair<Dp, Dp> = Pair(4.dp, 2.dp), // 포인트 외부 반지름, 내부 반지름

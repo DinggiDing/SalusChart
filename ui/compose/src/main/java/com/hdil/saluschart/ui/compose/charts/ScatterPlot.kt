@@ -26,6 +26,7 @@ import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.core.chart.PointType
+import com.hdil.saluschart.core.chart.chartDraw.YAxisPosition
 
 @Composable
 fun ScatterPlot(
@@ -37,7 +38,7 @@ fun ScatterPlot(
     pointColor: Color = com.hdil.saluschart.ui.theme.ChartColor.Default,
     pointType: PointType = PointType.Circle, // 포인트 타입 (Circle, Square, Triangle 등)
     tooltipTextSize: Float = 32f,        // 툴팁 텍스트 크기
-    yPosition: String = "left",          // Y축 위치 ("left" 또는 "right")
+    yAxisPosition: YAxisPosition = YAxisPosition.LEFT, // Y축 위치
     interactionType: InteractionType = InteractionType.POINT,
     chartType: ChartType = ChartType.SCATTERPLOT, // 차트 타입 (툴팁 위치 결정용
     maxXTicksLimit: Int? = null             // X축에 표시할 최대 라벨 개수 (null이면 모든 라벨 표시)
@@ -68,7 +69,7 @@ fun ScatterPlot(
                 canvasSize = size
                 chartMetrics = metrics
 
-                ChartDraw.drawGrid(this, size, metrics, yPosition)
+                ChartDraw.drawGrid(this, size, metrics, yAxisPosition)
                 ChartDraw.Line.drawXAxisLabels(drawContext, xLabels.map { it.toString() }, metrics, maxXTicksLimit = maxXTicksLimit)
             }
 

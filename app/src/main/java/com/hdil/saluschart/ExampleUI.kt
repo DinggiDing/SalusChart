@@ -1,7 +1,6 @@
 package com.hdil.saluschart
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,12 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -44,6 +40,7 @@ import com.hdil.saluschart.core.chart.StackedChartPoint
 import com.hdil.saluschart.core.chart.TimeDataPoint
 import com.hdil.saluschart.core.chart.toChartPoints
 import com.hdil.saluschart.core.chart.chartDraw.LegendPosition
+import com.hdil.saluschart.core.chart.chartDraw.YAxisPosition
 import com.hdil.saluschart.core.util.TimeUnitGroup
 import com.hdil.saluschart.core.transform.transform
 import com.hdil.saluschart.ui.compose.charts.BarChart
@@ -64,8 +61,80 @@ import com.hdil.saluschart.ui.theme.Orange
 import com.hdil.saluschart.ui.theme.Primary_Purple
 import com.hdil.saluschart.ui.theme.Teel
 import com.hdil.saluschart.ui.theme.Yellow
+import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
+
+// 스택 바 차트용 세그먼트 레이블 (한 번만 정의)
+private val segmentLabels = listOf("단백질", "지방", "탄수화물")
+private val sampleData = listOf(10f, 25f, 40f, 20f, 35f, 55f, 45f)
+private val sampleData2 = listOf(5f, 15f, 60f, 45f, 35f, 25f, 10f)
+private val sampleData3 = listOf(8f, 22f, 10f, 40f, 18f, 32f, 12f)
+private val weekDays = listOf("월", "화", "수", "목", "금", "토", "일")
+
+private val isoTime = listOf(
+    "2025-05-05T00:00:00Z", "2025-05-05T06:00:00Z", "2025-05-05T12:00:00Z", "2025-05-05T18:00:00Z",
+    "2025-05-06T00:00:00Z", "2025-05-06T06:00:00Z", "2025-05-06T12:00:00Z", "2025-05-06T18:00:00Z",
+    "2025-05-07T00:00:00Z", "2025-05-07T06:00:00Z", "2025-05-07T12:00:00Z", "2025-05-07T18:00:00Z",
+    "2025-05-08T00:00:00Z", "2025-05-08T06:00:00Z", "2025-05-08T12:00:00Z", "2025-05-08T18:00:00Z",
+    "2025-05-09T00:00:00Z", "2025-05-09T06:00:00Z", "2025-05-09T12:00:00Z", "2025-05-09T18:00:00Z",
+    "2025-05-10T00:00:00Z", "2025-05-10T06:00:00Z", "2025-05-10T12:00:00Z", "2025-05-10T18:00:00Z",
+    "2025-05-11T00:00:00Z", "2025-05-11T06:00:00Z", "2025-05-11T12:00:00Z", "2025-05-11T18:00:00Z",
+    "2025-05-12T00:00:00Z", "2025-05-12T06:00:00Z", "2025-05-12T12:00:00Z", "2025-05-12T18:00:00Z",
+    "2025-05-13T00:00:00Z", "2025-05-13T06:00:00Z", "2025-05-13T12:00:00Z", "2025-05-13T18:00:00Z",
+    "2025-05-14T00:00:00Z", "2025-05-14T06:00:00Z", "2025-05-14T12:00:00Z", "2025-05-14T18:00:00Z",
+    "2025-05-15T00:00:00Z", "2025-05-15T06:00:00Z", "2025-05-15T12:00:00Z", "2025-05-15T18:00:00Z",
+    "2025-05-16T00:00:00Z", "2025-05-16T06:00:00Z", "2025-05-16T12:00:00Z", "2025-05-16T18:00:00Z",
+    "2025-05-17T00:00:00Z", "2025-05-17T06:00:00Z", "2025-05-17T12:00:00Z", "2025-05-17T18:00:00Z",
+    "2025-05-18T00:00:00Z", "2025-05-18T06:00:00Z", "2025-05-18T12:00:00Z", "2025-05-18T18:00:00Z"
+).map { Instant.parse(it) }
+
+private val stepCounts = listOf(
+    8123f, 523f, 9672f, 7540f,
+    6453f, 984f, 8732f, 6891f,
+    7215f, 642f, 9321f, 8990f,
+    8320f, 885f, 7124f, 9983f,
+    6152f, 751f, 8023f, 7654f,
+    9472f, 934f, 8820f, 5932f,
+    6723f, 653f, 9021f, 7114f,
+    5987f, 752f, 8653f, 9411f,
+    7840f, 801f, 9192f, 6833f,
+    8794f, 912f, 7364f, 9950f,
+    9332f, 891f, 9045f, 6021f,
+    7981f, 912f, 6740f, 8942f,
+    8024f, 992f, 9684f, 7782f,
+    6875f, 864f, 8550f, 9333f,
+    7121f, 941f, 9821f, 8732f
+)
+
+private val timeDataPoint = TimeDataPoint(
+    x = isoTime,
+    y = stepCounts,
+    timeUnit = TimeUnitGroup.HOUR,
+)
+
+private val yearMonth = YearMonth.now()
+private val startDate = LocalDate.of(yearMonth.year, 8, 1)
+private val endDate = LocalDate.of(yearMonth.year, 8, 25)
+private val random = java.util.Random(0)
+private val entries = generateSequence(startDate) { date ->
+    if (date.isBefore(endDate)) date.plusDays(1) else null
+}.map { date ->
+    val value = random.nextFloat() * 100
+    CalendarEntry(
+        date = date,
+        value = value,
+    )
+}.toList()
+
+// ChartPoint 리스트로 변환
+private val chartPoints = sampleData.mapIndexed { index, value ->
+    ChartPoint(
+        x = index.toFloat(),
+        y = value,
+        label = weekDays.getOrElse(index) { "" }
+    )
+}
 
 @Composable
 fun ExampleUI(modifier: Modifier = Modifier) {
@@ -151,7 +220,7 @@ fun BarChart_1() {
         labelTextSize = 28f,
         tooltipTextSize = 32f,
         interactionType = InteractionType.TOUCH_AREA,
-        yPosition = "left",
+        yAxisPosition = YAxisPosition.LEFT
     )
 }
 
@@ -171,7 +240,7 @@ fun BarChart_2() {
         interactionType = InteractionType.BAR,
         windowSize = 3,
         showLabel = true,
-        yPosition = "right",
+        yAxisPosition = YAxisPosition.RIGHT,
     )
 }
 
@@ -206,7 +275,7 @@ fun LineChart_1() {
             maxY = 60f,
             windowSize = 3,
             interactionType = InteractionType.TOUCH_AREA,
-            yPosition = "left",
+            yAxisPosition = YAxisPosition.RIGHT
         )
     }
 }
@@ -225,7 +294,7 @@ fun LineChart_2() {
         minY = 0f,
         maxY = 60f,
         interactionType = InteractionType.POINT,
-        yPosition = "right",
+        yAxisPosition = YAxisPosition.LEFT
     )
 }
 
@@ -279,7 +348,7 @@ fun ScatterPlot_1() {
         xLabel = "요일",
         interactionType = InteractionType.POINT,
         pointType = PointType.Triangle,
-        yPosition = "right",
+        yAxisPosition = YAxisPosition.LEFT
     )
 }
 
@@ -498,6 +567,7 @@ fun StackedBarChart_1() {
         legendPosition = LegendPosition.BOTTOM,
         windowSize = 3,
         yPosition = "right",
+        yAxisPosition = YAxisPosition.RIGHT,
         colors = listOf(
             Color(0xFF2196F3), // 파랑 (단백질)
             Color(0xFFFF9800), // 주황 (지방)
@@ -765,91 +835,4 @@ private val stackedData = listOf(
         values = listOf(88f, 48f, 125f),
         label = "일"
     )
-)
-
-// 스택 바 차트용 세그먼트 레이블 (한 번만 정의)
-private val segmentLabels = listOf("단백질", "지방", "탄수화물")
-private val sampleData = listOf(10f, 25f, 40f, 20f, 35f, 55f, 45f)
-private val sampleData2 = listOf(5f, 15f, 60f, 45f, 35f, 25f, 10f)
-private val sampleData3 = listOf(8f, 22f, 10f, 40f, 18f, 32f, 12f)
-private val weekDays = listOf("월", "화", "수", "목", "금", "토", "일")
-private val isoTime = listOf(
-    "2025-05-05T00:00:00Z", "2025-05-05T06:00:00Z", "2025-05-05T12:00:00Z", "2025-05-05T18:00:00Z",
-    "2025-05-06T00:00:00Z", "2025-05-06T06:00:00Z", "2025-05-06T12:00:00Z", "2025-05-06T18:00:00Z",
-    "2025-05-07T00:00:00Z", "2025-05-07T06:00:00Z", "2025-05-07T12:00:00Z", "2025-05-07T18:00:00Z",
-    "2025-05-08T00:00:00Z", "2025-05-08T06:00:00Z", "2025-05-08T12:00:00Z", "2025-05-08T18:00:00Z",
-    "2025-05-09T00:00:00Z", "2025-05-09T06:00:00Z", "2025-05-09T12:00:00Z", "2025-05-09T18:00:00Z",
-    "2025-05-10T00:00:00Z", "2025-05-10T06:00:00Z", "2025-05-10T12:00:00Z", "2025-05-10T18:00:00Z",
-    "2025-05-11T00:00:00Z", "2025-05-11T06:00:00Z", "2025-05-11T12:00:00Z", "2025-05-11T18:00:00Z",
-    "2025-05-12T00:00:00Z", "2025-05-12T06:00:00Z", "2025-05-12T12:00:00Z", "2025-05-12T18:00:00Z",
-    "2025-05-13T00:00:00Z", "2025-05-13T06:00:00Z", "2025-05-13T12:00:00Z", "2025-05-13T18:00:00Z",
-    "2025-05-14T00:00:00Z", "2025-05-14T06:00:00Z", "2025-05-14T12:00:00Z", "2025-05-14T18:00:00Z",
-    "2025-05-15T00:00:00Z", "2025-05-15T06:00:00Z", "2025-05-15T12:00:00Z", "2025-05-15T18:00:00Z",
-    "2025-05-16T00:00:00Z", "2025-05-16T06:00:00Z", "2025-05-16T12:00:00Z", "2025-05-16T18:00:00Z",
-    "2025-05-17T00:00:00Z", "2025-05-17T06:00:00Z", "2025-05-17T12:00:00Z", "2025-05-17T18:00:00Z",
-    "2025-05-18T00:00:00Z", "2025-05-18T06:00:00Z", "2025-05-18T12:00:00Z", "2025-05-18T18:00:00Z"
-)
-
-
-private val stepCounts = listOf(
-    8123f, 523f, 9672f, 7540f,
-    6453f, 984f, 8732f, 6891f,
-    7215f, 642f, 9321f, 8990f,
-    8320f, 885f, 7124f, 9983f,
-    6152f, 751f, 8023f, 7654f,
-    9472f, 934f, 8820f, 5932f,
-    6723f, 653f, 9021f, 7114f,
-    5987f, 752f, 8653f, 9411f,
-    7840f, 801f, 9192f, 6833f,
-    8794f, 912f, 7364f, 9950f,
-    9332f, 891f, 9045f, 6021f,
-    7981f, 912f, 6740f, 8942f,
-    8024f, 992f, 9684f, 7782f,
-    6875f, 864f, 8550f, 9333f,
-    7121f, 941f, 9821f, 8732f
-)
-
-private val yearMonth = YearMonth.now()
-private val startDate = LocalDate.of(yearMonth.year, 8, 1)
-private val endDate = LocalDate.of(yearMonth.year, 8, 25)
-private val random = java.util.Random(0)
-private val entries = generateSequence(startDate) { date ->
-    if (date.isBefore(endDate)) date.plusDays(1) else null
-}.map { date ->
-    val value = random.nextFloat() * 100
-    CalendarEntry(
-        date = date,
-        value = value,
-    )
-}.toList()
-
-// ChartPoint 리스트로 변환
-private val chartPoints = sampleData.mapIndexed { index, value ->
-    ChartPoint(
-        x = index.toFloat(),
-        y = value,
-        label = weekDays.getOrElse(index) { "" }
-    )
-}
-
-private val chartPoint2 = sampleData2.mapIndexed { index, value ->
-    ChartPoint(
-        x = index.toFloat(),
-        y = value,
-        label = weekDays.getOrElse(index) { "" }
-    )
-}
-
-private val chartPoint3 = sampleData3.mapIndexed { index, value ->
-    ChartPoint(
-        x = index.toFloat(),
-        y = value,
-        label = weekDays.getOrElse(index) { "" }
-    )
-}
-
-private val timeDataPoint = TimeDataPoint(
-    x = isoTime,
-    y = stepCounts,
-    timeUnit = TimeUnitGroup.HOUR,
 )

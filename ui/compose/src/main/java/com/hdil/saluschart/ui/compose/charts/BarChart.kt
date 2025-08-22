@@ -34,6 +34,7 @@ import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.core.chart.chartDraw.ChartDraw
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
+import com.hdil.saluschart.core.chart.chartDraw.YAxisPosition
 import com.hdil.saluschart.ui.theme.ChartColor
 
 @Composable
@@ -49,7 +50,7 @@ fun BarChart(
     barWidthRatio: Float = 0.8f,       // 바 너비 배수
     labelTextSize: Float = 28f,             // X축 레이블 텍스트 크기
     tooltipTextSize: Float = 32f,           // 툴팁 텍스트 크기
-    yPosition: String = "left",             // Y축 위치 ("left" 또는 "right")
+    yAxisPosition: YAxisPosition = YAxisPosition.LEFT,  // Y축 위치
     interactionType: InteractionType = InteractionType.BAR, // 상호작용 타입
     onBarClick: ((Int, Float) -> Unit)? = null,  // 바 클릭 콜백
     showLabel: Boolean = false,

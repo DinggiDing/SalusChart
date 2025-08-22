@@ -9,6 +9,14 @@ import androidx.compose.ui.graphics.nativeCanvas
 import com.hdil.saluschart.core.chart.ChartPoint
 import com.hdil.saluschart.core.chart.chartMath.ChartMath
 
+/**
+ * Y축 위치를 나타내는 열거형 클래스
+ */
+enum class YAxisPosition {
+    LEFT,   // 왼쪽
+    RIGHT   // 오른쪽
+}
+
 object ChartDraw {
 
     var Pie = PieChartDraw
@@ -41,26 +49,23 @@ object ChartDraw {
      * @param drawScope 그리기 영역
      * @param size Canvas의 전체 크기
      * @param metrics 차트 메트릭 정보
-     * @param yPosition Y축 위치 ("left" 또는 "right")
+     * @param yAxisPosition Y축 위치
      */
-    fun drawGrid(drawScope: DrawScope, size: Size, metrics: ChartMath.ChartMetrics, yPosition: String = "left") {
+    fun drawGrid(drawScope: DrawScope, size: Size, metrics: ChartMath.ChartMetrics, yAxisPosition: YAxisPosition = YAxisPosition.LEFT) {
         // Y축 라인의 실제 X 좌표 계산
-        val yAxisX = when (yPosition) {
-            "right" -> metrics.paddingX + metrics.chartWidth
-            else -> metrics.paddingX
+        val yAxisX = when (yAxisPosition) {
+            YAxisPosition.RIGHT -> metrics.paddingX + metrics.chartWidth
+            YAxisPosition.LEFT -> metrics.paddingX
         }
 
         metrics.yTicks.forEach { yVal ->
             val y = metrics.chartHeight - ((yVal - metrics.minY) / (metrics.maxY - metrics.minY)) * metrics.chartHeight
 
             // 그리드 라인은 차트 영역 전체에 걸쳐 그리기
-            val gridStart = when (yPosition) {
-                "right" -> metrics.paddingX // 오른쪽 Y축일 때는 왼쪽부터 시작
-                else -> metrics.paddingX // 왼쪽 Y축일 때도 왼쪽부터 시작
-            }
-            val gridEnd = when (yPosition) {
-                "right" -> metrics.paddingX + metrics.chartWidth // 오른쪽 Y축까지
-                else -> metrics.paddingX + metrics.chartWidth // 오른쪽 끝까지
+            val gridStart = metrics.paddingX // 왼쪽 Y축까지
+            val gridEnd = when (yAxisPosition) {
+                YAxisPosition.RIGHT -> metrics.paddingX + metrics.chartWidth // 오른쪽 Y축까지
+                YAxisPosition.LEFT -> metrics.paddingX + metrics.chartWidth // 오른쪽 끝까지
             }
 
             drawScope.drawLine(
@@ -72,16 +77,16 @@ object ChartDraw {
             
             val labelText = formatTickLabel(yVal)
 
-            // Y축 레이블 위치를 yPosition에 따라 결정
-            val labelX = when (yPosition) {
-                "right" -> yAxisX + 20f // 오른쪽 Y축 라인의 오른쪽에 위치
-                else -> 20f // 기본값: 왼쪽 위치
+            // Y축 레이블 위치를 yAxisPosition에 따라 결정
+            val labelX = when (yAxisPosition) {
+                YAxisPosition.RIGHT -> yAxisX + 20f // 오른쪽 Y축 라인의 오른쪽에 위치
+                YAxisPosition.LEFT -> 20f // 기본값: 왼쪽 위치
             }
 
-            // Y축 레이블 정렬을 yPosition에 따라 결정
-            var textAlignDirection = when (yPosition) {
-                "right" -> android.graphics.Paint.Align.LEFT // 오른쪽 Y축일 때는 왼쪽 정렬
-                else -> android.graphics.Paint.Align.RIGHT // 왼쪽 Y축일 때는 오른쪽 정렬
+            // Y축 레이블 정렬을 yAxisPosition에 따라 결정
+            val textAlign = when (yAxisPosition) {
+                YAxisPosition.RIGHT -> android.graphics.Paint.Align.LEFT // 오른쪽 Y축일 때는 왼쪽 정렬
+                YAxisPosition.LEFT -> android.graphics.Paint.Align.RIGHT // 왼쪽 Y축일 때는 오른쪽 정렬
             }
 
             drawScope.drawContext.canvas.nativeCanvas.drawText(
@@ -91,7 +96,7 @@ object ChartDraw {
                 android.graphics.Paint().apply {
                     color = android.graphics.Color.DKGRAY
                     textSize = 28f
-                    textAlign = textAlignDirection
+                    this.textAlign = textAlign
                 }
             )
         }
@@ -117,13 +122,13 @@ object ChartDraw {
      *
      * @param drawScope 그리기 영역
      * @param metrics 차트 메트릭 정보
-     * @param yPosition Y축 위치 ("left" 또는 "right")
+     * @param yAxisPosition Y축 위치
      */
-    fun drawYAxis(drawScope: DrawScope, metrics: ChartMath.ChartMetrics, yPosition: String = "left") {
-        // Y축 라인 위치를 yPosition에 따라 결정
-        val axisStartX = when (yPosition) {
-            "right" -> metrics.paddingX + metrics.chartWidth // 오른쪽 위치
-            else -> metrics.paddingX // 기본값: 왼쪽 위치
+    fun drawYAxis(drawScope: DrawScope, metrics: ChartMath.ChartMetrics, yAxisPosition: YAxisPosition = YAxisPosition.LEFT) {
+        // Y축 라인 위치를 yAxisPosition에 따라 결정
+        val axisStartX = when (yAxisPosition) {
+            YAxisPosition.RIGHT -> metrics.paddingX + metrics.chartWidth // 오른쪽 위치
+            YAxisPosition.LEFT -> metrics.paddingX // 기본값: 왼쪽 위치
         }
 
         drawScope.drawLine(

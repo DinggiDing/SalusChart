@@ -36,6 +36,7 @@ import com.hdil.saluschart.core.chart.chartMath.ChartMath
 import com.hdil.saluschart.core.chart.ChartType
 import com.hdil.saluschart.core.chart.InteractionType
 import com.hdil.saluschart.core.chart.StackedChartPoint
+import com.hdil.saluschart.core.chart.chartDraw.YAxisPosition
 
 /**
  * 스택 바 차트 컴포저블 (건강 데이터 시각화에 최적화)
@@ -53,7 +54,7 @@ import com.hdil.saluschart.core.chart.StackedChartPoint
  * @param barWidthRatio 바 너비 비율 (0.0 ~ 1.0)
  * @param showLegend 범례 표시 여부
  * @param legendPosition 범례 위치 (LEFT, RIGHT, TOP, BOTTOM)
- * @param yPosition Y축 위치 ("left" 또는 "right")
+ * @param yAxisPosition Y축 위치
  * @param interactionType 상호작용 타입 (STACKED_BAR: 개별 세그먼트 터치, TOUCH_AREA: 전체 스택 툴팁)
  * @param onBarClick 바 클릭 시 호출되는 콜백 (바 인덱스, 세그먼트 인덱스, 값)
  */
@@ -76,8 +77,8 @@ fun StackedBarChart(
     barWidthRatio: Float = 0.6f,
     showLegend: Boolean = true,
     legendPosition: LegendPosition = LegendPosition.BOTTOM,
-    yPosition: String = "left", // Y축 위치 ("left" 또는 "right")
     windowSize: Int? = null, // 윈도우 크기 (null이면 전체 화면)
+    yAxisPosition: YAxisPosition = YAxisPosition.LEFT, // Y축 위치
     interactionType: InteractionType = InteractionType.STACKED_BAR,
     onBarClick: ((barIndex: Int, segmentIndex: Int?, value: Float) -> Unit)? = null,
     chartType: ChartType = ChartType.STACKED_BAR, // 차트 타입 (툴팁 위치 결정용)
@@ -129,6 +130,7 @@ fun StackedBarChart(
                     } else {
                         // 일반 모드: 전체 데이터를 화면에 맞춤
                         null
+
                     }
 
                     Box(

@@ -76,7 +76,7 @@ object BarChartDraw {
         displayLabels.forEachIndexed { displayIndex, label ->
             // 원본 라벨 목록에서의 실제 인덱스를 사용
             val originalIndex = displayIndices[displayIndex]
-            // 차트 영역의 시작점(paddingX)에서 바의 중심까지 계산
+            // 차트 영역의 시작점(paddingLeftX)에서 바의 중심까지 계산
             val x = metrics.paddingX + barWidth + originalIndex * spacing
             ctx.canvas.nativeCanvas.drawText(
                 label,

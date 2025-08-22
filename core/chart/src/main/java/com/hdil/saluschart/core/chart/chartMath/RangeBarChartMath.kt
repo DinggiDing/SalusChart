@@ -16,9 +16,9 @@ object RangeBarChartMath {
      * @return 차트 메트릭 객체
      */
     fun computeRangeMetrics(size: Size, data: List<RangeChartPoint>, tickCount: Int = 5): ChartMetrics {
-        val paddingX = 60f
+        val paddingX = 30f
         val paddingY = 40f
-        val chartWidth = size.width - paddingX
+        val chartWidth = size.width - paddingX * 2
         val chartHeight = size.height - paddingY
 
         val allYValues = data.flatMap { listOf(it.yMin, it.yMax) }
