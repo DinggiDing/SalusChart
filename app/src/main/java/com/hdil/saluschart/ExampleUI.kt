@@ -169,6 +169,7 @@ fun BarChart_2() {
         labelTextSize = 28f,
         tooltipTextSize = 32f,
         interactionType = InteractionType.BAR,
+        windowSize = 3,
         showLabel = true,
         yPosition = "right",
     )
@@ -203,6 +204,7 @@ fun LineChart_1() {
             showValue = true,
             minY = 0f,
             maxY = 60f,
+            windowSize = 3,
             interactionType = InteractionType.TOUCH_AREA,
             yPosition = "left",
         )
@@ -493,6 +495,8 @@ fun StackedBarChart_1() {
         yLabel = "영양소 (g)",
         xLabel = "요일",
         showLegend = true,
+        legendPosition = LegendPosition.BOTTOM,
+        windowSize = 3,
         yPosition = "right",
         colors = listOf(
             Color(0xFF2196F3), // 파랑 (단백질)
@@ -510,6 +514,7 @@ fun RangeBarChart_1() {
         title = "일별 심박수 범위",
         yLabel = "심박수 (bpm)",
         xLabel = "날짜",
+        windowSize = 4,
         barColor = Color(0xFFFF9800),
         interactionType = InteractionType.TOUCH_AREA
     )
