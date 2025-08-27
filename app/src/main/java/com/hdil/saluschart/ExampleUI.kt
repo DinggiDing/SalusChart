@@ -43,6 +43,7 @@ import com.hdil.saluschart.core.chart.chartDraw.LegendPosition
 import com.hdil.saluschart.core.chart.chartDraw.YAxisPosition
 import com.hdil.saluschart.core.util.TimeUnitGroup
 import com.hdil.saluschart.core.transform.transform
+import com.hdil.saluschart.core.util.AggregationType
 import com.hdil.saluschart.ui.compose.charts.BarChart
 import com.hdil.saluschart.ui.compose.charts.BubbleType
 import com.hdil.saluschart.ui.compose.charts.CalendarChart
@@ -567,6 +568,7 @@ fun StackedBarChart_1() {
         legendPosition = LegendPosition.BOTTOM,
         windowSize = 3,
         yAxisPosition = YAxisPosition.RIGHT,
+        interactionType = InteractionType.TOUCH_AREA,
         colors = listOf(
             Color(0xFF2196F3), // 파랑 (단백질)
             Color(0xFFFF9800), // 주황 (지방)
@@ -769,6 +771,7 @@ fun TimeStepBarChart() {
                     "주별" -> TimeUnitGroup.WEEK
                     else -> TimeUnitGroup.HOUR
                 },
+                aggregationType = AggregationType.AVERAGE
             ).toChartPoints(),
             title = "걸음 수 (${selectedOption}) - Smart Label Reduction",
             barColor = Primary_Purple,
