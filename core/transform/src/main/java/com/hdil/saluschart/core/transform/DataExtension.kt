@@ -1,6 +1,7 @@
 package com.hdil.saluschart.core.transform
 
 import com.hdil.saluschart.core.util.TimeUnitGroup
+import com.hdil.saluschart.core.util.AggregationType
 import com.hdil.saluschart.core.chart.ChartPoint
 
 /**
@@ -8,12 +9,12 @@ import com.hdil.saluschart.core.chart.ChartPoint
  */
 fun TimeDataPoint.transform(
     timeUnit: TimeUnitGroup = TimeUnitGroup.DAY,
-    averageDivisorUnit: TimeUnitGroup? = null
+    aggregationType: AggregationType = AggregationType.SUM
 ): TimeDataPoint {
     return DataTransformer().transform(
         data = this,
         transformTimeUnit = timeUnit,
-//        averageDivisorUnit = averageDivisorUnit
+        aggregationType = aggregationType
     )
 }
 
@@ -22,13 +23,13 @@ fun TimeDataPoint.transform(
  */
 fun List<TimeDataPoint>.transform(
     timeUnit: TimeUnitGroup = TimeUnitGroup.DAY,
-    averageDivisorUnit: TimeUnitGroup? = null
+    aggregationType: AggregationType = AggregationType.SUM
 ): List<ChartPoint> {
     return this.map { dataPoint ->
         DataTransformer().transform(
             data = dataPoint,
             transformTimeUnit = timeUnit,
-//            averageDivisorUnit = averageDivisorUnit
+            aggregationType = aggregationType
         )
     }.flatMap { it.toChartPoints() }
 }

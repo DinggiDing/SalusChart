@@ -11,8 +11,11 @@ enum class TimeUnitGroup {
         return this.ordinal < other.ordinal
     }
 
+    fun isSmallerThanOrEqual(other: TimeUnitGroup): Boolean {
+        return this.ordinal <= other.ordinal
+    }
+
     fun isBiggerThan(other: TimeUnitGroup): Boolean {
         return this.ordinal > other.ordinal
     }
 }
-

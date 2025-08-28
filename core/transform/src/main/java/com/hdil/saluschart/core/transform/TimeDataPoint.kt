@@ -27,20 +27,6 @@ data class TimeDataPoint(
 )
 
 /**
- * TimeDataPoint를 변환하는 확장 함수 (새로운 AggregationType 사용)
- *
- * @param transformTimeUnit 변환할 시간 단위
- * @param aggregationType 집계 방법 (SUM: 합계, AVERAGE: 평균)
- * @return 변환된 TimeDataPoint
- */
-fun TimeDataPoint.transform(
-    transformTimeUnit: TimeUnitGroup,
-    aggregationType: AggregationType = AggregationType.SUM
-): TimeDataPoint {
-    return DataTransformer().transform(this, transformTimeUnit, aggregationType)
-}
-
-/**
  * TimeDataPoint를 ChartPoint 리스트로 변환하는 확장 함수
  *
  * @return ChartPoint 리스트
