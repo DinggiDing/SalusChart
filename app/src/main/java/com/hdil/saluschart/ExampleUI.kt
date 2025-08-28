@@ -153,6 +153,7 @@ fun ExampleUI(modifier: Modifier = Modifier) {
         "Stacked Bar Chart",
         "Range Bar Chart",
         "Progress Bar Chart",
+        "Progress Ring Chart",
         "BarChart Timestep Transformation",
         "X-Axis Tick Reduction Demo"
     )
@@ -199,6 +200,7 @@ fun ExampleUI(modifier: Modifier = Modifier) {
                 "Stacked Bar Chart" -> StackedBarChart_1()
                 "Range Bar Chart" -> RangeBarChart_1()
                 "Progress Bar Chart" -> ProgressBarChart_1()
+                "Progress Ring Chart" -> ProgressBarChart_2()
                 "BarChart Timestep Transformation" -> TimeStepBarChart()
                 "X-Axis Tick Reduction Demo" -> XAxisTickReductionDemo()
                 else -> Text("Unknown Chart Type")
@@ -216,10 +218,10 @@ fun BarChart_1() {
         yLabel = "Value",
         title = "Weekly Data",
         barColor = Primary_Purple,
-        maxY = 80f,
-        barWidthRatio = 0.5f,
-        labelTextSize = 28f,
-        tooltipTextSize = 32f,
+        maxY = 70f,
+        barWidthRatio = 0.8f,
+        labelTextSize = 40f,
+        tooltipTextSize = 5f,
         interactionType = InteractionType.TOUCH_AREA,
         yAxisPosition = YAxisPosition.LEFT
     )
@@ -269,11 +271,9 @@ fun LineChart_1() {
             yLabel = "활동량",
             xLabel = "요일",
             lineColor = Primary_Purple,
-            strokeWidth = 4f,
+            strokeWidth = 12f,
             showPoint = false,
             showValue = true,
-            minY = 0f,
-            maxY = 60f,
             windowSize = 3,
             interactionType = InteractionType.TOUCH_AREA,
             yAxisPosition = YAxisPosition.RIGHT
@@ -291,9 +291,10 @@ fun LineChart_2() {
         xLabel = "요일",
         lineColor = Primary_Purple,
         showPoint = true,
+        pointRadius = Pair(8.dp, 4.dp),
         strokeWidth = 4f,
-        minY = 0f,
-        maxY = 60f,
+        minY = 5f,
+        maxY = 70f,
         interactionType = InteractionType.POINT,
         yAxisPosition = YAxisPosition.LEFT
     )
@@ -619,7 +620,7 @@ fun ProgressBarChart_1() {
     ProgressChart(
         data = progressData,
         title = "일일 활동 진행률",
-        isDonut = true,
+        isDonut = false,
         isPercentage = true,
         colors = listOf(
             Color(0xFF00C7BE), // 청록색 (Move)
@@ -627,6 +628,46 @@ fun ProgressBarChart_1() {
             Color(0xFF3A86FF)  // 파란색 (Stand)
         ),
         strokeWidth = 80f
+    )
+}
+
+@Composable
+fun ProgressBarChart_2() {
+    val progressData = listOf(
+        ProgressChartPoint(
+            x = 0f,
+            current = 1200f,
+            max = 2000f,
+            label = "Move",
+            unit = "KJ"
+        ),
+        ProgressChartPoint(
+            x = 1f,
+            current = 20f,
+            max = 60f,
+            label = "Exercise",
+            unit = "min"
+        ),
+        ProgressChartPoint(
+            x = 2f,
+            current = 7f,
+            max = 10f,
+            label = "Stand",
+            unit = "h"
+        )
+    )
+    ProgressChart(
+        data = progressData,
+        title = "일일 활동 진행률",
+        isDonut = true,
+        isPercentage = false,
+        showLabels = false,
+        colors = listOf(
+            Color(0xFFE91E63), // 핑크
+            Color(0xFF4CAF50), // 초록
+            Color(0xFF9C27B0), // 보라
+        ),
+        strokeWidth = 60f
     )
 }
 
@@ -681,23 +722,6 @@ fun XAxisTickReductionDemo() {
             barWidthRatio = 0.8f,
             labelTextSize = 20f,
             maxXTicksLimit = 10 // Limit to 10 labels
-        )
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        Text(
-            text = "Line Chart with Tick Reduction (Max 8 labels)",
-            fontSize = 16.sp,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        LineChart(
-            modifier = Modifier.fillMaxWidth().height(250.dp),
-            data = denseChartPoints,
-            title = "Dense Line Chart - Reduced Labels",
-            lineColor = Orange,
-            strokeWidth = 3f,
-            labelTextSize = 20f,
-            maxXTicksLimit = 8 // Limit to 8 labels
         )
     }
 }
@@ -764,24 +788,27 @@ fun TimeStepBarChart() {
 
         BarChart(
             modifier = Modifier.fillMaxWidth().height(500.dp),
-            data = timeDataPoint.transform(
-                timeUnit = when (selectedOption) {
-                    "시간대별" -> TimeUnitGroup.HOUR
-                    "일별" -> TimeUnitGroup.DAY
-                    "주별" -> TimeUnitGroup.WEEK
-                    else -> TimeUnitGroup.HOUR
-                },
-                aggregationType = AggregationType.AVERAGE
-            ).toChartPoints(),
-            title = "걸음 수 (${selectedOption}) - Smart Label Reduction",
+            data = when (selectedOption) {
+                "시간대별" -> timeDataPoint.toChartPoints()
+                "일별" -> timeDataPoint.transform(
+                    timeUnit = TimeUnitGroup.DAY,
+                    aggregationType = AggregationType.AVERAGE
+                ).toChartPoints()
+                "주별" -> timeDataPoint.transform(
+                    timeUnit = TimeUnitGroup.WEEK,
+                    aggregationType = AggregationType.AVERAGE
+                ).toChartPoints()
+                else -> timeDataPoint.toChartPoints()
+            },
+            title = "걸음 수 (${selectedOption}) - ${if (selectedOption == "시간대별") "가로 스크롤" else "Smart Label Reduction"}",
             barColor = Primary_Purple,
             barWidthRatio = 0.5f,
-            labelTextSize = 20f, // Now we can use normal text size
-            maxXTicksLimit = when (selectedOption) {
-                "시간대별" -> 8  // Reduce dense hourly data to 8 labels
-                "일별" -> null // Show all for daily data (not too dense)
-                "주별" -> null // Show all for weekly data
-                else -> 8
+            labelTextSize = 20f,
+            // 시간대별일 때는 windowSize로 스크롤링 활성화
+            windowSize = when (selectedOption) {
+                "시간대별" -> 8
+                "일별" -> 4
+                else -> null
             }
         )
     }
